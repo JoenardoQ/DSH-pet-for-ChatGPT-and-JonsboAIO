@@ -1,0 +1,13 @@
+{
+  "width": 480,
+  "height": 480,
+  "rotation": 0,
+  "fps": 10,
+  "usb": true,
+  "autoTakeover": true,
+  "forceTakeover": false,
+  "restoreOnExit": true,
+  "serial": null,
+  "sdkDll": null,
+  "python": null
+}

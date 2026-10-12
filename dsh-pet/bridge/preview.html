@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><title>大肥鱼 · JONSBO</title
+  ><style>
+    body {
+      background: #102031;
+      color: #def;
+      font: 16px system-ui;
+      max-width: 850px;
+      margin: 40px auto;
+    }
+    img {
+      width: 480px;
+      height: 480px;
+      border-radius: 18px;
+      background: #000;
+    }
+    button {
+      padding: 10px 18px;
+      margin: 8px;
+      cursor: pointer;
+    }
+    pre {
+      white-space: pre-wrap;
+    }
+  </style>
+  <h1>大肥鱼 · JONSBO</h1>
+  <p>原版 dsh-pet 动画 · 本地实时帧预览</p>
+  <img id="frame" alt="等待桌宠传来动画帧" />
+  <div>
+    <button data-takeover="true">接管屏幕（退出官方程序）</button>
+    <button data-action="wake">唤起</button><button data-state="thinking">思考</button
+    ><button data-state="working">工作</button><button data-state="idle">待机</button
+    ><button data-action="hide">隐藏 ChatGPT 桌宠</button>
+  </div>
+  <p id="connection">正在检查屏幕…</p>
+  <details>
+    <summary>连接诊断</summary>
+    <pre id="status"></pre>
+  </details>
+  <script>
+    async function refresh() {
+      try {
+        const s = await (await fetch('/state')).json();
+        document.querySelector('#status').textContent = JSON.stringify(s, null, 2);
+        const labels = {
+          streaming: '乔斯伯正在显示桌宠',
+          'waiting-device': '等待兼容的乔斯伯屏幕连接',
+          busy: '官方程序仍占用屏幕，可点击接管',
+          'missing-sdk': '已找到屏幕，请先安装乔斯伯官方驱动和 SDK',
+          inactive: '屏幕输出已释放',
+          disabled: '屏幕输出已关闭',
+        };
+        document.querySelector('#connection').textContent =
+          labels[s.output.usb] || s.output.error || '正在准备屏幕输出…';
+        if (s.frameAt) document.querySelector('#frame').src = '/frame.png?t=' + Date.now();
+      } catch (e) {
+        document.querySelector('#status').textContent = e.message;
+      }
+      setTimeout(refresh, 500);
+    }
+    document.querySelectorAll('button').forEach(
+      (b) =>
+        (b.onclick = async () => {
+          const r = await fetch(b.dataset.takeover ? '/device/takeover' : '/event', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Pet-Client': '1' },
+            body: JSON.stringify({
+              action: b.dataset.action || 'update',
+              ...(b.dataset.state ? { state: b.dataset.state } : {}),
+            }),
+          });
+          if (!r.ok) alert((await r.json()).error);
+        }),
+    );
+    refresh();
+  </script>
+</html>

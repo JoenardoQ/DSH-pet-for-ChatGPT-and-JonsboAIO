@@ -1,0 +1,82 @@
+{
+  "name": "dsh-pet",
+  "version": "0.3.6-jonsbo.1",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "dependencies": {
+    "@electron-internal/extract-zip": "^1.0.5",
+    "@electron/get": "^5.1.0"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.4",
+    "@deepseek-ai/dsh-agent-default-model": "^0.2.0-rc.1",
+    "@deepseek-ai/dsh-client-connection": "^0.2.0-rc.1",
+    "@deepseek-ai/dsh-client-ui-primitives": "^0.2.0-rc.1",
+    "@deepseek-ai/dsh-client-ui-slots": "^0.2.0-rc.1",
+    "@deepseek-ai/dsh-commands": "^0.2.0-rc.1",
+    "@deepseek-ai/dsh-credentials": "^0.2.0-rc.1",
+    "@deepseek-ai/dsh-home-paths": "^0.2.0-rc.1",
+    "@deepseek-ai/dsh-host-webserver": "^0.2.0-rc.1",
+    "@deepseek-ai/dsh-llm": "^0.2.0-rc.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./dsh-pet/cordis.patch.yml"
+    },
+    "compatibility": {
+      "dshReleases": {
+        "0.1.7-rc.2": "incompatible",
+        "0.2.0-rc.1": "compatible",
+        "0.2.0-rc.2": "compatible"
+      }
+    },
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-client-connection"
+      ],
+      "platform": "web"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JoenardoQ/DSH-pet-for-ChatGPT-and-JonsboAIO.git"
+  },
+  "homepage": "https://github.com/JoenardoQ/DSH-pet-for-ChatGPT-and-JonsboAIO#readme",
+  "bugs": {
+    "url": "https://github.com/JoenardoQ/DSH-pet-for-ChatGPT-and-JonsboAIO/issues"
+  },
+  "description": "Based on dsh-pet: ChatGPT/Codex local MCP, DeepSeek Harness and JONSBO USB screen mirroring.",
+  "main": "./dsh-pet/lib/index.js",
+  "icon": "dsh-pet/assets/logo.png",
+  "exports": {
+    ".": "./dsh-pet/lib/index.js",
+    "./client": "./dsh-pet/lib/client.js",
+    "./cordis.patch.yml": "./dsh-pet/cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "npm --prefix dsh-pet ci --ignore-scripts --legacy-peer-deps && npm --prefix dsh-pet run build",
+    "pet": "node dsh-pet/bridge/cli.mjs",
+    "test:jonsbo": "node --test dsh-pet/test-jonsbo/*.test.mjs"
+  },
+  "files": [
+    "dsh-pet/lib",
+    "dsh-pet/src",
+    "dsh-pet/assets",
+    "dsh-pet/runtime/electron-helper",
+    "dsh-pet/bridge",
+    "dsh-pet/desktop/*.py",
+    "dsh-pet/desktop/requirements.txt",
+    "dsh-pet/config.jonsbo.example.json",
+    "dsh-pet/package.json",
+    "dsh-pet/cordis.patch.yml",
+    "dsh-pet/scripts/ensure-electron.mjs",
+    "README.md",
+    "LICENSE"
+  ]
+}

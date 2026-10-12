@@ -1,0 +1,266 @@
+import http from 'node:http';
+import { spawn } from 'node:child_process';
+import { mkdirSync, existsSync, writeFileSync, readFileSync } from 'node:fs';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { Sources, validateEvent } from './state.mjs';
+import { root, port, dataDir, config, pythonCommand, nodeCommand, dshHome, electronPath } from './runtime.mjs';
+
+export function createBridge({ launch = true } = {}) {
+  const sources = new Sources();
+  let worker,
+    standalone,
+    workerPending = '',
+    lastFrame;
+  let output = { worker: 'stopped', usb: 'not-started' };
+  let control = {
+    visible: false,
+    desktop: true,
+    screen: true,
+    state: 'idle',
+    message: '',
+    revision: 0,
+    updatedAt: Date.now(),
+  };
+  const cfg = config();
+  if (cfg.usb === false) output.usb = 'disabled';
+  function currentControl() {
+    if (Date.now() - control.updatedAt > 90000 && ['thinking', 'working', 'success', 'error'].includes(control.state)) {
+      control = { ...control, state: 'idle', message: '', revision: control.revision + 1 };
+    }
+    return control;
+  }
+  function snapshot() {
+    const f = sources.current();
+    return {
+      service: 'dsh-pet-jonsbo',
+      version: 1,
+      visible: control.visible || !!f,
+      control: currentControl(),
+      source: f?.source,
+      animation: f?.animation,
+      frameAt: f?.at,
+      output,
+      standalone: standalone?.pid || null,
+    };
+  }
+  function startWorker() {
+    if (worker || !launch || cfg.usb === false) return;
+    mkdirSync(dataDir, { recursive: true });
+    const executable = path.join(root, 'desktop/bin/dsh-pet-usb.exe');
+    const packaged = existsSync(executable);
+    worker = spawn(
+      packaged ? executable : pythonCommand(),
+      [
+        ...(packaged ? [] : ['-u', path.join(root, 'desktop/frame_worker.py')]),
+        '--config',
+        path.join(dataDir, 'config.json'),
+      ],
+      { cwd: root, windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] },
+    );
+    output = { worker: 'starting', usb: 'not-started' };
+    worker.stdout.on('data', (b) => {
+      workerPending += b;
+      let i;
+      while ((i = workerPending.indexOf('\n')) >= 0) {
+        const line = workerPending.slice(0, i);
+        workerPending = workerPending.slice(i + 1);
+        try {
+          output = { ...output, ...JSON.parse(line) };
+        } catch {}
+      }
+      if (workerPending.length > 65536) workerPending = '';
+    });
+    worker.stderr.on('data', (b) => {
+      output = { ...output, error: String(b).slice(-1500) };
+    });
+    worker.stdin.on('error', () => {});
+    worker.on('error', (e) => {
+      output = { worker: 'error', usb: 'unavailable', error: e.message };
+    });
+    worker.on('exit', (code) => {
+      worker = undefined;
+      output = { ...output, worker: 'stopped', exitCode: code };
+    });
+  }
+  function startPet() {
+    if (standalone || !launch) return;
+    // Upstream standalone downloads Electron when it is absent on a new machine.
+    mkdirSync(path.join(dshHome, 'dsh-pet'), { recursive: true });
+    const file = path.join(dshHome, 'dsh-pet/main-config.jsonc');
+    if (!existsSync(file))
+      writeFileSync(
+        file,
+        JSON.stringify(
+          {
+            pets: [
+              {
+                id: 'main',
+                name: '大肥鱼',
+                size: 380,
+                display: 'desktop',
+                balanceEnabled: false,
+                whisperEnabled: false,
+                workStatusEnabled: true,
+                fixedEnabled: false,
+                position: { corner: 'bottom-right', marginX: 24, marginY: 36 },
+              },
+            ],
+            notificationsEnabled: false,
+          },
+          null,
+          2,
+        ),
+      );
+    standalone = spawn(nodeCommand(), [path.join(root, 'lib/standalone.js'), '--port', String(port + 1)], {
+      cwd: root,
+      windowsHide: true,
+      env: {
+        ...process.env,
+        DSH_HOME: dshHome,
+        DSH_PET_ELECTRON_PATH: electronPath,
+        PET_DATA_DIR: dataDir,
+        PET_PORT: String(port),
+        DSH_PET_JONSBO_SOURCE: 'chatgpt',
+        ELECTRON_RUN_AS_NODE: '1',
+      },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    const child = standalone;
+    child.stdout.on('data', (b) => process.stderr.write(b));
+    child.stderr.on('data', (b) => process.stderr.write(b));
+    child.on('error', (e) => {
+      output = { ...output, desktopError: e.message };
+    });
+    child.on('exit', (code) => {
+      if (standalone === child) standalone = undefined;
+      if (control.visible) output = { ...output, desktopError: 'Desktop host exited: ' + code };
+    });
+  }
+  async function stopPet() {
+    const child = standalone;
+    if (!child) return;
+    // Terminate only the child owned by this bridge; upstream helper monitors its parent PID.
+    child.kill();
+    await new Promise((resolve) => {
+      if (child.exitCode !== null) return resolve();
+      const timer = setTimeout(resolve, 3000);
+      child.once('exit', () => {
+        clearTimeout(timer);
+        resolve();
+      });
+    });
+    if (standalone === child) standalone = undefined;
+  }
+  const timer = setInterval(
+    () => {
+      const f = sources.current(currentControl().screen ? [] : ['chatgpt']);
+      if (f && cfg.usb !== false) {
+        if (worker?.stdin.writable && !worker.stdin.writableNeedDrain && f !== lastFrame) {
+          worker.stdin.write(JSON.stringify({ png: f.png }) + '\n');
+          lastFrame = f;
+        }
+      }
+    },
+    1000 / Math.max(1, Math.min(15, Number(cfg.fps) || 10)),
+  ).unref();
+  const server = http.createServer(async (req, res) => {
+    const send = (code, v) => {
+      res.writeHead(code, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
+      res.end(JSON.stringify(v));
+    };
+    if (!/^(127\.0\.0\.1|localhost)(:\d+)?$/.test(req.headers.host || ''))
+      return send(403, { error: 'Local Host required' });
+    if (req.headers.origin && req.headers.origin !== `http://${req.headers.host}`)
+      return send(403, { error: 'Cross-origin denied' });
+    try {
+      const url = new URL(req.url, 'http://127.0.0.1');
+      if (req.method === 'GET' && url.pathname === '/state') return send(200, snapshot());
+      if (req.method === 'GET' && url.pathname === '/control') return send(200, currentControl());
+      if (req.method === 'GET' && url.pathname === '/frame.png') {
+        const f = sources.current();
+        if (!f) return send(404, { error: 'No live frame' });
+        res.writeHead(200, { 'Content-Type': 'image/png', 'Cache-Control': 'no-store' });
+        return res.end(Buffer.from(f.png, 'base64'));
+      }
+      if (req.method === 'GET' && url.pathname === '/') {
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        return res.end(readFileSync(path.join(root, 'bridge/preview.html')));
+      }
+      if (req.method !== 'POST') return send(404, { error: 'Not found' });
+      if (req.headers['x-pet-client'] !== '1') return send(403, { error: 'Client header required' });
+      if (url.pathname === '/device/takeover') {
+        mkdirSync(dataDir, { recursive: true });
+        writeFileSync(
+          path.join(dataDir, 'config.json'),
+          JSON.stringify({ ...config(), autoTakeover: true, forceTakeover: true, restoreOnExit: true }, null, 2),
+        );
+        return send(200, {
+          ok: true,
+          message: '已允许接管；会先请求退出，再结束占用屏幕的 JONSBO-AIO，退出桌宠时恢复。',
+        });
+      }
+      if (url.pathname === '/shutdown') {
+        send(200, { stopping: true });
+        void stopPet().finally(() => server.close());
+        return;
+      }
+      let raw = '';
+      const limit = url.pathname === '/frame' ? 2000000 : 8192;
+      for await (const chunk of req) {
+        raw += chunk;
+        if (raw.length > limit) return send(413, { error: 'Body too large' });
+      }
+      const value = JSON.parse(raw);
+      if (url.pathname === '/frame') {
+        if (
+          typeof value.png !== 'string' ||
+          !value.png.startsWith('iVBORw0KGgo') ||
+          typeof value.animation !== 'string' ||
+          value.animation.length > 150
+        )
+          throw new Error('Invalid frame');
+        if (value.source === 'chatgpt' && !control.visible) return send(200, { ok: true, ignored: true });
+        sources.put(value.source, { png: value.png, animation: value.animation });
+        if (!worker && output.worker === 'stopped' && output.exitCode === undefined) startWorker();
+        return send(200, { ok: true });
+      }
+      if (url.pathname === '/event') {
+        validateEvent(value);
+        if (value.action === 'hide') {
+          control = { ...control, visible: false, revision: control.revision + 1 };
+          sources.frames.delete('chatgpt');
+          await stopPet();
+        } else {
+          if (value.action === 'update' && !control.visible) throw new Error('Call wake_pet first');
+          const { action, source, ...rest } = value;
+          if (!control.visible) startPet();
+          control = { ...control, ...rest, visible: true, revision: control.revision + 1, updatedAt: Date.now() };
+          if (output.worker === 'stopped' || output.worker === 'error') {
+            output = { worker: 'stopped', usb: 'not-started' };
+            startWorker();
+          }
+        }
+        return send(200, snapshot());
+      }
+      send(404, { error: 'Not found' });
+    } catch (e) {
+      send(400, { error: e.message });
+    }
+  });
+  server.on('close', () => {
+    clearInterval(timer);
+    worker?.stdin.end();
+    void stopPet();
+  });
+  return server;
+}
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const server = createBridge();
+  server.on('error', (e) => {
+    console.error(e.message);
+    process.exitCode = 1;
+  });
+  server.listen(port, '127.0.0.1');
+  for (const s of ['SIGINT', 'SIGTERM']) process.on(s, () => server.close());
+}
