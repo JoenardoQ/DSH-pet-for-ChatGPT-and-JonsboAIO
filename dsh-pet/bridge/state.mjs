@@ -10,7 +10,7 @@ export function validateEvent(v) {
   if (!v || typeof v !== 'object' || Array.isArray(v)) throw new Error('Expected object');
   if (Object.keys(v).some((k) => !['source', 'action', 'state', 'message', 'desktop', 'screen'].includes(k)))
     throw new Error('Unknown field');
-  if (v.source !== undefined && v.source !== 'chatgpt') throw new Error('Invalid source');
+  if (v.source !== 'chatgpt') throw new Error('请更新或重新打开状态页；桌宠控制必须明确指定 ChatGPT 来源。');
   if (!['wake', 'update', 'hide'].includes(v.action)) throw new Error('Invalid action');
   if (v.state !== undefined && !Object.hasOwn(statePoses, v.state)) throw new Error('Invalid state');
   if (v.message !== undefined && (typeof v.message !== 'string' || v.message.length > 100))

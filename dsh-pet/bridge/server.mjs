@@ -42,13 +42,16 @@ export function createBridge({ launch = true } = {}) {
     const f = sources.current();
     return {
       service: 'dsh-pet-jonsbo',
-      version: 1,
+      version: 2,
+      build: '0.3.6-jonsbo.3',
+      pid: process.pid,
       visible: control.visible || !!f,
       control: currentControl(),
       source: f?.source,
       animation: f?.animation,
       frameAt: f?.at,
       output,
+      activeSources: [...sources.frames.keys()],
       screens: { chatgpt: control.screen, dsh: screenEnabled.dsh },
       standalone: standalone?.pid || null,
     };
@@ -187,7 +190,9 @@ export function createBridge({ launch = true } = {}) {
       if (req.method === 'GET' && url.pathname === '/state') return send(200, snapshot());
       if (req.method === 'GET' && url.pathname === '/control') return send(200, currentControl());
       if (req.method === 'GET' && url.pathname === '/frame.png') {
-        const f = sources.current();
+        sources.current();
+        const requestedSource = url.searchParams.get('source');
+        const f = requestedSource ? sources.frames.get(requestedSource) : sources.current();
         if (!f) return send(404, { error: 'No live frame' });
         res.writeHead(200, { 'Content-Type': 'image/png', 'Cache-Control': 'no-store' });
         return res.end(Buffer.from(f.png, 'base64'));

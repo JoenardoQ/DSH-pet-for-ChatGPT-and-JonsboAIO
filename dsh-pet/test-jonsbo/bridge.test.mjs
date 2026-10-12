@@ -18,10 +18,10 @@ test('DSH frame leases expire; hiding/screen-off ChatGPT leaves DSH available', 
   assert.equal(s.current(), undefined);
 });
 test('reject invalid commands and accept explicit visibility switches', () => {
-  assert.throws(() => validateEvent({ action: 'wake', state: 'bogus' }));
-  assert.throws(() => validateEvent({ action: 'wake', screen: 'yes' }));
-  assert.throws(() => validateEvent({ action: 'wake', message: 'x'.repeat(101) }));
-  assert.doesNotThrow(() => validateEvent({ action: 'wake', desktop: false, screen: true }));
+  assert.throws(() => validateEvent({ source: 'chatgpt', action: 'wake', state: 'bogus' }));
+  assert.throws(() => validateEvent({ source: 'chatgpt', action: 'wake', screen: 'yes' }));
+  assert.throws(() => validateEvent({ source: 'chatgpt', action: 'wake', message: 'x'.repeat(101) }));
+  assert.doesNotThrow(() => validateEvent({ source: 'chatgpt', action: 'wake', desktop: false, screen: true }));
 });
 test('bridge request protections and control lifecycle', async (t) => {
   const server = createBridge({ launch: false });
@@ -46,7 +46,7 @@ test('bridge request protections and control lifecycle', async (t) => {
       await fetch(base + '/event', {
         method: 'POST',
         headers,
-        body: JSON.stringify({ action: 'update', state: 'working' }),
+        body: JSON.stringify({ source: 'chatgpt', action: 'update', state: 'working' }),
       })
     ).status,
     400,
@@ -55,10 +55,13 @@ test('bridge request protections and control lifecycle', async (t) => {
     await fetch(base + '/event', {
       method: 'POST',
       headers,
-      body: JSON.stringify({ action: 'wake', state: 'thinking' }),
+      body: JSON.stringify({ source: 'chatgpt', action: 'wake', state: 'thinking' }),
     })
   ).json();
   assert.equal(wake.control.state, 'thinking');
+  assert.equal(wake.version, 2);
+  const implicit = await fetch(base + '/event', {method:'POST',headers,body:JSON.stringify({action:'wake'})});
+  assert.equal(implicit.status, 400, 'stale preview must not wake ChatGPT');
   const connection = async (value, authorized = true) => fetch(base + '/device/connection', {
     method: 'POST', headers: authorized ? headers : {}, body: JSON.stringify(value),
   });
@@ -79,7 +82,7 @@ test('bridge request protections and control lifecycle', async (t) => {
   });
   assert.equal(bad.status, 400);
   const hide = await (
-    await fetch(base + '/event', { method: 'POST', headers, body: JSON.stringify({ action: 'hide' }) })
+    await fetch(base + '/event', { method: 'POST', headers, body: JSON.stringify({ source: 'chatgpt', action: 'hide' }) })
   ).json();
   assert.equal(hide.visible, false);
 });

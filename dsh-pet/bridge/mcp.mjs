@@ -102,7 +102,7 @@ export async function dispatch(request) {
     return reply({
       protocolVersion: versions.includes(params?.protocolVersion) ? params.protocolVersion : '2025-06-18',
       capabilities: { tools: {} },
-      serverInfo: { name: 'dsh-pet-jonsbo', version: '0.3.6-jonsbo.2' },
+      serverInfo: { name: 'dsh-pet-jonsbo', version: '0.3.6-jonsbo.3' },
     });
   }
   if (method === 'ping') return reply({});

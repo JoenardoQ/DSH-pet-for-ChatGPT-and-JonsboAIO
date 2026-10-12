@@ -48,7 +48,7 @@ ipcMain.handle('jonsbo:frame', async (event, payload) => {
           title: '大肥鱼 · 乔斯伯屏幕',
           body: status.output.error || '屏幕需要设置；点击查看连接状态。',
         });
-        notice.on('click', () => shell.openExternal(runtime.base + '/'));
+        notice.on('click', () => shell.openExternal(runtime.base + '/?source=' + source));
         notice.show();
       } else if (usb === 'streaming') lastNotice = '';
     }
@@ -89,7 +89,7 @@ ipcMain.handle('jonsbo:screen', async (event, enabled) => {
 });
 ipcMain.handle('jonsbo:status', async (event) => {
   if (!validSender(event)) return { error: 'Invalid sender' };
-  try { await connect(); await shell.openExternal(runtime.base + '/'); return { ok: true }; }
+  try { await connect(); await shell.openExternal(runtime.base + '/?source=' + source); return { ok: true }; }
   catch (error) { return { error: error.message }; }
 });
 ipcMain.handle('jonsbo:shutdown', async (event) => {

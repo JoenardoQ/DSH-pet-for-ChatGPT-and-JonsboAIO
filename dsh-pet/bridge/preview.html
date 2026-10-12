@@ -1,78 +1,71 @@
 <!doctype html>
 <html lang="zh-CN">
-  <meta charset="utf-8" /><title>大肥鱼 · JONSBO</title
-  ><style>
-    body {
-      background: #102031;
-      color: #def;
-      font: 16px system-ui;
-      max-width: 850px;
-      margin: 40px auto;
+<meta charset="utf-8" /><title>大肥鱼 · JONSBO</title>
+<style>
+body { background:#102031;color:#def;font:16px system-ui;max-width:850px;margin:40px auto;padding:0 20px; }
+img { width:min(480px,100%);aspect-ratio:1;border-radius:18px;background:#000; }
+button { padding:10px 18px;margin:8px 8px 8px 0;cursor:pointer; }
+pre { white-space:pre-wrap;overflow-wrap:anywhere; }
+[hidden] { display:none !important; }
+</style>
+<h1>大肥鱼 · JONSBO</h1>
+<p id="owner">当前桌宠的屏幕连接状态</p>
+<img id="frame" alt="等待当前桌宠传来动画帧" />
+<div id="screen-controls">
+<button data-screen="true">连接乔思伯屏幕</button>
+<button data-screen="false">断开投屏</button>
+<button data-takeover="true">接管屏幕（退出官方程序）</button>
+</div>
+<div id="chatgpt-controls" hidden>
+<button data-action="wake">唤起 ChatGPT 桌宠</button>
+<button data-state="thinking">思考</button><button data-state="working">工作</button>
+<button data-state="idle">待机</button><button data-action="hide">隐藏 ChatGPT 桌宠</button>
+</div>
+<p id="connection">正在检查屏幕…</p>
+<p id="result" role="status"></p>
+<details><summary>连接诊断</summary><pre id="status"></pre></details>
+<script>
+const explicitSource = new URLSearchParams(location.search).get('source');
+let source = ['dsh','chatgpt'].includes(explicitSource) ? explicitSource : null;
+document.querySelector('#chatgpt-controls').hidden = explicitSource !== 'chatgpt';
+async function post(route, body) {
+  const response = await fetch(route, {method:'POST',headers:{'Content-Type':'application/json','X-Pet-Client':'1'},body:JSON.stringify(body)});
+  const value = await response.json();
+  if (!response.ok) throw new Error(value.error || '连接失败，请重试。');
+  return value;
+}
+async function refresh() {
+  try {
+    const s = await (await fetch('/state')).json();
+    source ||= s.activeSources?.includes('dsh') ? 'dsh' : s.control.visible ? 'chatgpt' : null;
+    document.querySelector('#owner').textContent = source === 'dsh' ? 'DeepSeek Harness 桌宠 · 仅管理当前桌宠投屏' : source === 'chatgpt' ? 'ChatGPT / Codex 桌宠 · 屏幕连接状态' : '请先在宿主中启用桌宠';
+    document.querySelector('#status').textContent = JSON.stringify(s,null,2);
+    const labels = {streaming:'乔思伯正在显示桌宠','waiting-device':'等待兼容的乔思伯 USB 屏幕连接',busy:'已发现官方程序占用屏幕；可点击“接管屏幕”切换为桌宠画面。','missing-sdk':'请安装乔思伯官方软件以提供屏幕 SDK',inactive:'屏幕输出已释放',disabled:'屏幕输出已关闭'};
+    document.querySelector('#connection').textContent = source && s.screens[source] === false ? '当前桌宠的投屏已断开' : labels[s.output.usb] || s.output.error || '正在准备屏幕输出…';
+    const live = source && s.activeSources?.includes(source);
+    document.querySelector('#frame').hidden = !live;
+    if (live) document.querySelector('#frame').src = '/frame.png?source='+source+'&t='+Date.now();
+  } catch (error) { document.querySelector('#connection').textContent = '桌宠服务已关闭；重新启用插件后可继续连接。'; }
+  setTimeout(refresh,700);
+}
+document.querySelectorAll('button').forEach(button => button.onclick = async () => {
+  button.disabled = true;
+  try {
+    if (!source) throw new Error('请先在 DSH 或 ChatGPT / Codex 中启用桌宠。');
+    if (button.dataset.screen !== undefined || button.dataset.takeover) {
+      await post('/device/connection', {source,enabled:button.dataset.screen !== 'false'});
+      if (button.dataset.takeover) {
+        const result = await post('/device/takeover', {});
+        document.querySelector('#result').textContent = result.message;
+      } else document.querySelector('#result').textContent = button.dataset.screen === 'false' ? '已断开当前桌宠的投屏。' : '已请求连接当前桌宠，请查看下方状态。';
+    } else {
+      if (explicitSource !== 'chatgpt') throw new Error('请在对应宿主中控制桌宠。');
+      await post('/event', {source:'chatgpt',action:button.dataset.action || 'update',...(button.dataset.state ? {state:button.dataset.state} : {})});
+      document.querySelector('#result').textContent = '已更新 ChatGPT 桌宠。';
     }
-    img {
-      width: 480px;
-      height: 480px;
-      border-radius: 18px;
-      background: #000;
-    }
-    button {
-      padding: 10px 18px;
-      margin: 8px;
-      cursor: pointer;
-    }
-    pre {
-      white-space: pre-wrap;
-    }
-  </style>
-  <h1>大肥鱼 · JONSBO</h1>
-  <p>原版 dsh-pet 动画 · 本地实时帧预览</p>
-  <img id="frame" alt="等待桌宠传来动画帧" />
-  <div>
-    <button data-takeover="true">接管屏幕（退出官方程序）</button>
-    <button data-action="wake">唤起</button><button data-state="thinking">思考</button
-    ><button data-state="working">工作</button><button data-state="idle">待机</button
-    ><button data-action="hide">隐藏 ChatGPT 桌宠</button>
-  </div>
-  <p id="connection">正在检查屏幕…</p>
-  <details>
-    <summary>连接诊断</summary>
-    <pre id="status"></pre>
-  </details>
-  <script>
-    async function refresh() {
-      try {
-        const s = await (await fetch('/state')).json();
-        document.querySelector('#status').textContent = JSON.stringify(s, null, 2);
-        const labels = {
-          streaming: '乔斯伯正在显示桌宠',
-          'waiting-device': '等待兼容的乔斯伯屏幕连接',
-          busy: '官方程序仍占用屏幕，可点击接管',
-          'missing-sdk': '已找到屏幕，请先安装乔斯伯官方驱动和 SDK',
-          inactive: '屏幕输出已释放',
-          disabled: '屏幕输出已关闭',
-        };
-        document.querySelector('#connection').textContent =
-          labels[s.output.usb] || s.output.error || '正在准备屏幕输出…';
-        if (s.frameAt) document.querySelector('#frame').src = '/frame.png?t=' + Date.now();
-      } catch (e) {
-        document.querySelector('#status').textContent = e.message;
-      }
-      setTimeout(refresh, 500);
-    }
-    document.querySelectorAll('button').forEach(
-      (b) =>
-        (b.onclick = async () => {
-          const r = await fetch(b.dataset.takeover ? '/device/takeover' : '/event', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-Pet-Client': '1' },
-            body: JSON.stringify({
-              action: b.dataset.action || 'update',
-              ...(b.dataset.state ? { state: b.dataset.state } : {}),
-            }),
-          });
-          if (!r.ok) alert((await r.json()).error);
-        }),
-    );
-    refresh();
-  </script>
+  } catch (error) { document.querySelector('#result').textContent = error.message; }
+  finally { button.disabled = false; }
+});
+refresh();
+</script>
 </html>
