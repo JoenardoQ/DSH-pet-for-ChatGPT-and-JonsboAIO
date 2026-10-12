@@ -543,6 +543,26 @@ async function ensureElectronDownload(options = {}) {
 	log(`Electron not found, downloading v${version} (${PLAT}-${process.arch}) ...`);
 	try {
 		mkdirSync(targetDir, { recursive: true });
+		const bundleDir = resolve(fileURLToPath(new URL("../../runtime/", import.meta.url)));
+		const candidates = [resolve(fileURLToPath(new URL("../runtime/", import.meta.url))), bundleDir];
+		const localRuntime = candidates.find((dir) => existsSync(join(dir, "windows-bundle.json")));
+		if (PLAT === "win32" && process.arch === "x64" && localRuntime) {
+			const meta = JSON.parse(readFileSync(join(localRuntime, "windows-bundle.json"), "utf8"));
+			const { createHash } = await import("node:crypto");
+			const { writeFileSync: writeFileSync$1, unlinkSync } = await import("node:fs");
+			const content = Buffer.concat(meta.electron.parts.map((part) => readFileSync(join(localRuntime, part))));
+			if (createHash("sha256").update(content).digest("hex") !== meta.electron.sha256) throw new Error("Bundled Electron integrity check failed");
+			const archive = join(targetDir, ".bundled-electron.zip");
+			writeFileSync$1(archive, content);
+			try {
+				const { default: extract } = await import("@electron-internal/extract-zip");
+				await extract(archive, { dir: targetDir });
+			} finally {
+				unlinkSync(archive);
+			}
+			if (!existsSync(exe)) throw new Error("Bundled Electron extraction failed");
+			return exe;
+		}
 		const controller = new AbortController();
 		const timer = setTimeout(() => controller.abort(new Error(`Electron download timed out after ${timeoutMs}ms`)), timeoutMs);
 		timer.unref?.();
@@ -676,6 +696,7 @@ var HelperProcess = class {
 		}
 	}
 	/** 处理一条协议请求：交给宿主 bridgeHandler，结果按 id POST 回 main.js 的回调服务器
+	
 	*  （cb 由请求行携带；不走 stdin —— Electron 主进程收不到 piped stdin） */
 	async handleBridgeLine(line) {
 		const child = this.child;
@@ -718,7 +739,9 @@ var HelperProcess = class {
 		} catch {}
 	}
 	/** 停止 helper：发 SIGTERM 即返回，**不等它退出**。宿主退出/插件卸载路径用它——
+	
 	*  宿主马上就没了（Windows 有 job 对象、POSIX 有 helper 自己的 host-liveness 兜底，见 issue #56）。
+	
 	*  **停止后要立刻重启的场景必须用 stopAndWait()**，否则新旧进程会短暂重叠（issue #64）。 */
 	stop(reason = "plugin-disposed") {
 		this.stopping = true;
@@ -730,13 +753,21 @@ var HelperProcess = class {
 		child.kill();
 	}
 	/**
+	
 	* 停止 helper 并**等它真正退出**（issue #64）：原实现只发一次 SIGTERM 就返回、紧接着 spawn 新进程，
+	
 	* 而 Electron 收到 SIGTERM 后关窗、销毁 GPU/动画合成器是异步的（几百 ms 起）——旧窗口（旧大小）
+	
 	* 还没消失、新窗口（新大小）已经画出来，桌面上就短暂出现"两只宠物"。
+	
 	*   ① 先置 `stopping`（由 stop() 完成）：守护逻辑不得把这次主动停止误判成崩溃去自动重启；
+	
 	*   ② 只等 `exit`，**不等 `close`**：stdio 管道关闭远早于进程真正退出（实测 SIGTERM 后 ~10ms 就触发）；
+	
 	*   ③ 超时（默认 3s）升级 SIGKILL；SIGKILL 后再给 1s 宽限，仍未退出就放弃等待——
+	
 	*      配置保存绝不能因为一个退不掉的子进程而被无限挂住。
+	
 	*/
 	async stopAndWait(reason = "plugin-disposed", timeoutMs = HELPER_STOP_TIMEOUT_MS) {
 		this.stop(reason);
@@ -776,11 +807,17 @@ var HelperProcess = class {
 	}
 };
 /**
+
 * 等子进程真正退出（issue #64 的"停止要等干净"那一步）：
+
 *   - 已经退出（exitCode/signalCode 有值）→ 立即 resolve，不挂监听；
+
 *   - 只等 `exit`：`close` 只代表 stdio 管道关闭，远早于进程真正退出；
+
 *   - 到 timeoutMs 调 onTimeout()（调用方升级 SIGKILL），再给 HELPER_STOP_GRACE_MS 宽限；
+
 *   - 宽限到点仍未退出就 resolve——调用方（配置保存触发的重启）绝不能被无限挂住。
+
 */
 function waitForChildExit(child, timeoutMs, onTimeout) {
 	if (child.exitCode !== null || child.signalCode !== null) return Promise.resolve();

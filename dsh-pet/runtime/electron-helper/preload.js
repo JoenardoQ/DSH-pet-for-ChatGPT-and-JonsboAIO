@@ -20,6 +20,9 @@
 const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('jonsboBridge', {
   frame: (value) => ipcRenderer.invoke('jonsbo:frame', value),
+  setScreen: (enabled) => ipcRenderer.invoke('jonsbo:screen', enabled),
+  openStatus: () => ipcRenderer.invoke('jonsbo:status'),
+  shutdown: () => ipcRenderer.invoke('jonsbo:shutdown'),
 });
 
 contextBridge.exposeInMainWorld('petBridge', {

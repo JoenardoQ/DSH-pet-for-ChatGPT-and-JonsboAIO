@@ -838,10 +838,10 @@ class PetSprite {
       petX: this.pos.x,
       petY: this.pos.y,
     };
+    this.syncInputBusy();
     // 拖拽信号（桌面端专有）：主进程的兜底穿透通道按**光标与窗口矩形**判定，而窗口比宠物身体大一圈；
     // 拖拽中宠物滞后于光标，光标可能跑到窗口外→窗口翻回穿透→本窗口收不到 pointermove/pointerup
     // （宠物"飞"出去，见 pointer-target.js）。这里上报"我正在用输入"，主进程据此绝不翻回穿透。
-    this.syncInputBusy();
     // 注意：舞台「拍平」（去掉 translateY(bottomPad)）不能在这里做——
     // 纯点击（按下即松开）会让人物瞬移上移再落下。与浏览器一致：只有拖拽超过阈值才拍平。
   }
@@ -1140,6 +1140,15 @@ class PetSprite {
       // 放在最后：它是"重新加载"这类维护动作，与上面几个宠物互动项语义不同。
       { label: '重载配置', action: 'reload' },
     );
+    if (window.jonsboBridge) {
+      tools.unshift(
+        { label: '连接乔思伯屏幕', action: 'jonsbo-connect' },
+        { label: '断开乔思伯屏幕', action: 'jonsbo-disconnect' },
+        { label: '屏幕连接状态', action: 'jonsbo-status' },
+      );
+      if (window.__jonsboDebug?.source === 'chatgpt')
+        tools.push({ label: '关闭桌宠', action: 'jonsbo-shutdown' });
+    }
     const tree = tools.concat(S.buildMenuTree(this.animations));
     if (!tree.length) return;
     this.menuOpen = true;
@@ -1166,6 +1175,17 @@ class PetSprite {
   onMenuAction(leaf) {
     this.closeMenu();
     if (!leaf || typeof leaf !== 'object') return;
+    if (leaf.action?.startsWith('jonsbo-') && window.jonsboBridge) {
+      const bridge = window.jonsboBridge;
+      const request = leaf.action === 'jonsbo-status' ? bridge.openStatus()
+        : leaf.action === 'jonsbo-shutdown' ? bridge.shutdown()
+        : bridge.setScreen(leaf.action === 'jonsbo-connect');
+      request.then((result) => {
+        if (result?.message) this.showWhisper(result.message);
+        if (result?.error) this.showWhisper('连接失败：' + result.error);
+      }).catch((error) => this.showWhisper('操作失败：' + error.message));
+      return;
+    }
     if (leaf.action === 'open-site') {
       if (window.petBridge) window.petBridge.openDshSite(ORIGIN); // 系统默认浏览器打开（等效 Ctrl+点击链接）
       return;

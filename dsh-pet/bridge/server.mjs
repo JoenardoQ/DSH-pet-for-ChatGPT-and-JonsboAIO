@@ -4,10 +4,13 @@ import { mkdirSync, existsSync, writeFileSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { Sources, validateEvent } from './state.mjs';
+import { HostLeases } from './plugin-lifetime.mjs';
 import { root, port, dataDir, config, pythonCommand, nodeCommand, dshHome, electronPath } from './runtime.mjs';
 
 export function createBridge({ launch = true } = {}) {
   const sources = new Sources();
+  const hosts = new HostLeases();
+  let lifecycleClosing = false, dshSeen = false;
   let worker,
     standalone,
     workerPending = '',
@@ -23,6 +26,11 @@ export function createBridge({ launch = true } = {}) {
     updatedAt: Date.now(),
   };
   const cfg = config();
+  const screenEnabled = { dsh: true };
+  const excludedSources = () => [
+    ...(currentControl().screen ? [] : ['chatgpt']),
+    ...(screenEnabled.dsh ? [] : ['dsh']),
+  ];
   if (cfg.usb === false) output.usb = 'disabled';
   function currentControl() {
     if (Date.now() - control.updatedAt > 90000 && ['thinking', 'working', 'success', 'error'].includes(control.state)) {
@@ -41,6 +49,7 @@ export function createBridge({ launch = true } = {}) {
       animation: f?.animation,
       frameAt: f?.at,
       output,
+      screens: { chatgpt: control.screen, dsh: screenEnabled.dsh },
       standalone: standalone?.pid || null,
     };
   }
@@ -154,7 +163,7 @@ export function createBridge({ launch = true } = {}) {
   }
   const timer = setInterval(
     () => {
-      const f = sources.current(currentControl().screen ? [] : ['chatgpt']);
+      const f = sources.current(excludedSources());
       if (f && cfg.usb !== false) {
         if (worker?.stdin.writable && !worker.stdin.writableNeedDrain && f !== lastFrame) {
           worker.stdin.write(JSON.stringify({ png: f.png }) + '\n');
@@ -212,6 +221,29 @@ export function createBridge({ launch = true } = {}) {
         if (raw.length > limit) return send(413, { error: 'Body too large' });
       }
       const value = JSON.parse(raw);
+      if (url.pathname === '/host') {
+        if (!value || typeof value.id !== 'string' || !/^[a-zA-Z0-9-]{1,80}$/.test(value.id)
+          || (value.release !== undefined && typeof value.release !== 'boolean')) throw new Error('Invalid host lease');
+        return send(200, { enabled: hosts.update(value.id, value.release === true) });
+      }
+      if (url.pathname === '/device/connection') {
+        if (!value || !['chatgpt', 'dsh'].includes(value.source) || typeof value.enabled !== 'boolean'
+          || Object.keys(value).some((key) => !['source', 'enabled'].includes(key)))
+          throw new Error('Expected source and enabled');
+        if (value.source === 'chatgpt')
+          control = { ...control, screen: value.enabled, revision: control.revision + 1 };
+        else screenEnabled.dsh = value.enabled;
+        if (value.enabled) {
+          if (cfg.usb === false) {
+            cfg.usb = true;
+            mkdirSync(dataDir, { recursive: true });
+            writeFileSync(path.join(dataDir, 'config.json'), JSON.stringify({ ...config(), usb: true }, null, 2));
+          }
+          lastFrame = undefined;
+          if (!worker) startWorker();
+        }
+        return send(200, snapshot());
+      }
       if (url.pathname === '/frame') {
         if (
           typeof value.png !== 'string' ||
@@ -222,6 +254,7 @@ export function createBridge({ launch = true } = {}) {
           throw new Error('Invalid frame');
         if (value.source === 'chatgpt' && !control.visible) return send(200, { ok: true, ignored: true });
         sources.put(value.source, { png: value.png, animation: value.animation });
+        if (value.source === 'dsh') dshSeen = true;
         if (!worker && output.worker === 'stopped' && output.exitCode === undefined) startWorker();
         return send(200, { ok: true });
       }
@@ -248,7 +281,25 @@ export function createBridge({ launch = true } = {}) {
       send(400, { error: e.message });
     }
   });
+  const lifetimeTimer = setInterval(async () => {
+    if (lifecycleClosing) return;
+    const active = hosts.active();
+    sources.current(); // Drop expired DSH frames before checking its lifetime.
+    const dshActive = sources.frames.has('dsh');
+    if (hosts.hadHost && !active && control.visible) {
+      lifecycleClosing = true;
+      control = { ...control, visible: false, revision: control.revision + 1 };
+      sources.frames.delete('chatgpt');
+      await stopPet();
+      lifecycleClosing = false;
+    }
+    if ((hosts.hadHost || dshSeen) && !active && !control.visible && !dshActive && server.listening) {
+      lifecycleClosing = true;
+      server.close();
+    }
+  }, 1000).unref();
   server.on('close', () => {
+    clearInterval(lifetimeTimer);
     clearInterval(timer);
     worker?.stdin.end();
     void stopPet();

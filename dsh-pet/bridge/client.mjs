@@ -55,3 +55,34 @@ export async function postEvent(event, { autostart = true } = {}) {
   if (!r.ok) throw new Error(value.error || 'Event failed');
   return value;
 }
+
+export async function shutdownBridge() {
+  try { await status(); }
+  catch (error) {
+    if (error.cause) return { stopped: true, alreadyStopped: true };
+    throw error;
+  }
+  const response = await fetch(base + '/shutdown', {
+    method: 'POST', headers: { 'X-Pet-Client': '1' }, signal: AbortSignal.timeout(5000),
+  });
+  if (!response.ok) throw new Error('Shutdown failed: ' + response.status);
+  for (let i = 0; i < 60; i++) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+    try { await status(); }
+    catch (error) {
+      if (error.cause) return { stopped: true };
+      throw error;
+    }
+  }
+  return { stopped: false, stopping: true };
+}
+
+export async function updateHost(id, release = false) {
+  const response = await fetch(base + '/host', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Pet-Client': '1' },
+    body: JSON.stringify({ id, release }), signal: AbortSignal.timeout(3000),
+  });
+  const result = await response.json();
+  if (!response.ok) throw new Error(result.error || 'Plugin lifecycle connection failed');
+  return result;
+}

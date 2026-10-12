@@ -10,15 +10,11 @@ Based on [PC2005-cloud/dsh-pet](https://github.com/PC2005-cloud/dsh-pet)（0.3.6
 - 唤起后尝试接管屏幕；官方程序拒绝正常退出时提示用户接管，停止输出后恢复由本插件关闭的程序。
 - 增加双宿主输出协调、掉线重连、画面方向设置和连接状态提示，修复工作动画回待机的问题。
 
+右键桌宠可选择「连接乔思伯屏幕」「断开乔思伯屏幕」「屏幕连接状态」。ChatGPT 唤起的桌宠还提供「关闭桌宠」。在聊天中可以说“打开桌宠”“收起桌宠”或“完全关闭桌宠”，分别调用 `wake_pet`、`hide_pet`、`shutdown_pet`。
+
 ## 下载和安装
 
-需要 Windows x64、Git、Node.js 22.12+（含 npm）、Python 3.10+。USB 屏幕需要先安装对应的乔思伯官方软件/驱动；本仓库不分发厂商 DLL。其他型号暂未验证。
-
-先安装 USB 图像依赖：
-
-```powershell
-python -m pip install "Pillow>=10.1,<13"
-```
+需要 Windows x64。仓库自带 Node、Electron、USB 辅助程序及运行依赖，下载后无需另外安装 Node、npm、Python 或 Pillow。首次启用会校验并解压组件，需要等待几秒；后续直接启动。USB 屏幕仍需要对应的乔思伯官方软件/驱动，本仓库不分发厂商 DLL。其他型号暂未验证。
 
 ### Codex / 支持本地插件的 ChatGPT 桌面端
 
@@ -29,7 +25,9 @@ codex plugin marketplace add https://github.com/JoenardoQ/DSH-pet-for-ChatGPT-an
 codex plugin add dsh-pet-jonsbo@dsh-pet-jonsbo
 ```
 
-也可添加源后在插件目录选择 **DSH Pet · ChatGPT & JONSBO** 安装。新开一个对话，说“唤起大肥鱼并显示到乔思伯屏幕”。首次唤起会安装缺失的 Node 运行依赖并下载 Electron，需要联网，耗时较长时可稍后重试。此方式依赖本地 stdio MCP 支持，网页版或仅支持远程 MCP 的客户端不能直接控制本机 USB。
+也可添加源后在插件目录选择 **DSH Pet · ChatGPT & JONSBO** 安装并启用。宿主加载插件 MCP 时自动显示，无需发“打开桌宠”。支持本地插件开关的 Codex 客户端中，桌宠会跨对话保持显示，停用或卸载插件时关闭。若客户端延迟加载 MCP，需新开一次对话触发加载；插件本身无法提前于宿主运行。网页版或仅支持远程 MCP 的客户端不适用。
+
+已安装旧版：刷新插件源并重新安装，然后重新开启插件以加载新版。
 
 ### DeepSeek Harness
 
@@ -39,17 +37,15 @@ codex plugin add dsh-pet-jonsbo@dsh-pet-jonsbo
 git+https://github.com/JoenardoQ/DSH-pet-for-ChatGPT-and-JonsboAIO.git
 ```
 
-安装完成后重启 DSH，在大肥鱼设置中启用「桌面」或「两者」显示；桌面动画会同步到屏幕。仓库包含由源码生成的 JavaScript 运行文件，Git 安装无需临时编译 TypeScript。
+安装并启用后自动显示桌宠，停用后关闭；若 DSH 提示需重启，按提示重启。默认开启桌面与网页显示，桌面动画会同步到屏幕。仓库包含由源码生成的 JavaScript 运行文件，Git 安装无需临时编译 TypeScript。
 
 ### 自己 clone 测试
 
 ```powershell
 git clone https://github.com/JoenardoQ/DSH-pet-for-ChatGPT-and-JonsboAIO.git
 cd DSH-pet-for-ChatGPT-and-JonsboAIO
-npm install --omit=peer --ignore-scripts
-python -m pip install -r dsh-pet/desktop/requirements.txt
-npm run pet -- wake
-npm run pet -- stop
+.\start-pet.cmd
+.\stop-pet.cmd
 ```
 
-修改 TypeScript 后运行 `npm run build`。查看连接状态：<http://127.0.0.1:19390/>。若显示屏被占用，可在此页面选择接管。默认数据目录为 `%LOCALAPPDATA%/DshPetJonsbo`；旋转等选项参考 `dsh-pet/config.jonsbo.example.json`。
+开发时修改 TypeScript 后运行 `npm run build`（开发构建需要 Node/npm）。Windows 运行组件的打包脚本为 `scripts/bundle-windows-runtime.py`，各组件许可证随包保留。查看连接状态：<http://127.0.0.1:19390/>。若显示屏被占用，可在此页面选择接管。默认数据目录为 `%LOCALAPPDATA%/DshPetJonsbo`；旋转等选项参考 `dsh-pet/config.jonsbo.example.json`。

@@ -1,6 +1,7 @@
 // Dependency-free MCP stdio transport: newline-delimited JSON-RPC, no stdout logs.
 import readline from 'node:readline';
-import { postEvent, status, ensureBridge } from './client.mjs';
+import { randomUUID } from 'node:crypto';
+import { postEvent, status, ensureBridge, shutdownBridge, updateHost } from './client.mjs';
 import { base } from './runtime.mjs';
 import { statePoses } from './state.mjs';
 const props = {
@@ -34,6 +35,12 @@ export const definitions = [
     annotations,
   },
   {
+    name: 'shutdown_pet',
+    description: '完全关闭 ChatGPT 桌宠和本地桥接服务，释放屏幕。DSH 若仍在运行桌宠，可能重新连接；应同时从 DSH 关闭桌面显示。',
+    inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+    annotations,
+  },
+  {
     name: 'pet_status',
     description: '只读查询本地桌宠、宿主来源和 USB 连接状态，不会启动桌宠。',
     inputSchema: { type: 'object', properties: {}, additionalProperties: false },
@@ -52,6 +59,7 @@ async function callTool(name, args = {}) {
   if (!args || Array.isArray(args) || typeof args !== 'object') throw new Error('Invalid arguments');
   const allowed = ['wake_pet', 'set_pet_state'].includes(name) ? Object.keys(props) : [];
   if (Object.keys(args).some((k) => !allowed.includes(k))) throw new Error('Unknown argument');
+  if (name === 'shutdown_pet') return shutdownBridge();
   if (name === 'pet_status') {
     try {
       return await status();
@@ -94,7 +102,7 @@ export async function dispatch(request) {
     return reply({
       protocolVersion: versions.includes(params?.protocolVersion) ? params.protocolVersion : '2025-06-18',
       capabilities: { tools: {} },
-      serverInfo: { name: 'dsh-pet-jonsbo', version: '0.1.0' },
+      serverInfo: { name: 'dsh-pet-jonsbo', version: '0.3.6-jonsbo.2' },
     });
   }
   if (method === 'ping') return reply({});
@@ -110,6 +118,26 @@ export async function dispatch(request) {
   return { jsonrpc: '2.0', id, error: { code: -32601, message: 'Method not found' } };
 }
 if (process.argv[1]?.endsWith('mcp.mjs')) {
+  const hostId = randomUUID();
+  let ending = false, heartbeat;
+  const start = (async () => {
+    await ensureBridge();
+    if (ending) return;
+    const lease = await updateHost(hostId);
+    if (!lease.enabled || ending) return;
+    await postEvent({ source: 'chatgpt', action: 'wake', desktop: true, screen: true });
+    heartbeat = setInterval(() => { void updateHost(hostId).catch(() => {}); }, 2500).unref();
+  })().catch(error => console.error('[dsh-pet startup]', error.message));
+  const release = async () => {
+    ending = true;
+    clearInterval(heartbeat);
+    await start;
+    clearInterval(heartbeat);
+    await updateHost(hostId, true).catch(() => {});
+  };
+  for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => {
+    void release().finally(() => process.exit(0));
+  });
   for await (const line of readline.createInterface({ input: process.stdin, crlfDelay: Infinity })) {
     try {
       if (line.length > 65536) throw new Error('Request too large');
@@ -121,4 +149,5 @@ if (process.argv[1]?.endsWith('mcp.mjs')) {
       );
     }
   }
+  await release();
 }

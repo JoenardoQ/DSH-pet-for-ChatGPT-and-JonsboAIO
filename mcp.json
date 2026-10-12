@@ -3,9 +3,11 @@
   "mcpServers": {
     "dsh-pet-jonsbo": {
       "type": "stdio",
-      "command": "node",
+      "command": "cmd.exe",
       "args": [
-        "dsh-pet/bridge/mcp.mjs"
+        "/d",
+        "/c",
+        "dsh-pet\\scripts\\start-mcp.cmd"
       ]
     }
   }

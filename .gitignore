@@ -59,7 +59,6 @@ dsh-pet/.mcp.json
 dsh-pet/.codex-plugin/
 
 
-# Generated portable runtimes; Git installs use local Node/Python.
-dsh-pet/runtime/node/
-dsh-pet/desktop/bin/
+# Windows runtimes are tracked so Git installs can start without extra tools.
+
 *.log

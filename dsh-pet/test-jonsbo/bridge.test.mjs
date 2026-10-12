@@ -59,6 +59,19 @@ test('bridge request protections and control lifecycle', async (t) => {
     })
   ).json();
   assert.equal(wake.control.state, 'thinking');
+  const connection = async (value, authorized = true) => fetch(base + '/device/connection', {
+    method: 'POST', headers: authorized ? headers : {}, body: JSON.stringify(value),
+  });
+  assert.equal((await connection({source:'chatgpt',enabled:false}, false)).status, 403);
+  assert.equal((await connection({source:'bogus',enabled:true})).status, 400);
+  let changed = await (await connection({source:'chatgpt',enabled:false})).json();
+  assert.equal(changed.control.screen, false);
+  assert.equal(changed.screens.dsh, true);
+  changed = await (await connection({source:'dsh',enabled:false})).json();
+  assert.equal(changed.screens.dsh, false);
+  changed = await (await connection({source:'chatgpt',enabled:true})).json();
+  assert.equal(changed.screens.chatgpt, true);
+  assert.equal(changed.screens.dsh, false);
   const bad = await fetch(base + '/frame', {
     method: 'POST',
     headers,
@@ -74,7 +87,7 @@ test('MCP exposes original project tool contract', async () => {
   const r = await dispatch({ jsonrpc: '2.0', id: 1, method: 'tools/list' });
   assert.deepEqual(
     r.result.tools.map((t) => t.name),
-    ['wake_pet', 'set_pet_state', 'hide_pet', 'pet_status', 'take_over_screen'],
+    ['wake_pet', 'set_pet_state', 'hide_pet', 'shutdown_pet', 'pet_status', 'take_over_screen'],
   );
   assert.equal(
     (await dispatch({ jsonrpc: '2.0', id: 2, method: 'tools/call', params: { name: 'bad' } })).result.isError,

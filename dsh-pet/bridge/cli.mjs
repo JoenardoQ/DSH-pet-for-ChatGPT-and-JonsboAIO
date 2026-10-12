@@ -1,4 +1,4 @@
-import { postEvent, status } from './client.mjs';
+import { postEvent, status, shutdownBridge } from './client.mjs';
 import { base } from './runtime.mjs';
 try {
   const c = process.argv[2] || 'status';
@@ -13,17 +13,7 @@ try {
       message: process.argv[4] || '',
     });
   else if (c === 'stop') {
-    result = await (await fetch(base + '/shutdown', { method: 'POST', headers: { 'X-Pet-Client': '1' } })).json();
-    for (let i = 0; i < 50; i++) {
-      await new Promise((r) => setTimeout(r, 100));
-      try {
-        await status();
-      } catch {
-        break;
-      }
-    }
-    // Upstream helper checks its parent's liveness every two seconds.
-    await new Promise((r) => setTimeout(r, 2200));
+    result = await shutdownBridge();
   } else
     throw new Error(
       'Usage: node bridge/cli.mjs wake|hide|status|stop|state <idle|thinking|working|success|error|sleeping> [message]',

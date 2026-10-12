@@ -64,3 +64,38 @@ ipcMain.handle('jonsbo:frame', async (event, payload) => {
     return { source, error: e.message };
   }
 });
+
+function validSender(event) {
+  return BrowserWindow.fromWebContents(event.sender) && event.sender.getURL().startsWith('file:');
+}
+ipcMain.handle('jonsbo:screen', async (event, enabled) => {
+  if (!validSender(event) || typeof enabled !== 'boolean') return { error: 'Invalid request' };
+  try {
+    await connect();
+    const response = await fetch(runtime.base + '/device/connection', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Pet-Client': '1' },
+      body: JSON.stringify({ source, enabled }), signal: AbortSignal.timeout(5000),
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || 'Screen connection failed');
+    if (!enabled) return { message: '已停止当前桌宠投屏；没有其他桌宠输出时，屏幕将在几秒内释放。' };
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    const { output } = await client.status();
+    if (output.usb === 'streaming') return { message: '已连接乔思伯屏幕。' };
+    if (output.usb === 'busy') return { message: '屏幕被占用，请从右键“屏幕连接状态”中选择接管。' };
+    if (output.error) return { message: '屏幕暂未连接：' + output.error };
+    return { message: '正在连接乔思伯屏幕；可从右键菜单查看连接状态。' };
+  } catch (error) { return { error: error.message }; }
+});
+ipcMain.handle('jonsbo:status', async (event) => {
+  if (!validSender(event)) return { error: 'Invalid sender' };
+  try { await connect(); await shell.openExternal(runtime.base + '/'); return { ok: true }; }
+  catch (error) { return { error: error.message }; }
+});
+ipcMain.handle('jonsbo:shutdown', async (event) => {
+  if (!validSender(event) || source !== 'chatgpt') return { error: 'Please close the pet in DSH settings.' };
+  try {
+    client ||= await import(pathToFileURL(path.join(root, 'bridge/client.mjs')).href);
+    return await client.shutdownBridge();
+  } catch (error) { return { error: error.message }; }
+});

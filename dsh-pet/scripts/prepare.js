@@ -72,6 +72,9 @@ const keep = [
   'assets/webm',
   'runtime/electron-helper',
   'runtime/node',
+  'runtime/electron-win-x64.zip.*',
+  'runtime/dependencies.zip',
+  'runtime/windows-bundle.json',
   'assets/fonts',
   'assets/pic',
   // 表情包（碎碎念/对话配图的图片）：host 只从**包内** assets/memes 读图、与配置 memes 键配对，

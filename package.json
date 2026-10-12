@@ -1,6 +1,6 @@
 {
   "name": "dsh-pet",
-  "version": "0.3.6-jonsbo.1",
+  "version": "0.3.6-jonsbo.2",
   "type": "module",
   "license": "MIT",
   "engines": {
@@ -77,6 +77,11 @@
     "dsh-pet/cordis.patch.yml",
     "dsh-pet/scripts/ensure-electron.mjs",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "dsh-pet/runtime/node",
+    "dsh-pet/runtime/electron-win-x64.zip.*",
+    "dsh-pet/runtime/dependencies.zip",
+    "dsh-pet/runtime/windows-bundle.json",
+    "dsh-pet/desktop/bin"
   ]
 }

@@ -196,6 +196,26 @@ export async function ensureElectronDownload(options: EnsureElectronOptions = {}
   try {
     // 目录创建也可能失败（权限不足、同名文件等），与下载失败一样降级到浏览器宠物。
     mkdirSync(targetDir, { recursive: true });
+    const bundleDir = resolve(fileURLToPath(new URL('../../runtime/', import.meta.url)));
+    // Bundled output lives one directory above lib/; source tests run from src/host/.
+    const candidates = [resolve(fileURLToPath(new URL('../runtime/', import.meta.url))), bundleDir];
+    const localRuntime = candidates.find((dir) => existsSync(join(dir, 'windows-bundle.json')));
+    if (PLAT === 'win32' && process.arch === 'x64' && localRuntime) {
+      const meta = JSON.parse(readFileSync(join(localRuntime, 'windows-bundle.json'), 'utf8'));
+      const { createHash } = await import('node:crypto');
+      const { writeFileSync, unlinkSync } = await import('node:fs');
+      const content = Buffer.concat(meta.electron.parts.map((part: string) => readFileSync(join(localRuntime, part))));
+      if (createHash('sha256').update(content).digest('hex') !== meta.electron.sha256)
+        throw new Error('Bundled Electron integrity check failed');
+      const archive = join(targetDir, '.bundled-electron.zip');
+      writeFileSync(archive, content);
+      try {
+        const { default: extract } = await import('@electron-internal/extract-zip');
+        await extract(archive, { dir: targetDir });
+      } finally { unlinkSync(archive); }
+      if (!existsSync(exe)) throw new Error('Bundled Electron extraction failed');
+      return exe;
+    }
     // 官方 @electron/get 下载：负责 URL 拼装、镜像、SHA256 校验（sumchecker）、下载缓存
     // （同一版本只下载一次，之后命中缓存秒回）。超时用 AbortController 传给 fetch。
     const controller = new AbortController();
