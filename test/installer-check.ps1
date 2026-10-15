@@ -35,10 +35,22 @@ try{
  Check (($commands[0].arguments -join '|') -eq ('--expose-internals|'+(Join-Path $DshDesktop 'resources\app.asar\dsh\node_modules\@deepseek-ai\dsh-desktop-host\lib\cli.js')+'|plugin|--profile|desktop|add|'+$resolved)) 'wrong DSH installation command'
  Check (($commands[1].arguments -join '|') -eq ('plugin|marketplace|add|'+$resolved)) 'wrong Codex registration command'
  Check ($commands[1].arguments -notcontains 'add-plugin') 'installer should only register source'
- # Remote paths exercise release selection, checksum and commit resolution using local fixtures.
+ $script:attempts=0
+ function Pause-DownloadRetry([int]$Attempt){}
+ function Download-Once([string]$Url,[string]$File){$script:attempts++;[IO.File]::WriteAllText($File,'partial');if($script:attempts -lt 3){throw 'UND_ERR_SOCKET'};[IO.File]::WriteAllText($File,'complete')}
+ $downloaded=Join-Path $temp 'retry.zip';Download 'https://example.invalid/socket-fixture' $downloaded
+ Check ($attempts -eq 3) 'socket interruptions did not retry'
+ Check ([IO.File]::ReadAllText($downloaded) -eq 'complete') 'partial content was committed'
+ $script:attempts=0
+ function Download-Once([string]$Url,[string]$File){$script:attempts++;[IO.File]::WriteAllText($File,'partial');throw 'UND_ERR_SOCKET'}
+ Reject {Download 'https://example.invalid/socket-fixture' $downloaded} 'persistent network error was swallowed'
+ Check ($attempts -eq 3) 'download retries were not bounded'
+ Check ([IO.File]::ReadAllText($downloaded) -eq 'complete') 'failed download overwrote previous file'
+ Check (@(Get-ChildItem -LiteralPath $temp -Filter '*.part').Count -eq 0) 'partial downloads leaked'
+ # Release assets and commit archives use local fixtures; no external download or host install.
  $script:downloads=0;$script:fixtureZip=$zip
  function Download([string]$Url,[string]$File){$script:downloads++;if($Url.EndsWith('.sha256')){[IO.File]::WriteAllText($File,(File-Sha256 $script:fixtureZip)+'  test.zip')}else{Copy-Item -LiteralPath $script:fixtureZip -Destination $File}}
- function Read-Remote([string]$Url){if($Url.Contains('/commits/')){return @{sha=('a'*40)}}else{return @{assets=@(@{name=$script:launcher.artifact;browser_download_url=$repo+'/releases/download/v1/'+$script:launcher.artifact})}}}
+ function Read-Remote([string]$Url){if(!$Url.Contains('/commits/')){throw 'Release must not require GitHub API'};return @{sha=('a'*40)}}
  Check ((Read-Package (Resolve-Package (Source-Plan ($repo+'/releases/latest')))).name -eq $pkg.name) 'release install failed'
  Check ($downloads -eq 2) 'release skipped checksum'
  Check ((Read-Package (Resolve-Package (Source-Plan $repo))).name -eq $pkg.name) 'github commit archive install failed'

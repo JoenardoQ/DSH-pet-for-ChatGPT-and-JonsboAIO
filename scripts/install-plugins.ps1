@@ -48,16 +48,47 @@ function Source-Plan([string]$Value){
   if((Test-Path -LiteralPath $full -PathType Leaf) -and [IO.Path]::GetExtension($full) -eq '.zip'){return @{kind='zip';path=$full}}
   throw '请选择解压后的目录、本地 ZIP，或粘贴本项目的 GitHub / Release 链接。'
 }
-function Download([string]$Url,[string]$File){
-  Report '正在下载所选安装包…'
+function Download-Once([string]$Url,[string]$File,[int]$StallSeconds=45,[int]$TotalSeconds=600){
+  if($StallSeconds -lt 1 -or $TotalSeconds -lt 1){throw 'Invalid download timeout'}
   $client=New-Object Net.WebClient
   $client.Headers['User-Agent']='DesktopPetInstaller'
+  $started=[DateTime]::UtcNow;$active=$started;$lastBytes=-1L;$reported=$started
   try{
     $task=$client.DownloadFileTaskAsync([Uri]$Url,$File)
-    while(!$task.IsCompleted){if($script:form){[Windows.Forms.Application]::DoEvents()};Start-Sleep -Milliseconds 80}
-    $task.GetAwaiter().GetResult()
+    while(!$task.IsCompleted){
+      $now=[DateTime]::UtcNow
+      $bytes=if([IO.File]::Exists($File)){(New-Object IO.FileInfo($File)).Length}else{0L}
+      if($bytes -ne $lastBytes){$active=$now;$lastBytes=$bytes}
+      if(($now-$active).TotalSeconds -gt $StallSeconds -or ($now-$started).TotalSeconds -gt $TotalSeconds){
+        $client.CancelAsync();throw [TimeoutException]::new('下载超过等待上限，连接可能已中断。')
+      }
+      if(($now-$reported).TotalSeconds -ge 1){Report ('已下载 '+[Math]::Round($bytes/1MB,1)+' MiB');$reported=$now}
+      if($script:form){[Windows.Forms.Application]::DoEvents()}
+      Start-Sleep -Milliseconds 80
+    }
+    $task.GetAwaiter().GetResult() | Out-Null
   }finally{$client.Dispose()}
 }
+function Pause-DownloadRetry([int]$Attempt){Start-Sleep -Seconds ([Math]::Min(3,$Attempt))}
+function Download([string]$Url,[string]$File){
+  $partial=$File+'.'+[Guid]::NewGuid().ToString('N').Substring(0,12)+'.part'
+  try{
+    for($attempt=1;$attempt -le 3;$attempt++){
+      try{
+        Report ('正在下载所选安装包（'+$attempt+'/3）…')
+        if([IO.File]::Exists($partial)){[IO.File]::Delete($partial)}
+        Download-Once $Url $partial
+        if([IO.File]::Exists($File)){[IO.File]::Replace($partial,$File,$null)}else{[IO.File]::Move($partial,$File)}
+        return
+      }catch{
+        if($attempt -eq 3){throw ('下载失败：'+$_.Exception.Message+' 可选择已下载的本地 ZIP；DSH 也可使用 Release 中的 .tgz 链接，绕过 GitHub 源码下载。')}
+        Report '下载连接中断，正在重试…'
+        Pause-DownloadRetry $attempt
+      }
+    }
+  }finally{if([IO.File]::Exists($partial)){[IO.File]::Delete($partial)}}
+}
+
 function File-Sha256([string]$File){
   $stream=[IO.File]::OpenRead($File);$hash=[Security.Cryptography.SHA256]::Create()
   try{return [BitConverter]::ToString($hash.ComputeHash($stream)).Replace('-','').ToLowerInvariant()}finally{$stream.Dispose();$hash.Dispose()}
@@ -74,12 +105,9 @@ function Resolve-Package($Spec){
   else{
     $url=$Spec.url;$checksum=[bool]$Spec.checksum
     if($Spec.kind -eq 'release'){
-      $repo=([Uri]$repository).AbsolutePath.Trim('/')
-      $api=if($Spec.tag -eq 'latest'){'latest'}else{'tags/'+[Uri]::EscapeDataString($Spec.tag)}
-      $release=Read-Remote ('https://api.github.com/repos/'+$repo+'/releases/'+$api)
-      $asset=@($release.assets | Where-Object name -eq $launcher.artifact)
-      if($asset.Count -ne 1){throw '该 Release 没有已验证的 Windows 轻量 ZIP，请改用仓库链接。'}
-      $url=$asset[0].browser_download_url;$checksum=$true
+      # Release assets have stable names; avoid a second dependency on the GitHub API.
+      $releasePath=if($Spec.tag -eq 'latest'){'/releases/latest/download/'}else{'/releases/download/'+[Uri]::EscapeDataString($Spec.tag)+'/'}
+      $url=$repository+$releasePath+$launcher.artifact;$checksum=$true
     }elseif($Spec.kind -eq 'github'){
       $repo=([Uri]$repository).AbsolutePath.Trim('/')
       $commit=Read-Remote ('https://api.github.com/repos/'+$repo+'/commits/'+[Uri]::EscapeDataString($Spec.ref))

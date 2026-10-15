@@ -4,6 +4,8 @@ Based on [PC2005-cloud/dsh-pet](https://github.com/PC2005-cloud/dsh-pet)（0.3.6
 
 双击 **install-plugins.cmd** 可把本地 ZIP、GitHub 或 Release 链接添加到 **DSH / GPT·Codex 本地插件列表**。窗口显示安装状态和错误，不依赖 agent；详见[安装方式](docs/installation.md)。默认 USB 画面顺时针旋转 **90°**，显式保存的角度设置优先。右键切换鲸鱼娘、大肥鱼、ChatGPT 娘时，名称、台词、工作状态和对话配图跟随角色。
 
+DSH 下载仓库出现 `UND_ERR_SOCKET` 时，可直接在插件添加框使用 [Release TGZ](https://github.com/JoenardoQ/DSH-pet-for-ChatGPT-and-JonsboAIO/releases/latest/download/dsh-pet-windows-x64-lite.tgz)，或用本地 ZIP／目录安装；无需再次下载仓库。见[网络失败处理](docs/installation.md#dsh-下载报-und_err_socket--pnpm-terminated)。
+
 ## Windows 一键启动
 
 下载并解压本仓库 ZIP 后，双击 **start-pet.cmd**。启动窗口自动完成组件下载、校验和解压，显示进度并提供重试；无需预装 Node/Python/npm，也无需让 agent 处理安装。关闭窗口会保留已启动桌宠；双击 **stop-pet.cmd** 完全退出。首次联网准备完成后复用缓存。
@@ -12,7 +14,7 @@ Based on [PC2005-cloud/dsh-pet](https://github.com/PC2005-cloud/dsh-pet)（0.3.6
 
 ## 改动和优化
 
-`0.3.6-jonsbo.7`：启动时自动退出不兼容的旧桥接服务，避免旧接口返回 Not found；并发启动合并为一个桥接实例。右键状态页按 DSH / ChatGPT 来源隔离，DSH 投屏操作不会唤起 ChatGPT 桌宠。若以前安装过其他鲸鱼娘插件，请在宿主中停用旧插件，避免两个不同插件同时显示。
+`0.3.6-jonsbo.8`：启动时自动退出不兼容的旧桥接服务，避免旧接口返回 Not found；并发启动合并为一个桥接实例。右键状态页按 DSH / ChatGPT 来源隔离，DSH 投屏操作不会唤起 ChatGPT 桌宠。若以前安装过其他鲸鱼娘插件，请在宿主中停用旧插件，避免两个不同插件同时显示。
 
 - 增加 ChatGPT / Codex 本地 MCP 入口，可唤起、收起和更新桌宠状态。
 - 保留 DeepSeek Harness 的会话联动，同一份桌宠支持两个宿主。
