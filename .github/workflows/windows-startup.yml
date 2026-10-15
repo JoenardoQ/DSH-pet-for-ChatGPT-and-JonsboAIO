@@ -48,12 +48,12 @@ jobs:
         with:
           name: windows-x64-lite
           path: |
-            dist/dsh-pet-windows-x64-lite.zip
-            dist/dsh-pet-windows-x64-lite.zip.sha256
-            dist/dsh-pet-windows-x64-lite.zip.files.json
-            dist/dsh-pet-windows-x64-lite.tgz
-            dist/dsh-pet-windows-x64-lite.tgz.sha256
-            dist/dsh-pet-windows-x64-lite.tgz.files.json
+            dist/pet-trio-windows-x64-lite.zip
+            dist/pet-trio-windows-x64-lite.zip.sha256
+            dist/pet-trio-windows-x64-lite.zip.files.json
+            dist/pet-trio-windows-x64-lite.tgz
+            dist/pet-trio-windows-x64-lite.tgz.sha256
+            dist/pet-trio-windows-x64-lite.tgz.files.json
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')

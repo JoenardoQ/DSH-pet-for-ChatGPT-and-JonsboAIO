@@ -28,7 +28,7 @@ export function whisperBubbleView(state: WhisperState): WhisperBubbleRow[] {
  * `<base>/pic/memes/<素材根>/<名称>.png`，素材根与名称都需编码（名称常含中文）。
  *
  * 为什么要带素材根：图片的归属与动画一致——`pet/<素材根>-memes/` 存在时该种类**只认自己**的
- * 表情包目录，否则才走「用户目录 → 包内 assets/memes」。不带素材根就无法表达"这张图属于哪只宠物"，
+ * 表情包目录，否则才走「用户目录 → 包内 assets/pets/fish/memes」。不带素材根就无法表达"这张图属于哪只宠物"，
  * 宿主只能猜（同一张图名在两个种类的独占目录里都存在时更无从分辨）。
  * assetRoot 缺省/空白 → 退回旧的两段形式 `<base>/pic/memes/<名称>.png`（= 素材根 main 的目录链），
  * 未打标的宠物与老宿主仍能取到包内表情包，不至于图裂。

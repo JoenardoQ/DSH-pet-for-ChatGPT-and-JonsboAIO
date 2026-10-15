@@ -1,3 +1,3 @@
-# 使用说明
+# 乔思伯投屏
 
-参见[项目 README](https://github.com/JoenardoQ/DSH-pet-for-ChatGPT-and-JonsboAIO#readme)。
+本项目已合并为三位女仆共用引擎。安装与操作说明见仓库根目录 README.md；连接诊断由桌宠右键“屏幕连接状态”打开。默认顺时针旋转90度，当前投屏保持，另一来源等待，用户可在状态页手动切换。

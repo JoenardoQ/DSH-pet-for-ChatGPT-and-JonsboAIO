@@ -6,7 +6,7 @@ import { validateEvent } from './state.mjs';
 import { ensureDependencies } from './dependencies.mjs';
 import { withStartupLock } from './startup-lock.mjs';
 import {prepareWindows} from './bootstrap.mjs';
-const protocol = 2;
+const protocol = 3;
 async function inspect() {
   const r = await fetch(base + '/state', { headers: { Connection: 'close' }, signal: AbortSignal.timeout(1500) });
   const value = await r.json();
@@ -39,7 +39,7 @@ async function startBridge() {
   if (existing?.version === protocol) return existing;
   if (existing) {
     // Only our known old protocol may be retired. Never shut down an unknown service/version.
-    if (existing.version !== 1) throw new Error('桌宠桥接版本不兼容，请更新插件。');
+    if (![1, 2].includes(existing.version)) throw new Error('桌宠桥接版本不兼容，请更新插件。');
     const stopped = await fetch(base + '/shutdown', {
       method: 'POST', headers: { 'X-Pet-Client': '1', Connection: 'close' }, signal: AbortSignal.timeout(6000),
     });

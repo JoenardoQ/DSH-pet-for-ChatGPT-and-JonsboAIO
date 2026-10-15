@@ -13,12 +13,11 @@ $script:appRoot=Split-Path $PSScriptRoot -Parent
 $script:launcherProfile=Get-Content -LiteralPath (Join-Path $PSScriptRoot 'windows-launcher.json') -Raw -Encoding UTF8 | ConvertFrom-Json
 $script:packageRoot=[IO.Path]::GetFullPath((Join-Path $appRoot $launcherProfile.package))
 if(!$DataDir){
-  if($launcherProfile.kind -eq 'whale' -and $env:WHALE_DATA_DIR){$DataDir=$env:WHALE_DATA_DIR}
-  elseif($launcherProfile.kind -eq 'pet' -and $env:PET_DATA_DIR){$DataDir=$env:PET_DATA_DIR}
-  else{$DataDir=Join-Path $env:LOCALAPPDATA $launcherProfile.folder;if($launcherProfile.kind -eq 'pet'){$DataDir=Join-Path $DataDir 'jonsbo'}}
+  if($env:PET_DATA_DIR){$DataDir=$env:PET_DATA_DIR}
+  else{$DataDir=Join-Path (Join-Path $env:LOCALAPPDATA $launcherProfile.folder) 'jonsbo'}
 }
 $script:data=[IO.Path]::GetFullPath($DataDir)
-if(!$Port){$Port=if($launcherProfile.kind -eq 'whale' -and $env:WHALE_PORT){[int]$env:WHALE_PORT}elseif($launcherProfile.kind -eq 'pet' -and $env:PET_PORT){[int]$env:PET_PORT}else{[int]$launcherProfile.port}}
+if(!$Port){$Port=if($env:PET_PORT){[int]$env:PET_PORT}else{[int]$launcherProfile.port}}
 if($Port -lt 1024 -or $Port -gt 65534){throw 'Invalid local port'}
 $script:base='http://127.0.0.1:'+$Port
 $script:cancelled=$false;$script:form=$null;$script:busy=$false;$script:retry=$false
@@ -71,8 +70,7 @@ function Show-Setup {
   $settingsButton=New-Object Windows.Forms.Button
   $settingsButton.Text='连接设置';$settingsButton.Location=New-Object Drawing.Point(116,164);$settingsButton.Width=100
   $settingsButton.Add_Click({
-    if($script:launcherProfile.kind -eq 'whale' -and $script:engine){Start-Process -FilePath $script:engine -ArgumentList @((Quote (Join-Path $script:packageRoot 'bridge\cli.mjs')),'settings') -WindowStyle Hidden}
-    else{Start-Process ($script:base+'/')}
+    Start-Process ($script:base+'/')
   })
   $logButton=New-Object Windows.Forms.Button
   $logButton.Text='查看日志';$logButton.Location=New-Object Drawing.Point(230,164);$logButton.Width=100
@@ -204,22 +202,6 @@ function Prepare-Runtime {
       try{$held=$mutex.WaitOne(100)}catch [Threading.AbandonedMutexException]{$held=$true}
       if($watch.Elapsed.TotalSeconds -gt 30){throw '另一个安装窗口仍在准备组件，请稍后重试。'}
     }
-    if($launcherProfile.kind -eq 'whale'){
-      $env:WHALE_DATA_DIR=$data;$env:WHALE_PORT=[string]$Port
-      $id=[Guid]::NewGuid().ToString('N');$statePath=Join-Path $data ('setup-'+$id+'-state.json')
-      $arguments='-NoProfile -NonInteractive -ExecutionPolicy Bypass -File '+(Quote (Join-Path $appRoot 'scripts\bootstrap.ps1'))+' -SetupOnly -SessionId '+$id
-      $job=Start-TaskProcess (Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe') $arguments
-      [void](Wait-TaskProcess $job 650000 {
-        if(Test-Path -LiteralPath $statePath){
-          try{$s=Get-Content -LiteralPath $statePath -Raw -Encoding UTF8|ConvertFrom-Json
-            $label=switch -Wildcard($s.stage){'download-*'{'正在下载并校验组件'}'validate-*'{'正在验证运行组件'}'waiting-lock'{'正在等待组件准备'}default{'正在准备桌宠'}}
-            if($script:form){$titleLabel.Text=$label;$detailLabel.Text=$s.message}
-          }catch{}
-        }
-      })
-      $script:engine=Join-Path $data 'runtime\windows-x64-v1\electron\electron.exe'
-      $env:WHALE_ELECTRON=$engine;$env:WHALE_NODE=$engine;$env:WHALE_PYTHON=Join-Path $data 'runtime\windows-x64-v1\python\python.exe'
-    }else{
       $runtime=Join-Path $data 'runtime';New-Item -ItemType Directory -Path $runtime -Force|Out-Null
       $target=Join-Path $runtime ('electron-'+$launcherProfile.electronVersion)
       $marker=Join-Path $target '.ready'
@@ -253,7 +235,6 @@ function Prepare-Runtime {
       Remove-Item Env:PET_USB_WORKER -ErrorAction SilentlyContinue
       $env:PET_DATA_DIR=$data;$env:PET_PORT=[string]$Port
       if(!$env:DSH_HOME){$env:DSH_HOME=Join-Path (Split-Path $data -Parent) 'dsh'}
-    }
     $env:ELECTRON_RUN_AS_NODE='1'
     $runtimeState=@{electron=$engine;worker=$usbWorker;python=$script:python;dshHome=$env:DSH_HOME;kind=$launcherProfile.kind}
     $env:PET_RUNTIME_STATE=Join-Path $data 'launcher-runtime.json'
@@ -280,7 +261,7 @@ function Start-Pet {
     Pump
     try{
       $s=Read-State
-      $desktop=if($launcherProfile.kind -eq 'whale'){$s.output.desktop -eq 'visible'}else{$s.activeSources -contains 'chatgpt'}
+      $desktop=$s.activeSources -contains 'chatgpt'
       if($desktop){
         if($s.output.usb -eq 'streaming'){Stage '桌宠与屏幕已启动' '画面正在同步。'}
         else{Stage '桌宠已启动' '可在连接设置中连接屏幕、调整方向或处理占用提示。'}
@@ -296,7 +277,6 @@ function Start-Pet {
 }
 function Relay-Mcp {
   if($script:form){$script:form.Close();$script:form=$null}
-  if($launcherProfile.kind -eq 'whale'){& (Join-Path $appRoot 'scripts\mcp-launcher.ps1');return}
   Add-Type -TypeDefinition @"
 using System;
 using System.Diagnostics;

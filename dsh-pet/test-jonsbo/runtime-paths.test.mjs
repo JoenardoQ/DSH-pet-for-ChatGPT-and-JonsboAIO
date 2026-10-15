@@ -8,6 +8,6 @@ test('missing old drive falls back to user storage; valid explicit paths remain 
 });
 test('unwritable user storage falls back to temporary storage without a main-process exception',()=>{
  const appData=path.resolve('unwritable'),temp=path.resolve('writable-temp');
- const result=resolveDataDir(undefined,{appData,temp,warn:()=>{},mkdir:dir=>{if(dir.startsWith(appData))throw Object.assign(Error('Denied'),{code:'EACCES'});}});
+ const result=resolveDataDir(null,{appData,temp,warn:()=>{},mkdir:dir=>{if(dir.startsWith(appData))throw Object.assign(Error('Denied'),{code:'EACCES'});}});
  assert.equal(result,path.join(temp,'DshPetJonsbo','jonsbo'));
 });

@@ -72,3 +72,5 @@ dsh-pet/desktop/bin/*.exe
 
 # README previews remain available at the pinned previous revision.
 dsh-pet/assets/preview/
+
+.archive/

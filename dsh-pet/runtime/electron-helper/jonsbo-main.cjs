@@ -49,11 +49,12 @@ ipcMain.handle('jonsbo:frame', async (event, payload) => {
         notice.show();
       } else if (usb === 'streaming') lastNotice = '';
     }
-    if (source !== 'chatgpt') return { source };
-    const control = await (await fetch(runtime.base + '/control', { signal: AbortSignal.timeout(1500) })).json();
-    if (control.desktop === false) win.hide();
+    const { duet } = await r.json();
+    let control;
+    if (source === 'chatgpt') control = await (await fetch(runtime.base + '/control', { signal: AbortSignal.timeout(1500) })).json();
+    if ((source === 'chatgpt' && control?.desktop === false) || (duet?.active && duet.owner !== source)) win.hide();
     else if (!win.isVisible()) win.showInactive();
-    return { source, control };
+    return { source, control, duet };
   } catch (e) {
     retryAt = Date.now() + 3000;
     runtime = undefined;
@@ -94,5 +95,17 @@ ipcMain.handle('jonsbo:shutdown', async (event) => {
   try {
     client ||= await import(pathToFileURL(path.join(root, 'bridge/client.mjs')).href);
     return await client.shutdownBridge();
+  } catch (error) { return { error: error.message }; }
+});
+
+ipcMain.handle('jonsbo:duet', async (event, mode) => {
+  if (!validSender(event) || typeof mode !== 'string') return { error: 'Invalid request' };
+  try {
+    await connect();
+    const response = await fetch(runtime.base + '/duet', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Pet-Client': '1' },
+      body: JSON.stringify({ mode }), signal: AbortSignal.timeout(3000),
+    });
+    return await response.json();
   } catch (error) { return { error: error.message }; }
 });

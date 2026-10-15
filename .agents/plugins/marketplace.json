@@ -1,11 +1,11 @@
 {
-  "name": "dsh-pet-jonsbo",
+  "name": "pet-trio-jonsbo",
   "interface": {
-    "displayName": "DSH Pet · ChatGPT & JONSBO"
+    "displayName": "三位女仆 · ChatGPT & JONSBO"
   },
   "plugins": [
     {
-      "name": "dsh-pet-jonsbo",
+      "name": "pet-trio-jonsbo",
       "source": {
         "source": "local",
         "path": "./"

@@ -24,16 +24,20 @@ export class Sources {
   constructor(now = Date.now) {
     this.now = now;
     this.frames = new Map();
-    this.preferred = 'chatgpt';
+    this.preferred = null;
   }
   put(source, frame) {
     if (!['chatgpt', 'dsh'].includes(source)) throw new Error('Invalid frame source');
+    this.current();
+    if (!this.frames.size) this.preferred = source;
     this.frames.set(source, { ...frame, at: this.now(), source });
   }
   current(excluded = []) {
     for (const [key, frame] of this.frames) if (this.now() - frame.at > 3000) this.frames.delete(key);
     const available = [...this.frames.values()].filter((f) => !excluded.includes(f.source));
-    return available.find((f) => f.source === this.preferred) || available.sort((a, b) => b.at - a.at)[0];
+    const chosen = available.find((f) => f.source === this.preferred) || available.sort((a, b) => a.at - b.at)[0];
+    if (!excluded.length && chosen && !this.frames.has(this.preferred)) this.preferred = chosen.source;
+    return chosen;
   }
 }
 

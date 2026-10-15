@@ -24,7 +24,7 @@ describe('memeImageUrl —— 表情包图片地址', () => {
     assert.equal(memeImageUrl('Ciallo'), '/dsh-pet-7340/pic/memes/Ciallo.png');
   });
 
-  test('走到 pic/memes 前缀下（host 路由按该前缀映射 assets/memes）', () => {
+  test('走到 pic/memes 前缀下（host 路由按该前缀映射 assets/pets/fish/memes）', () => {
     assert.ok(memeImageUrl('可爱').startsWith('/dsh-pet-7340/pic/memes/'));
     assert.ok(memeImageUrl('可爱').endsWith('.png'));
   });

@@ -733,7 +733,7 @@
               模拟宿主侧其他插件（如巡检类插件）调用 <span class="mono">POST /broadcast</span>：
               <b>不生成内容</b>，只把给定的文本搬运到桌宠气泡。配图只接受<b>该桌宠条目表情包池内</b>的名字
               （图片归属按条目分：<span class="mono">pet/&lt;素材根&gt;-memes/</span> 独占 → 用户
-              <span class="mono">memes/</span> → 包内 <span class="mono">assets/memes/</span>）。
+              <span class="mono">memes/</span> → 包内 <span class="mono">assets/pets/fish/memes/</span>）。
               下拉框已经把池算好了——只列<b>磁盘上真实存在</b>的图（配置里写了但文件不在的会被宿主剔除，这里提前隐藏）。
             </div>
             <div class="field" style="margin-top:10px">
@@ -1012,7 +1012,7 @@
      *
      * 拼法与两端共用逻辑一致：`<前缀>/pic/memes/<素材根>/<名称>.png`（素材根与名称都要编码）。
      * 素材根 = 该宠物所属条目（= `/config` 的顶层键）——图片归属与动画同一套：
-     * `pet/<素材根>-memes/` 独占 → 用户 `memes/` → 包内 `assets/memes/`。
+     * `pet/<素材根>-memes/` 独占 → 用户 `memes/` → 包内 `assets/pets/fish/memes/`。
      * **必须带素材根**：pet pack 的表情包目录是独占的，用旧的两段形式（= main 的回落链）
      * 取不到它的图，只会裂图。素材根缺省/空白时才退回两段形式（包内表情包照常显示）。
      */
@@ -1526,7 +1526,7 @@
     // 这里把两件事都替用户算好：
     //   - 候选 = 该条目 memes 里有非空描述的键（与宿主 readMemePool 同一口径）；
     //   - 可用 = 再叠一层存在性核对：**HEAD** /pic/memes/<素材根>/<名>.png。该路由与池走
-    //     同一条目录链（pet/<根>-memes/ 独占 → 用户 memes/ → 包内 assets/memes/），
+    //     同一条目录链（pet/<根>-memes/ 独占 → 用户 memes/ → 包内 assets/pets/fish/memes/），
     //     200 = 池内、404 = 池外。用 HEAD 而不是 GET：表情包单张能到 1MB+，
     //     GET 探测会白传几十 MB；HEAD 只回状态码（Node 对 HEAD 不写 body）。
 

@@ -1,6 +1,6 @@
 {
   "name": "dsh-pet",
-  "version": "0.3.6-jonsbo.8",
+  "version": "1.0.0",
   "type": "module",
   "license": "MIT",
   "engines": {
@@ -44,13 +44,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/JoenardoQ/DSH-pet-for-ChatGPT-and-JonsboAIO.git"
+    "url": "git+https://github.com/JoenardoQ/Deepseek-and-ChatGPT-Pet-and-JonsboAIO.git"
   },
-  "homepage": "https://github.com/JoenardoQ/DSH-pet-for-ChatGPT-and-JonsboAIO#readme",
+  "homepage": "https://github.com/JoenardoQ/Deepseek-and-ChatGPT-Pet-and-JonsboAIO#readme",
   "bugs": {
-    "url": "https://github.com/JoenardoQ/DSH-pet-for-ChatGPT-and-JonsboAIO/issues"
+    "url": "https://github.com/JoenardoQ/Deepseek-and-ChatGPT-Pet-and-JonsboAIO/issues"
   },
-  "description": "Based on dsh-pet: ChatGPT/Codex local MCP, DeepSeek Harness and JONSBO USB screen mirroring.",
+  "description": "鲸鱼娘、圆润蓝发女仆大肥鱼与 ChatGPT 娘：共用桌宠引擎、独立角色素材、双宿主互动和乔思伯屏幕。",
   "main": "./dsh-pet/lib/index.js",
   "icon": "dsh-pet/assets/logo.png",
   "exports": {
@@ -64,7 +64,9 @@
     "pet": "node dsh-pet/bridge/cli.mjs",
     "test:jonsbo": "node --test dsh-pet/test-jonsbo/*.test.mjs",
     "build:windows-lite": "node scripts/build-windows-lite.mjs",
-    "test:workflow": "node --test test/*.test.mjs"
+    "test:workflow": "node --test test/*.test.mjs",
+    "sync:characters": "node scripts/sync-character-metadata.mjs",
+    "test:gif": "node scripts/test-gif-playback.mjs all"
   },
   "files": [
     "dsh-pet/lib",
@@ -86,10 +88,8 @@
     "dsh-pet/bridge/*.mjs",
     "dsh-pet/bridge/*.html",
     "dsh-pet/desktop/bin/licenses",
-    "dsh-pet/assets/webm",
     "dsh-pet/assets/fonts",
     "dsh-pet/assets/pic",
-    "dsh-pet/assets/memes",
     "dsh-pet/assets/config.jsonc",
     "dsh-pet/assets/logo.png",
     "dsh-pet/assets/pets",
@@ -101,6 +101,7 @@
     ".mcp.json",
     ".codex-plugin",
     ".agents/plugins/marketplace.json",
-    "docs/installation.md"
+    "docs/installation.md",
+    "THIRD_PARTY_NOTICES.md"
   ]
 }

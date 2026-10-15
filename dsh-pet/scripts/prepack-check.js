@@ -15,8 +15,8 @@
  *   3. 原始 1200×1200 母版不得进 npm 包（体积超限，应放 GitHub Releases）
  *   4. client.js 是官方 bundle 形态（__ModuleLoader__.load + exports.apply）
  *   5. package.json 声明了 dsh.bundle 和 dsh.client（否则装不上）
- *   6. 表情包图片确实随包发布（files 白名单含 assets/memes 且目录里有 png；
- *      配图功能只读包内 assets/memes，漏发即功能整体失效），并核对 memes 键与图片对齐
+ *   6. 表情包图片确实随包发布（files 白名单含 assets/pets/fish/memes 且目录里有 png；
+ *      配图功能只读包内 assets/pets/fish/memes，漏发即功能整体失效），并核对 memes 键与图片对齐
  *   7. 包总大小 < 200MB（自设软上限，防误塞母版；npm 硬上限远更大）
  *
  * ============================================================================
@@ -88,11 +88,11 @@ for (const f of required) {
 }
 
 // ---- 2. 至少有待机动画（播放必需）——单一 webm 格式（浏览器 + 桌面模式共用）----
-const idleWebm = join(ROOT, 'assets', 'webm', '待机呼吸休闲.webm');
+const idleWebm = join(ROOT, 'assets', 'pets', 'fish', 'webm', '待机呼吸休闲.webm');
 existsSync(idleWebm) ? ok('idle webm present') : fail('missing 待机呼吸休闲.webm thumb');
 
 // ---- 3. 原始母版不得进 npm 包 ----
-// assets/ 根下若有 .webm 就是原始母版（播放素材在 assets/webm|mov 子目录）
+// assets/ 根下若有 .webm 就是原始母版（播放素材在 assets/pets/fish/webm|mov 子目录）
 const originals = [];
 const assetsRoot = join(ROOT, 'assets');
 for (const name of readdirSync(assetsRoot)) {
@@ -121,12 +121,12 @@ else fail('package.json missing dsh.client platform web');
 // ---- 6. 表情包图片必须随包发布（配图功能的素材源） ----
 // 坑：scripts/prepare.js 每次发布都会用**硬编码白名单覆盖** package.json 的 files，
 // 只在 package.json 里加一行是无效的 → 这里显式断言，防止再次静默漏发。
-const memesDir = join(ROOT, 'assets', 'memes');
-if (Array.isArray(pkg.files) && pkg.files.includes('assets/memes')) ok('files includes assets/memes');
-else fail('package.json files must include assets/memes (meme images would not ship)');
+const memesDir = join(ROOT, 'assets', 'pets', 'fish', 'memes');
+if (Array.isArray(pkg.files) && pkg.files.includes('assets/pets')) ok('files includes assets/pets/fish/memes');
+else fail('package.json files must include assets/pets/fish/memes (meme images would not ship)');
 const memePngs = existsSync(memesDir) ? readdirSync(memesDir).filter((n) => n.endsWith('.png')) : [];
 if (memePngs.length > 0) ok(`meme images present (${memePngs.length} png)`);
-else fail('no png in assets/memes (whisper/chat 配图会整体失效)');
+else fail('no png in assets/pets/fish/memes (whisper/chat 配图会整体失效)');
 // memes 键 ↔ 图片文件对齐：缺图条目会被 host 静默剔除（设计如此，不阻断发布），
 // 但数字对不上值得发布前看一眼，故只提示
 try {

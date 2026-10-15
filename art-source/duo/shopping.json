@@ -1,0 +1,12 @@
+{
+  "id": "shopping",
+  "file": "dsh-pet/assets/pets/duo/gif/shopping.gif",
+  "frames": 16,
+  "uniqueFrames": 16,
+  "durationMs": 1920,
+  "bytes": 1050700,
+  "sha256": "77c597201b0f04e0035c723d6e0a128e368e9368acf2cb7d21c5bf125749b7c9",
+  "prompt": "Use case: illustration-story. Production animation SPRITE SHEET for an actual desktop pet GIF. EXACT 4 columns x 4 rows, 16 equal square cells, 16 SEQUENTIAL frames of ONE continuous loop ordered left to right then top to bottom. No text, no grid lines, no labels, no watermark. Fully transparent background. Each cell contains BOTH full-body characters centered together with generous transparent padding; fixed camera, fixed scale and baseline. Ref 1 identifies the adult elegant silver-white long-haired lavender dragon girl with ivory horns, lavender wings/tail, ornate white/lilac rose dress; match her design. Ref 2 identifies the OTHER character: a ROUND CUTE CHIBI HUMAN BLUE-HAIRED MAID, big round head, short plump cute body, blue eyes, frilly white maid headband, navy dress and white whale-emblem apron. She is HUMAN, with hands and legs; 'fat fish' is just her nickname. NOT an animal, NOT a fish/whale body. Preserve both identities in all 16 cells. Clean detailed anime cel-shaded style, readable at small desktop sizes. TRUE articulated animation with progressive limb joint poses and changing facial expression; not copies shifted, not whole-body affine wobble. First/last frames should loop naturally. Scene action: Shopping stroll. Both walk side by side in place, alternate leg steps and bag swings. Blue maid excitedly points outward at an imaginary shop, silver maid turns head toward her then nods with a small tsundere blush; return to forward stroll.",
+  "source": "art-source/duo/shopping.png",
+  "mode": "built-in image_gen; mechanical sprite-sheet to GIF export"
+}

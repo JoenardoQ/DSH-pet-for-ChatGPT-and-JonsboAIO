@@ -4,7 +4,7 @@
  * 模拟 /dsh-pet-7340 前缀的宿主端点（与浏览器 overlay 共用同一套契约）：
  *   GET  /dsh-pet-7340/config              成品配置聚合（{ main: <真实 config.jsonc 解析> }，
  *                                        mock 环境无用户层/文件宠物，只有 main 条目）
- *   GET  /dsh-pet-7340/thumb/<petId>/<name>.webm  从 assets/webm 读素材（petId 段剥掉，统一素材根）
+ *   GET  /dsh-pet-7340/thumb/<petId>/<name>.webm  从 assets/pets/fish/webm 读素材（petId 段剥掉，统一素材根）
  *   GET  /dsh-pet-7340/balance               模拟 DeepSeek 余额（固定 11.06 元）
  *   GET  /dsh-pet-7340/balance/trigger       触发计数（恒 0，验证轮询基线）
  *
@@ -21,7 +21,7 @@ import { fileURLToPath } from 'node:url';
 const PORT = Number(process.argv[2] || 8231);
 const here = resolve(fileURLToPath(new URL('.', import.meta.url)));
 const PACKAGE_ROOT = resolve(here, '..', '..');
-const WEBM_ROOT = join(PACKAGE_ROOT, 'assets', 'webm');
+const WEBM_ROOT = join(PACKAGE_ROOT, 'assets', 'pets', 'fish', 'webm');
 const CONFIG_FILE = join(PACKAGE_ROOT, 'assets', 'config.jsonc');
 
 /** 剥除 JSONC 注释（与真实宿主 readAllConfig 的 stripJsonc 同规则），返回纯 JSON */

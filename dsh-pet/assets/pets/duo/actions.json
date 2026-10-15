@@ -1,0 +1,34 @@
+[
+  {
+    "id": "boxing",
+    "label": "拳击"
+  },
+  {
+    "id": "volleyball",
+    "label": "排球"
+  },
+  {
+    "id": "running",
+    "label": "赛跑"
+  },
+  {
+    "id": "shopping",
+    "label": "逛街"
+  },
+  {
+    "id": "sunset",
+    "label": "看日落"
+  },
+  {
+    "id": "gardening",
+    "label": "浇花"
+  },
+  {
+    "id": "gaming",
+    "label": "格斗游戏比赛"
+  },
+  {
+    "id": "cafe",
+    "label": "咖啡厅看书"
+  }
+]

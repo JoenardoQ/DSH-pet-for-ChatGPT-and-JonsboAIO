@@ -1,0 +1,12 @@
+{
+  "id": "wave",
+  "file": "dsh-pet/assets/pets/chatgpt/gif/wave.gif",
+  "frames": 16,
+  "uniqueFrames": 16,
+  "durationMs": 1920,
+  "bytes": 1024982,
+  "sha256": "f2b5e9e3caff8e8de223c8a794c9c714dd667b0250be01b3461c8d8f15a5bf4f",
+  "prompt": "Use case: illustration-story. Production GIF animation sprite sheet EXACTLY 4 columns by 4 rows, 16 equal square tiles, 16 successive frames of one natural loop row-major. Transparent background, no text, no grid lines, no watermark. Every tile has generous safe transparent margin on ALL sides and SAME scale; FULL BODY including shoes wing tips and tail entirely INSIDE its own cell. Reference image is character identity only: adult silver-white long-haired girl with ivory dragon horns, lavender eyes/wings/long tail, ornate white and lilac rose maid-like dress. Match her design and clean detailed anime cel shading. Sequential progressive articulated changes to limbs, head expression, hair skirt wings tail, no identical static copies translated or resized. Consistent camera baseline, smooth anticipation, actual action, follow-through, recovery. Action: Energetic greeting loop: slight bow, straighten, raise right arm then swing open hand left and right twice with elbow articulation, smile and wink shyly, wings spread and tail curls, lower hand back and bow slightly. Dress hair and sleeves ripple with follow-through.",
+  "source": "art-source/chatgpt/wave.png",
+  "mode": "built-in image_gen; mechanical sprite-sheet to GIF export"
+}

@@ -1,0 +1,138 @@
+[
+  {
+    "id": "idle",
+    "file": "dsh-pet/assets/pets/chatgpt/gif/idle.gif",
+    "frames": 16,
+    "uniqueFrames": 16,
+    "durationMs": 1920,
+    "bytes": 1038080,
+    "sha256": "181b19a86a9ab11b2ba13237fff3cb5964a9c305be33cfc9df261d8350935421",
+    "prompt": "Use case: illustration-story. Create a PRODUCTION ANIMATION SPRITE SHEET, EXACTLY 4 columns x 4 rows, 16 equal square cells, showing 16 consecutive DIFFERENT frames of ONE continuous seamless loop. Row-major chronology. Transparent background, NO text labels lines watermarks. One SAME FULL BODY character in every cell with identical camera scale baseline generous padding (wings and shoes fully inside every cell). Reference identifies the character, not motion: adult anime girl, silver-white very long hair, ivory dragon horns, purple eyes, lavender dragon wings and long tail, elegant ornate white/lilac rose maid-like dress. Faithfully retain her appearance. Clean detailed anime cel shading. Each progressive frame must have newly articulated limbs/face/hair/skirt/wings/tail. Real joint bends with anticipation, motion, follow-through and recovery. NOT eight static poses, NOT duplicated resized or shifted copies, NOT whole-body floating bob. Action: Relaxed lively waiting loop: one hand holds skirt edge, shifting weight between feet, head tilts then straightens, the other hand brushes a curl behind ear, wings gently open and fold, tail curls and releases with delayed hair follow through, soft blink.",
+    "source": "art-source/chatgpt/idle.png",
+    "mode": "built-in image_gen; mechanical sprite-sheet to GIF export"
+  },
+  {
+    "id": "thinking",
+    "file": "dsh-pet/assets/pets/chatgpt/gif/thinking.gif",
+    "frames": 16,
+    "uniqueFrames": 16,
+    "durationMs": 1920,
+    "grid": [
+      4,
+      4
+    ],
+    "rowBounds": [
+      [
+        0,
+        312
+      ],
+      [
+        312,
+        624
+      ],
+      [
+        624,
+        937
+      ],
+      [
+        937,
+        1249
+      ]
+    ],
+    "bytes": 817996,
+    "sha256": "f51c8ea4ded7e606fd9c6b2133e861c7248b70860104f722698f846f968492a8",
+    "prompt": "Use case: illustration-story. Recreate production animation SPRITE SHEET with 16 sequential drawings in EXACT 4 columns by 4 rows. CRITICAL FRAMING FIX: previously characters were zoomed and cut off at shins. Now EACH full character must occupy ONLY 65% OF ITS CELL HEIGHT, centered vertically/horizontally, leaving 17.5% EMPTY TRANSPARENT PADDING at TOP and BOTTOM of EVERY CELL and enough margin left/right for wings. Every cell must contain complete horns, head, dress hem, shoes, entire tail and wing tips. Do not zoom! 16 equal SQUARE tiles, blank transparent gaps delineate cells. No grid lines text labels watermark. Reference 1 defines adult silver-white very long-haired ivory-horned lavender dragon girl, purple eyes/wings/tail, ornate white-lilac rose dress. Preserve design in detailed anime cel shading. Fixed scale position camera. 16 different successive articulated poses, continuous natural loop with anticipation/follow-through. Not affine transformed static images. Action: A thoughtful loop: tap chin with finger, look upward, lift finger with a proud realization, return hand to chin; hair, tail and wings gently follow the gesture.",
+    "source": "art-source/chatgpt/thinking.png",
+    "mode": "built-in image_gen; mechanical sprite-sheet to GIF export"
+  },
+  {
+    "id": "working",
+    "file": "dsh-pet/assets/pets/chatgpt/gif/working.gif",
+    "frames": 16,
+    "uniqueFrames": 16,
+    "durationMs": 1920,
+    "bytes": 980915,
+    "sha256": "810e62c38aa1475d8907bc1caed3b8e9cdcd60918947fe70e0056d470b7cf553",
+    "prompt": "Use case: illustration-story. Create a PRODUCTION ANIMATION SPRITE SHEET, EXACTLY 4 columns x 4 rows, 16 equal square cells, showing 16 consecutive DIFFERENT frames of ONE continuous seamless loop. Row-major chronology. Transparent background, NO text labels lines watermarks. One SAME FULL BODY character in every cell with identical camera scale baseline generous padding (wings and shoes fully inside every cell). Reference identifies the character, not motion: adult anime girl, silver-white very long hair, ivory dragon horns, purple eyes, lavender dragon wings and long tail, elegant ornate white/lilac rose maid-like dress. Faithfully retain her appearance. Clean detailed anime cel shading. Each progressive frame must have newly articulated limbs/face/hair/skirt/wings/tail. Real joint bends with anticipation, motion, follow-through and recovery. NOT eight static poses, NOT duplicated resized or shifted copies, NOT whole-body floating bob. Action: Busy coding loop: both hands visibly alternate typing and swiping across a floating lavender keyboard/tablet, shoulders shift, eyes track changing imaginary lines, nod and flick long hair back, tail and wings move independently.",
+    "source": "art-source/chatgpt/working.png",
+    "mode": "built-in image_gen; mechanical sprite-sheet to GIF export"
+  },
+  {
+    "id": "success",
+    "file": "dsh-pet/assets/pets/chatgpt/gif/success.gif",
+    "frames": 16,
+    "uniqueFrames": 16,
+    "durationMs": 1920,
+    "bytes": 1017074,
+    "sha256": "f9233a965d6475a244afaf75bb4ec707a4ee4ea1d8c3cbffef4677b602d0432d",
+    "prompt": "Use case: illustration-story. Create a PRODUCTION ANIMATION SPRITE SHEET, EXACTLY 4 columns x 4 rows, 16 equal square cells, showing 16 consecutive DIFFERENT frames of ONE continuous seamless loop. Row-major chronology. Transparent background, NO text labels lines watermarks. One SAME FULL BODY character in every cell with identical camera scale baseline generous padding (wings and shoes fully inside every cell). Reference identifies the character, not motion: adult anime girl, silver-white very long hair, ivory dragon horns, purple eyes, lavender dragon wings and long tail, elegant ornate white/lilac rose maid-like dress. Faithfully retain her appearance. Clean detailed anime cel shading. Each progressive frame must have newly articulated limbs/face/hair/skirt/wings/tail. Real joint bends with anticipation, motion, follow-through and recovery. NOT eight static poses, NOT duplicated resized or shifted copies, NOT whole-body floating bob. Action: Delighted tsundere celebration: bend knees, small hop, raise fists joyfully, blush and turn face aside in proud embarrassment, wings open with bounce, skirt and long hair flutter, settle back to initial pose.",
+    "source": "art-source/chatgpt/success.png",
+    "mode": "built-in image_gen; mechanical sprite-sheet to GIF export"
+  },
+  {
+    "id": "error",
+    "file": "dsh-pet/assets/pets/chatgpt/gif/error.gif",
+    "frames": 16,
+    "uniqueFrames": 16,
+    "durationMs": 1920,
+    "bytes": 997554,
+    "sha256": "0d4fd58e126dd637300d1620583c41a3d58e4091c04d0321632135164e1cbde3",
+    "prompt": "Use case: illustration-story. Production GIF animation sprite sheet EXACTLY 4 columns by 4 rows, 16 equal square tiles, 16 successive frames of one natural loop row-major. Transparent background, no text, no grid lines, no watermark. Every tile has generous safe transparent margin on ALL sides and SAME scale; FULL BODY including shoes wing tips and tail entirely INSIDE its own cell. Reference image is character identity only: adult silver-white long-haired girl with ivory dragon horns, lavender eyes/wings/long tail, ornate white and lilac rose maid-like dress. Match her design and clean detailed anime cel shading. Sequential progressive articulated changes to limbs, head expression, hair skirt wings tail, no identical static copies translated or resized. Consistent camera baseline, smooth anticipation, actual action, follow-through, recovery. Action: A frustrated but cute tsundere troubleshooting loop: put both hands on hips, furrow brows, lean forward and point one finger admonishingly, sigh with a puff, shake head once then soften expression and fold arms, return to hips. Hair sleeves tail and wings follow motion.",
+    "source": "art-source/chatgpt/error.png",
+    "mode": "built-in image_gen; mechanical sprite-sheet to GIF export"
+  },
+  {
+    "id": "sleeping",
+    "file": "dsh-pet/assets/pets/chatgpt/gif/sleeping.gif",
+    "frames": 16,
+    "uniqueFrames": 16,
+    "durationMs": 1920,
+    "bytes": 1069900,
+    "sha256": "b279f2287b4b4e1d2041f7f7e2f69890cc35baeb5d5e6d733138aaf62fa1ff8c",
+    "prompt": "Use case: illustration-story. Production GIF animation sprite sheet EXACTLY 4 columns by 4 rows, 16 equal square tiles, 16 successive frames of one natural loop row-major. Transparent background, no text, no grid lines, no watermark. Every tile has generous safe transparent margin on ALL sides and SAME scale; FULL BODY including shoes wing tips and tail entirely INSIDE its own cell. Reference image is character identity only: adult silver-white long-haired girl with ivory dragon horns, lavender eyes/wings/long tail, ornate white and lilac rose maid-like dress. Match her design and clean detailed anime cel shading. Sequential progressive articulated changes to limbs, head expression, hair skirt wings tail, no identical static copies translated or resized. Consistent camera baseline, smooth anticipation, actual action, follow-through, recovery. Action: Drowsy resting loop: seated side-saddle on a little lavender cushion, hands on lap, head nods gradually down then tilts to one shoulder, eyes close and breathe with shoulders, wing droops slightly and tail curls around cushion, brief sleepy stir and head returns. Do not suddenly stand up.",
+    "source": "art-source/chatgpt/sleeping.png",
+    "mode": "built-in image_gen; mechanical sprite-sheet to GIF export"
+  },
+  {
+    "id": "wave",
+    "file": "dsh-pet/assets/pets/chatgpt/gif/wave.gif",
+    "frames": 16,
+    "uniqueFrames": 16,
+    "durationMs": 1920,
+    "bytes": 1024982,
+    "sha256": "f2b5e9e3caff8e8de223c8a794c9c714dd667b0250be01b3461c8d8f15a5bf4f",
+    "prompt": "Use case: illustration-story. Production GIF animation sprite sheet EXACTLY 4 columns by 4 rows, 16 equal square tiles, 16 successive frames of one natural loop row-major. Transparent background, no text, no grid lines, no watermark. Every tile has generous safe transparent margin on ALL sides and SAME scale; FULL BODY including shoes wing tips and tail entirely INSIDE its own cell. Reference image is character identity only: adult silver-white long-haired girl with ivory dragon horns, lavender eyes/wings/long tail, ornate white and lilac rose maid-like dress. Match her design and clean detailed anime cel shading. Sequential progressive articulated changes to limbs, head expression, hair skirt wings tail, no identical static copies translated or resized. Consistent camera baseline, smooth anticipation, actual action, follow-through, recovery. Action: Energetic greeting loop: slight bow, straighten, raise right arm then swing open hand left and right twice with elbow articulation, smile and wink shyly, wings spread and tail curls, lower hand back and bow slightly. Dress hair and sleeves ripple with follow-through.",
+    "source": "art-source/chatgpt/wave.png",
+    "mode": "built-in image_gen; mechanical sprite-sheet to GIF export"
+  },
+  {
+    "id": "blink",
+    "file": "dsh-pet/assets/pets/chatgpt/gif/blink.gif",
+    "frames": 12,
+    "uniqueFrames": 12,
+    "durationMs": 1440,
+    "grid": [
+      4,
+      3
+    ],
+    "rowBounds": [
+      [
+        0,
+        368
+      ],
+      [
+        368,
+        736
+      ],
+      [
+        736,
+        1138
+      ]
+    ],
+    "bytes": 629832,
+    "sha256": "87f18ca31ecc0dbd6f7697e5cb6a2a77048d5cdef329a8afd62c47f9274c21f0",
+    "prompt": "Use case: illustration-story. Recreate production animation SPRITE SHEET with 16 sequential drawings in EXACT 4 columns by 4 rows. CRITICAL FRAMING FIX: previously characters were zoomed and cut off at shins. Now EACH full character must occupy ONLY 65% OF ITS CELL HEIGHT, centered vertically/horizontally, leaving 17.5% EMPTY TRANSPARENT PADDING at TOP and BOTTOM of EVERY CELL and enough margin left/right for wings. Every cell must contain complete horns, head, dress hem, shoes, entire tail and wing tips. Do not zoom! 16 equal SQUARE tiles, blank transparent gaps delineate cells. No grid lines text labels watermark. Reference 1 defines adult silver-white very long-haired ivory-horned lavender dragon girl, purple eyes/wings/tail, ornate white-lilac rose dress. Preserve design in detailed anime cel shading. Fixed scale position camera. 16 different successive articulated poses, continuous natural loop with anticipation/follow-through. Not affine transformed static images. Action: Blinking and shy winking loop: soft head tilt, both eyelids half-close then close then open, raise hand beside cheek with two fingers, wink and blush, lower hand and return.",
+    "source": "art-source/chatgpt/blink.png",
+    "mode": "built-in image_gen; mechanical sprite-sheet to GIF export"
+  }
+]

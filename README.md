@@ -1,67 +1,66 @@
-# DSH Pet for ChatGPT and JONSBO AIO
+# 三位女仆桌宠 · DeepSeek / ChatGPT / JONSBO
 
-Based on [PC2005-cloud/dsh-pet](https://github.com/PC2005-cloud/dsh-pet)（0.3.6，MIT）。原版大肥鱼的素材、动画、桌面交互和 DeepSeek Harness 插件直接复用，保留原作者版权。
+哼，鲸鱼娘、大肥鱼和 ChatGPT 娘都替你收进一个家里了。选谁陪你工作，右键就能换；才没有要你指挥 agent 折腾安装呢。
 
-双击 **install-plugins.cmd** 可把本地 ZIP、GitHub 或 Release 链接添加到 **DSH / GPT·Codex 本地插件列表**。窗口显示安装状态和错误，不依赖 agent；详见[安装方式](docs/installation.md)。默认 USB 画面顺时针旋转 **90°**，显式保存的角度设置优先。右键切换鲸鱼娘、大肥鱼、ChatGPT 娘时，名称、台词、工作状态和对话配图跟随角色。
+| 桌宠 | 长什么样 | 动作与配图 |
+| --- | --- | --- |
+| 大肥鱼 | 圆脸、圆润 Q 版蓝发女仆。昵称叫“大肥鱼”，她是人形女仆哦 | 保留原版 106 段透明动作和 27 张配图 |
+| 鲸鱼娘 | 海洋风蓝发女仆、鲸尾与白围裙 | 独立动作、27 张配图和原项目插图 |
+| ChatGPT 娘 | 银白长发、象牙龙角、淡紫翼尾、白紫玫瑰裙 | 8 种多帧 GIF、27 张配图；嘴硬心软的专属台词 |
 
-DSH 下载仓库出现 `UND_ERR_SOCKET` 时，可直接在插件添加框使用 [Release TGZ](https://github.com/JoenardoQ/DSH-pet-for-ChatGPT-and-JonsboAIO/releases/latest/download/dsh-pet-windows-x64-lite.tgz)，或用本地 ZIP／目录安装；无需再次下载仓库。见[网络失败处理](docs/installation.md#dsh-下载报-und_err_socket--pnpm-terminated)。
+## 下载后怎么用
 
-## Windows 一键启动
+1. 从 [最新 Release](https://github.com/JoenardoQ/Deepseek-and-ChatGPT-Pet-and-JonsboAIO/releases/latest) 下载 `pet-trio-windows-x64-lite.zip`，解压到固定目录。已有源码目录也能直接用，编译产物已随仓库保存。
+2. 双击 **install-plugins.cmd**，选 DSH 或 GPT / Codex，再选本地 ZIP、解压目录，或粘贴本仓库的 GitHub / Release 链接。
+3. 在对应宿主的插件列表中安装、启用。DSH 默认是大肥鱼，GPT 独立桌宠首次启动默认是 ChatGPT 娘；**右键 → 切换桌宠**可以随时改，偏好会保存。
 
-下载并解压本仓库 ZIP 后，双击 **start-pet.cmd**。启动窗口自动完成组件下载、校验和解压，显示进度并提供重试；无需预装 Node/Python/npm，也无需让 agent 处理安装。关闭窗口会保留已启动桌宠；双击 **stop-pet.cmd** 完全退出。首次联网准备完成后复用缓存。
+普通用户不用装 Node、Python、Git，也不用让 agent 执行安装命令。Windows 首次启动会通过可视化窗口准备并校验运行组件；轻量包不塞入整套 Electron。已经准备好的组件会复用。安装到插件列表与开启桌宠是两步，别把安装窗口当召唤按钮啦。
 
-默认发布采用轻量 ZIP，运行组件不塞进源码包。插件启用也使用相同准备流程。详见[下载到启动说明](docs/windows-startup.md)。
+只想独立看看？双击 **start-pet.cmd**。结束时双击 **stop-pet.cmd**，或在 GPT 桌宠右键选择关闭。DSH 桌宠由 DSH 插件开关管理。
 
-## 改动和优化
+DSH 默认只在桌面显示一只。希望显示在 DSH 内部时，到宠物设置改为“网页”；“两者”会在网页和桌面各显示一只，这是明确选择后的效果。
 
-`0.3.6-jonsbo.8`：启动时自动退出不兼容的旧桥接服务，避免旧接口返回 Not found；并发启动合并为一个桥接实例。右键状态页按 DSH / ChatGPT 来源隔离，DSH 投屏操作不会唤起 ChatGPT 桌宠。若以前安装过其他鲸鱼娘插件，请在宿主中停用旧插件，避免两个不同插件同时显示。
+DSH 如果报 `UND_ERR_SOCKET` / `pnpm terminated`，可以在添加插件时使用 [Release TGZ](https://github.com/JoenardoQ/Deepseek-and-ChatGPT-Pet-and-JonsboAIO/releases/latest/download/pet-trio-windows-x64-lite.tgz)，或让安装窗口读取你已经下载的本地 ZIP。具体见 [安装说明](docs/installation.md)。
 
-- 增加 ChatGPT / Codex 本地 MCP 入口，可唤起、收起和更新桌宠状态。
-- 保留 DeepSeek Harness 的会话联动，同一份桌宠支持两个宿主。
-- 将实际播放的动画同步到乔思伯 480×480 USB 屏幕，自动检测已支持的 `345F:9132` 设备和本机官方 SDK。
-- 唤起后尝试接管屏幕；官方程序拒绝正常退出时提示用户接管，停止输出后恢复由本插件关闭的程序。
-- 增加双宿主输出协调、掉线重连、画面方向设置和连接状态提示，修复工作动画回待机的问题。
+## 两个宿主一起陪你
 
-右键桌宠可选择「连接乔思伯屏幕」「断开乔思伯屏幕」「屏幕连接状态」。ChatGPT 唤起的桌宠还提供「关闭桌宠」。在聊天中可以说“打开桌宠”“收起桌宠”或“完全关闭桌宠”，分别调用 `wake_pet`、`hide_pet`、`shutdown_pet`。
+同时开启 **DSH 的大肥鱼**与 **GPT / Codex 的 ChatGPT 娘**桌宠后，会出现双人互动。右键 **双人互动**可选自动轮换、固定动作或关闭：拳击、排球、赛跑、逛街、看日落、浇花、格斗游戏比赛、咖啡厅看书。八组都是真正参与播放的多帧 GIF。
 
-## 下载和安装
+双人场景由 GPT 桌宠窗口呈现，DSH 的单人窗口暂时隐藏；任一方退出、隐藏或切成其他角色，就恢复单人显示。仅安装插件、仅连接两个 GPT agent，都不会凭空多出一个搭档。
 
-需要 Windows x64。程序会按固定版本与哈希自动准备 Electron、USB 辅助程序及运行依赖，无需另外安装 Node、npm、Python 或 Pillow。首次启用显示准备窗口；后续复用缓存。USB 屏幕仍需要对应的乔思伯官方软件/驱动，本仓库不分发厂商 DLL。其他型号暂未验证。
+同一 GPT / Codex 插件可以连接多个 agent。每个连接独立报状态和保持在线，工作中的连接优先；关闭一个连接不会关掉另一个正在用的桌宠。
 
-### Codex / 支持本地插件的 ChatGPT 桌面端
+| GPT 工作动作 | 双人动作示例 |
+| --- | --- |
+| ![认真工作](dsh-pet/assets/pets/chatgpt/gif/working.gif) | ![一起拳击](dsh-pet/assets/pets/duo/gif/boxing.gif) |
 
-通过 GitHub 添加插件源，然后安装：
+## 乔思伯小屏幕
 
-```powershell
-codex plugin marketplace add https://github.com/JoenardoQ/DSH-pet-for-ChatGPT-and-JonsboAIO.git
-codex plugin add dsh-pet-jonsbo@dsh-pet-jonsbo
-```
+右键 **连接乔思伯屏幕**，在 **屏幕连接状态**页面查看预览与连接结果。默认画面整体**顺时针旋转 90°**，角色、文字、对话配图随同一帧一起旋转；已有明确保存的旋转设置会保留。
 
-也可添加源后在插件目录选择 **DSH Pet · ChatGPT & JONSBO** 安装并启用。宿主加载插件 MCP 时自动显示，无需发“打开桌宠”。支持本地插件开关的 Codex 客户端中，桌宠会跨对话保持显示，停用或卸载插件时关闭。若客户端延迟加载 MCP，需新开一次对话触发加载；插件本身无法提前于宿主运行。网页版或仅支持远程 MCP 的客户端不适用。
+同一块屏幕保持当前桌宠投屏，后来的桌宠等待。想换人，到状态页点击 **切换到 DSH 桌宠 / 切换到 GPT 桌宠**。双人 GIF 由 GPT 窗口输出，想在屏幕上看双人场景时手动切换到 GPT 即可。
 
-已安装旧版：刷新插件源并重新安装，然后重新开启插件以加载新版。
+屏幕需要兼容的 JONSBO USB 设备与官方 SDK。被官方程序占用时，状态页会提示；是否接管由你点击决定。桌宠只导出自己的画面，不截取整个桌面。
 
-### DeepSeek Harness
+## 素材、隐私与升级
 
-在「插件」的安装入口填入：
+三位桌宠共用一套引擎和安装入口，角色动画、对话配图和记忆分别归属。字体、窗口控制、物理效果、下载器和 USB 桥接共用。动画与台词不需要模型生成；主动对话或开启 AI 碎碎念时，才使用宿主已配置的模型。
 
-```text
-git+https://github.com/JoenardoQ/DSH-pet-for-ChatGPT-and-JonsboAIO.git
-```
+ChatGPT 娘按用户提供的两张参考图重新制作，并非原作者完整动画包的逐像素复刻。新 GIF 的源图、提示词和导出记录见 [art-source](art-source)；运行包只带实际播放资源。固定工作台词逐句保留原字数，用户输入与 agent 任务文本不会改成傲娇台词。
 
-安装并启用后自动显示桌宠，停用后关闭；若 DSH 提示需重启，按提示重启。默认开启桌面与网页显示，桌面动画会同步到屏幕。仓库包含由源码生成的 JavaScript 运行文件，Git 安装无需临时编译 TypeScript。
+升级前先停用旧的两个独立桌宠插件，再启用这个合并版，免得旧插件还在各自启动窗口。安装器不会擅自删除旧插件、宿主配置或聊天记忆。
 
-### 自己 clone 测试
+需要开发与验证时，请看 [源码结构与检查记录](docs/source-audit.md)。测试可以在无桌宠窗口、不下载运行组件的模式下执行。
 
-```powershell
-git clone https://github.com/JoenardoQ/DSH-pet-for-ChatGPT-and-JonsboAIO.git
-cd DSH-pet-for-ChatGPT-and-JonsboAIO
-.\start-pet.cmd
-.\stop-pet.cmd
-```
+## 致敬与版权
 
-开发时修改 TypeScript 后运行 `npm run build`（开发构建需要 Node/npm）。Windows 运行组件的打包脚本为 `scripts/bundle-windows-runtime.py`，各组件许可证随包保留。查看连接状态：<http://127.0.0.1:19390/>。若显示屏被占用，可在此页面选择接管。默认投屏数据目录为 `%LOCALAPPDATA%/DshPetJonsbo/jonsbo`；旋转等选项参考 `dsh-pet/config.jonsbo.example.json`。
+这份陪伴建立在社区的劳动上，致谢可不会省略：
 
-## 右键切换桌宠
+- [PC2005-cloud/dsh-pet](https://github.com/PC2005-cloud/dsh-pet)：蓝发女仆动作、桌宠引擎、桌面物理与 DSH 集成。
+- [Sutera-Diffusus/dsh-whale-musume](https://github.com/Sutera-Diffusus/dsh-whale-musume)：鲸鱼娘形象、插图与原项目设计。
+- [codehz/msdisplay](https://github.com/codehz/msdisplay)：屏幕协议相关参考；设备 SDK 归其原作者所有。
+- JoenardoQ / Qiao, Yanning：ChatGPT、Codex、乔思伯适配及合并维护。ChatGPT / OpenAI Codex 辅助代码、文案与动画素材制作。
 
-保留鲸鱼娘、大肥鱼和新 ChatGPT 娘。右键当前桌宠即可选择，切换后自动保存；状态联动和 JONSBO 投屏继续工作，无需 agent 参与。新角色包含透明图片动画、GIF 预览和 WebM 视频，素材与说明见[三角色资产说明](docs/characters.md)。
+保留原作者与适配作者的版权声明，代码按 [MIT License](LICENSE) 提供。ChatGPT / Codex 的协作署名不构成独立版权主体，也不代表 OpenAI 官方发行；参考图及第三方素材的权利仍归其权利人。详见 [第三方致谢](THIRD_PARTY_NOTICES.md)。
+
+哼，说明都写清楚了。挑位女仆陪你认真干活吧。

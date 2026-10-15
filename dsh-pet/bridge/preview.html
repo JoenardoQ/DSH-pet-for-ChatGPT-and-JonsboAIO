@@ -21,6 +21,10 @@ pre { white-space:pre-wrap;overflow-wrap:anywhere; }
 <button data-state="thinking">思考</button><button data-state="working">工作</button>
 <button data-state="idle">待机</button><button data-action="hide">隐藏 ChatGPT 桌宠</button>
 </div>
+<p>投屏画面：<button data-source="dsh">切换到 DSH 桌宠</button><button data-source="chatgpt">切换到 GPT 桌宠</button></p>
+<p id="screen-owner"></p>
+<label>双人互动 <select id="duet"><option value="auto">双方在线时自动轮换</option><option value="off">关闭</option><option value="boxing">拳击</option><option value="volleyball">排球</option><option value="running">赛跑</option><option value="shopping">逛街</option><option value="sunset">看日落</option><option value="gardening">浇花</option><option value="gaming">格斗游戏比赛</option><option value="cafe">咖啡厅看书</option></select></label>
+<p id="duet-status"></p>
 <p id="connection">正在检查屏幕…</p>
 <p id="result" role="status"></p>
 <details><summary>连接诊断</summary><pre id="status"></pre></details>
@@ -40,6 +44,9 @@ async function refresh() {
     source ||= s.activeSources?.includes('dsh') ? 'dsh' : s.control.visible ? 'chatgpt' : null;
     document.querySelector('#owner').textContent = source === 'dsh' ? 'DeepSeek Harness 桌宠 · 仅管理当前桌宠投屏' : source === 'chatgpt' ? 'ChatGPT / Codex 桌宠 · 屏幕连接状态' : '请先在宿主中启用桌宠';
     document.querySelector('#status').textContent = JSON.stringify(s,null,2);
+    document.querySelector('#screen-owner').textContent = '当前投屏：' + (s.screenSource === 'dsh' ? 'DSH（另一方等待）' : s.screenSource === 'chatgpt' ? 'GPT（另一方等待）' : '等待桌宠');
+    document.querySelector('#duet').value = s.duet?.mode || 'auto';
+    document.querySelector('#duet-status').textContent = s.duet?.active ? '双人动作：' + s.duet.action : s.duet?.reason || '双人互动已关闭';
     const labels = {streaming:'乔思伯正在显示桌宠','waiting-device':'等待兼容的乔思伯 USB 屏幕连接',busy:'已发现官方程序占用屏幕；可点击“接管屏幕”切换为桌宠画面。','missing-sdk':'请安装乔思伯官方软件以提供屏幕 SDK',inactive:'屏幕输出已释放',disabled:'屏幕输出已关闭'};
     document.querySelector('#connection').textContent = source && s.screens[source] === false ? '当前桌宠的投屏已断开' : labels[s.output.usb] || s.output.error || '正在准备屏幕输出…';
     const live = source && s.activeSources?.includes(source);
@@ -52,7 +59,10 @@ document.querySelectorAll('button').forEach(button => button.onclick = async () 
   button.disabled = true;
   try {
     if (!source) throw new Error('请先在 DSH 或 ChatGPT / Codex 中启用桌宠。');
-    if (button.dataset.screen !== undefined || button.dataset.takeover) {
+    if (button.dataset.source) {
+      await post('/device/source', {source:button.dataset.source});
+      document.querySelector('#result').textContent = '已切换投屏画面。';
+    } else if (button.dataset.screen !== undefined || button.dataset.takeover) {
       await post('/device/connection', {source,enabled:button.dataset.screen !== 'false'});
       if (button.dataset.takeover) {
         const result = await post('/device/takeover', {});
@@ -66,6 +76,7 @@ document.querySelectorAll('button').forEach(button => button.onclick = async () 
   } catch (error) { document.querySelector('#result').textContent = error.message; }
   finally { button.disabled = false; }
 });
+document.querySelector('#duet').onchange = async event => { try { await post('/duet', {mode:event.target.value}); } catch(error) { document.querySelector('#result').textContent = error.message; } };
 refresh();
 </script>
 </html>

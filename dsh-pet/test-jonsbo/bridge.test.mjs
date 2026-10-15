@@ -10,7 +10,7 @@ test('DSH frame leases expire; hiding/screen-off ChatGPT leaves DSH available', 
   s.put('dsh', { animation: 'idle' });
   now = 500;
   s.put('chatgpt', { animation: 'work' });
-  assert.equal(s.current().source, 'chatgpt');
+  assert.equal(s.current().source, 'dsh');
   assert.equal(s.current(['chatgpt']).source, 'dsh');
   now = 3100;
   assert.equal(s.current().source, 'chatgpt');
@@ -59,7 +59,7 @@ test('bridge request protections and control lifecycle', async (t) => {
     })
   ).json();
   assert.equal(wake.control.state, 'thinking');
-  assert.equal(wake.version, 2);
+  assert.equal(wake.version, 3);
   const implicit = await fetch(base + '/event', {method:'POST',headers,body:JSON.stringify({action:'wake'})});
   assert.equal(implicit.status, 400, 'stale preview must not wake ChatGPT');
   const connection = async (value, authorized = true) => fetch(base + '/device/connection', {
@@ -81,10 +81,19 @@ test('bridge request protections and control lifecycle', async (t) => {
     body: JSON.stringify({ source: 'dsh', png: 'no', animation: 'idle' }),
   });
   assert.equal(bad.status, 400);
+  const post = (route, value) => fetch(base+route,{method:'POST',headers,body:JSON.stringify(value)});
+  assert.equal((await post('/device/source',{source:'dsh'})).status,409);
+  for(const source of ['dsh','chatgpt'])await post('/frame',{source,character:source==='dsh'?'fish':'chatgpt',png:'iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB',animation:'idle'});
+  changed=await(await post('/device/source',{source:'dsh'})).json();assert.equal(changed.screenSource,'dsh');
+  changed=await(await post('/device/source',{source:'chatgpt'})).json();assert.equal(changed.screenSource,'chatgpt');
+  changed=await(await post('/duet',{mode:'cafe'})).json();assert.equal(changed.duet.action,'cafe');
+  changed=await(await post('/duet',{mode:'off'})).json();assert.equal(changed.duet.active,false);
+  await post('/duet',{mode:'auto'});
   const hide = await (
     await fetch(base + '/event', { method: 'POST', headers, body: JSON.stringify({ source: 'chatgpt', action: 'hide' }) })
   ).json();
-  assert.equal(hide.visible, false);
+  assert.equal(hide.control.visible, false);
+  assert.equal(hide.activeSources.includes('dsh'), true);
 });
 test('MCP exposes original project tool contract', async () => {
   const r = await dispatch({ jsonrpc: '2.0', id: 1, method: 'tools/list' });

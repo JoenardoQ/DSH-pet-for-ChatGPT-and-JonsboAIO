@@ -1,0 +1,12 @@
+{
+  "id": "success",
+  "file": "dsh-pet/assets/pets/chatgpt/gif/success.gif",
+  "frames": 16,
+  "uniqueFrames": 16,
+  "durationMs": 1920,
+  "bytes": 1017074,
+  "sha256": "f9233a965d6475a244afaf75bb4ec707a4ee4ea1d8c3cbffef4677b602d0432d",
+  "prompt": "Use case: illustration-story. Create a PRODUCTION ANIMATION SPRITE SHEET, EXACTLY 4 columns x 4 rows, 16 equal square cells, showing 16 consecutive DIFFERENT frames of ONE continuous seamless loop. Row-major chronology. Transparent background, NO text labels lines watermarks. One SAME FULL BODY character in every cell with identical camera scale baseline generous padding (wings and shoes fully inside every cell). Reference identifies the character, not motion: adult anime girl, silver-white very long hair, ivory dragon horns, purple eyes, lavender dragon wings and long tail, elegant ornate white/lilac rose maid-like dress. Faithfully retain her appearance. Clean detailed anime cel shading. Each progressive frame must have newly articulated limbs/face/hair/skirt/wings/tail. Real joint bends with anticipation, motion, follow-through and recovery. NOT eight static poses, NOT duplicated resized or shifted copies, NOT whole-body floating bob. Action: Delighted tsundere celebration: bend knees, small hop, raise fists joyfully, blush and turn face aside in proud embarrassment, wings open with bounce, skirt and long hair flutter, settle back to initial pose.",
+  "source": "art-source/chatgpt/success.png",
+  "mode": "built-in image_gen; mechanical sprite-sheet to GIF export"
+}

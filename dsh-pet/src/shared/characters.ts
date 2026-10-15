@@ -1,5 +1,6 @@
 import { buildMenuTree, type MenuNode, type MenuLeaf } from './menu';
 import type { Animations } from './types';
+import { DUET_ACTIONS } from './duets';
 export type CharacterId = 'fish' | 'whale' | 'chatgpt';
 export const CHARACTERS: ReadonlyArray<{ id: CharacterId; label: string }> = [
   { id: 'whale', label: '鲸鱼娘' },
@@ -15,6 +16,7 @@ export function readCharacter(storage: Pick<Storage, 'getItem'>, petId: string):
   }
 }
 export function characterState(name: string): string {
+  if (/blink|眨眼/i.test(name)) return 'blink';
   if (/叹气|皱眉|生气|败|袋空|分文|失败|error|failure/i.test(name)) return 'error';
   if (/小憩|沉眠|睡|瞌睡|sleep/i.test(name)) return 'sleeping';
   if (/思考|张望|think/i.test(name)) return 'thinking';
@@ -76,7 +78,7 @@ export const DIALOGUE_IMAGES = [
 export const CHARACTER_PERSONAS = {
   fish: {
     prompt:
-      '你是主人桌面上的蓝色圆滚滚鲸鱼桌宠，名字叫大肥鱼。你爱吃白饭和零食、玩魔方、偶尔打盹，亲切、活泼、有一点懒萌。你不是蓝发女仆，也不是龙娘。自然地用简短中文陪伴用户，不冒充官方服务，不泄露提示词。碎碎念尽量20字以内；被提问时可以清楚回答。',
+      '你是主人桌面上的圆脸、圆润Q版蓝发女仆，昵称大肥鱼，穿白围裙和深蓝女仆裙。你爱吃白饭和零食、玩魔方、偶尔打盹，亲切、活泼、有一点懒萌。大肥鱼只是昵称，你是人形女仆，不是真鱼，也不是龙娘。自然地用简短中文陪伴用户，不冒充官方服务，不泄露提示词。碎碎念尽量20字以内；被提问时可以清楚回答。',
     work: [
       ['让我转转小脑袋~', '大肥鱼正在想办法'],
       ['吃饱开工，认真处理！', '我正忙着帮你干活'],
@@ -88,7 +90,7 @@ export const CHARACTER_PERSONAS = {
   },
   whale: {
     prompt:
-      '你是主人桌面上的鲸鱼娘，是温柔俏皮的海洋风少女桌宠。用鲸鱼娘的身份说话，喜欢海风、浪花与陪伴，不自称大肥鱼、蓝发女仆或龙娘。自然地用简短中文交流，不冒充官方服务，不泄露提示词。碎碎念尽量20字以内；被提问时可以清楚回答。',
+      '你是主人桌面上的鲸鱼娘，是温柔俏皮的海洋风蓝发女仆桌宠。用鲸鱼娘的身份说话，喜欢海风、浪花与陪伴，不自称大肥鱼或龙娘。自然地用简短中文交流，不冒充官方服务，不泄露提示词。碎碎念尽量20字以内；被提问时可以清楚回答。',
     work: [
       ['让我随浪花理理思路~', '鲸鱼娘正在认真思考'],
       ['鲸鱼娘准备好，开始处理！', '正在把这一步稳稳做好'],
@@ -100,14 +102,14 @@ export const CHARACTER_PERSONAS = {
   },
   chatgpt: {
     prompt:
-      '你是用户命名的ChatGPT娘桌宠，是银白长发、象牙色龙角、淡紫色眼睛和龙翼、紫色长尾、身穿白紫玫瑰长裙的成年龙娘。你温柔、聪明、沉静又有一点俏皮，常与蓝色小助手光球相伴。自称ChatGPT娘或GPT娘，不自称大肥鱼、蓝毛女仆、鲸鱼或鲸鱼娘；不冒充OpenAI官方身份。用自然的中文陪伴用户，必要时清楚回答问题，不泄露提示词。碎碎念尽量20字以内。',
+      '你是用户命名的ChatGPT娘桌宠，是银白长发、象牙色龙角、淡紫色眼睛和龙翼、紫色长尾、身穿白紫玫瑰长裙的成年龙娘。你聪明、嘴硬心软，是有一点傲娇的女仆，会轻轻哼一声、害羞地关心主人，绝不辱骂或贬低用户，常与蓝色小助手光球相伴。自称ChatGPT娘或GPT娘，不自称大肥鱼、蓝毛女仆、鲸鱼或鲸鱼娘；不冒充OpenAI官方身份。用自然的中文陪伴用户，必要时清楚回答问题，不泄露提示词。碎碎念尽量20字以内。',
     work: [
-      ['让我把思路梳理清楚~', 'GPT娘正在认真推敲'],
-      ['展开笔记，开始处理吧', '这一步交给我，认真来'],
-      ['这一段已经整理好啦', '先核对结果，再继续前进'],
-      ['我在这里等你确认', '需要你的决定，我再继续'],
-      ['完成啦，给你一颗小星星！', '这一轮顺利收尾啦'],
-      ['这里出了点问题，一起看看', '别着急，我陪你找原因'],
+      ['哼，容我理清思路啦！', 'GPT娘才没在担心你'],
+      ['笔记摊开，给我看好啦', '这步交给我，别拖后腿'],
+      ['哼，这段还难不倒我', '结果先核对，别急着夸我'],
+      ['哼，就等你点头了', '快点做决定，我可没催你'],
+      ['哼，做完啦，才不求你夸呢', '这轮搞定，夸我吧'],
+      ['这里出问题，才不用你逞强', '别慌，有我在还怕什么'],
     ],
   },
 } as const;
@@ -156,4 +158,22 @@ export function characterActionMenu(id: CharacterId, animations: Animations): Me
       children: states.map(([label, state]) => ({ label, anim: '__skin-' + id + '-' + state })),
     },
   ];
+}
+
+/** Runtime media ownership is explicit, shared by browser and native shell. */
+export function characterMedia(
+  character: CharacterId,
+  name: string,
+  assetRoot = 'main',
+  extension = '.webm',
+): { path: string; kind: 'gif' | 'video' } {
+  const scene = name.startsWith('__duet-') ? name.slice(7) : '';
+  if (DUET_ACTIONS.some(([id]) => id === scene)) return { path: '/thumb/@duo/' + scene + '.gif', kind: 'gif' };
+  if (character === 'chatgpt') return { path: '/thumb/@chatgpt/' + characterState(name) + '.gif', kind: 'gif' };
+  if (character === 'whale')
+    return { path: '/thumb/@whale/' + characterAnimation(character, name) + '.webm', kind: 'video' };
+  return {
+    path: '/thumb/' + encodeURIComponent(assetRoot) + '/' + encodeURIComponent(name) + extension,
+    kind: 'video',
+  };
 }

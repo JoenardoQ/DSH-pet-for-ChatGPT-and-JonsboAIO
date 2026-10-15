@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "dsh-pet-jonsbo": {
+    "pet-trio-jonsbo": {
       "type": "stdio",
       "command": "powershell.exe",
       "args": [

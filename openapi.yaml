@@ -213,7 +213,7 @@ paths:
           宿主不做静默丢弃、截断或排队；
         - `pet` 必须是一只真实存在的桌宠；缺省时落到当前桌宠，仍为空则兜底 `main`；
         - `image` 只接受**该桌宠条目表情包池内**的名称（即该条目 `memes` 里、且在其表情包目录链
-          —— `pet/<素材根>-memes/`（独占）或 `memes/` → 包内 `assets/memes/` ——里真实存在的键）。
+          —— `pet/<素材根>-memes/`（独占）或 `memes/` → 包内 `assets/pets/fish/memes/` ——里真实存在的键）。
           传入外部 URL 或池外名称一律拒绝——前端因此永远不会去加载任意外部地址
           （与对话选图共用同一份校验）。
       parameters:
@@ -805,7 +805,7 @@ paths:
           按素材根决定**素材归属**，与动画（`/thumb`）同一套语义：
           1. `pet/<素材根>-memes/` 存在（种类自带表情包）：**只查该目录**，查不到即 `404` 显式报错，
              **绝不回落**别的目录；
-          2. 不存在：用户目录 `$DSH_HOME/dsh-pet/memes/` 优先，其次包内 `assets/memes/`（逐文件合并，
+          2. 不存在：用户目录 `$DSH_HOME/dsh-pet/memes/` 优先，其次包内 `assets/pets/fish/memes/`（逐文件合并，
              与 `main-animation/<ext> → 包内 assets/<ext>` 的主素材链同构）。
 
           素材根 = 该宠物的条目 key（`assetRoot`：主配置宠物为 `main`，文件宠物为配置文件前缀）。

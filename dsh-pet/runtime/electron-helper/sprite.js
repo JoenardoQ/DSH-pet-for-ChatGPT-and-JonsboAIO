@@ -133,6 +133,8 @@ class PetSprite {
     stage.className = 'pet-stage';
     stage.style.transform = 'translateY(' + this.bottomPad + 'px)';
     this.stage = stage;
+    this.gifPlayer = new S.GifPlayer(stage);
+    this.duetAction = null;
     this.videoA = document.createElement('video');
     this.videoA.className = 'pet-video is-front';
     this.videoB = document.createElement('video');
@@ -161,6 +163,7 @@ class PetSprite {
 
     stage.appendChild(this.videoA);
     stage.appendChild(this.videoB);
+    stage.appendChild(this.gifPlayer.canvas);
     stage.appendChild(this.hit);
     this.el.appendChild(this.bubble);
     this.el.appendChild(this.tip);
@@ -229,6 +232,7 @@ class PetSprite {
 
   dispose() {
     this.ac.abort();
+    this.gifPlayer.dispose();
     if (this.bubbleTimer !== null) window.clearTimeout(this.bubbleTimer);
     if (this.whisperTimer !== null) window.clearTimeout(this.whisperTimer);
     if (this.workTimer !== null) window.clearTimeout(this.workTimer);
@@ -344,6 +348,7 @@ class PetSprite {
   // 双缓冲切换（与浏览器同一套：前台 opacity 切换 + 降级视频清 handler 并停播，防残留 ended 雪崩）
   switchTo(next, nextOnce) {
     if (!next) return;
+    if (this.duetAction && !next.startsWith('__duet-')) return;
     // Work-state loops call switchTo directly. Keep the animation identity in
     // sync so returning to idle can release that loop (and USB reports it).
     this.anim = next;
@@ -362,9 +367,19 @@ class PetSprite {
     const target = this.front === 0 ? this.videoB : this.videoA;
     const el = target;
     if (!el) return;
-    const visual=S.characterAnimation(this.character,next);
-    const assetBase=this.character==='fish'?this.assetBase:BASE+'/thumb/main/';
-    el.src = assetBase + encodeURIComponent(visual) + (this.character==='fish'?(S.ANIMATION_EXT || '.webm'):'.webm');
+    const media = S.characterMedia(this.character, next, this.assetRoot, S.ANIMATION_EXT || '.webm');
+    if (media.kind === 'gif') {
+      for (const video of [this.videoA, this.videoB]) {
+        video.onended = null; video.pause(); video.classList.remove('is-front');
+      }
+      this.pendingSquash = false; this.pendingMove = null;
+      this.gifPlayer.play(BASE + media.path, nextOnce, () => this.handleEnded()).then(() => {
+        if (this.gen === gen) this.pending = null;
+      }).catch(error => { if (this.gen === gen) { this.pending = null; this.showWhisper(error.message); } });
+      return;
+    }
+    this.gifPlayer.stop();
+    el.src = BASE + media.path;
     el.loop = !nextOnce;
     el.muted = true;
     el.autoplay = true;
@@ -388,7 +403,7 @@ class PetSprite {
       el.removeEventListener('loadeddata', onReady);
       window.clearTimeout(loadTimer);
       el.onerror = null;
-      if (this.pending && this.pending.gen !== gen) return;
+      if (this.gen !== gen) return;
       const old = this.front === 0 ? this.videoA : this.videoB;
       el.classList.add('is-front');
       if (old && old !== el) {
@@ -1152,7 +1167,7 @@ class PetSprite {
       if (window.__jonsboDebug?.source === 'chatgpt')
         tools.push({ label: '关闭桌宠', action: 'jonsbo-shutdown' });
     }
-    const tree = [S.characterMenu(this.character)].concat(tools,S.characterActionMenu(this.character,this.animations));
+    const tree = [S.characterMenu(this.character), S.duetMenu()].concat(tools,S.characterActionMenu(this.character,this.animations));
     if (!tree.length) return;
     this.menuOpen = true;
     this.setInteractive(true); // 菜单是窗口内 DOM：悬停期间整窗保持可交互，关闭后恢复命中区穿透
@@ -1175,6 +1190,15 @@ class PetSprite {
     this.menuClose = m.close;
   }
 
+  applyDuet(status) {
+    const action = status?.active && status.owner === window.__jonsboDebug?.source ? status.action : null;
+    if (action === this.duetAction) return;
+    if (action && !this.duetAction) this.duetSolo = { anim: this.anim, once: this.once };
+    this.duetAction = action;
+    this.stopMove(); this.stopThrow(); this.pending = null; this.gen++;
+    if (action) this.switchTo('__duet-' + action, false);
+    else this.switchTo(this.duetSolo?.anim || this.animations.idle[0], this.duetSolo?.once ?? true);
+  }
   applyCharacter(character) {
     if(!S.CHARACTERS.some(c=>c.id===character)||character===this.character)return;
     this.chatClose?.();this.chatClose=null;this.character=character;this.gen++;this.pending=null;this.whisperOn=false;this.whisperImage=undefined;this.workOn=false;this.workText=null;
@@ -1184,6 +1208,13 @@ class PetSprite {
   onMenuAction(leaf) {
     this.closeMenu();
     if (!leaf || typeof leaf !== 'object') return;
+    if (leaf.action?.startsWith('duet-') && window.jonsboBridge) {
+      window.jonsboBridge.setDuet(leaf.action.slice(5)).then(result => {
+        if (result.error) this.showWhisper(result.error);
+        else if (!result.duet?.eligible && leaf.action !== 'duet-off') this.showWhisper(result.duet?.reason || '等待另一位桌宠上线');
+      }).catch(error => this.showWhisper(error.message));
+      return;
+    }
     const character=S.characterAction(leaf.action);
     if(character) {
       S.saveCharacter(BASE,this.pet.id,character).then(()=>this.applyCharacter(character)).catch(error=>this.showWhisper(error.message));

@@ -5,7 +5,7 @@ import os from 'node:os';
 export function pluginEnabled(file = path.join(process.env.CODEX_HOME || path.join(os.homedir(), '.codex'), 'config.toml')) {
   try {
     const text = readFileSync(file, 'utf8');
-    const section = text.match(/^\[plugins\.["']dsh-pet-jonsbo@dsh-pet-jonsbo["']\]\s*\r?\n([\s\S]*?)(?=^\[|$(?![\s\S]))/m);
+    const section = text.match(/^\[plugins\.["']pet-trio-jonsbo@pet-trio-jonsbo["']\]\s*\r?\n([\s\S]*?)(?=^\[|$(?![\s\S]))/m);
     if (!section) return undefined;
     const enabled = section[1].match(/^enabled\s*=\s*(true|false)\s*(?:#.*)?$/m);
     return enabled ? enabled[1] === 'true' : undefined;

@@ -1,8 +1,9 @@
 import http from 'node:http';
 import { spawn } from 'node:child_process';
-import { mkdirSync, existsSync, writeFileSync, readFileSync } from 'node:fs';
+import { mkdirSync, existsSync, writeFileSync, readFileSync, renameSync } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { Duets } from './duets.mjs';
 import { Sources, validateEvent, Controls } from './state.mjs';
 import { HostLeases } from './plugin-lifetime.mjs';
 import { root, port, dataDir, config, pythonCommand, nodeCommand, dshHome, electronPath } from './runtime.mjs';
@@ -19,6 +20,14 @@ export function createBridge({ launch = true } = {}) {
   const controls=new Controls();
   let control=controls.snapshot();
   const cfg = config();
+  const duetFile = path.join(dataDir, 'duet.json');
+  let duetMode = 'auto';
+  try { duetMode = JSON.parse(readFileSync(duetFile, 'utf8')).mode; } catch {}
+  const duets = new Duets({ mode: duetMode, persist(mode) {
+    mkdirSync(dataDir, { recursive: true });
+    writeFileSync(duetFile + '.tmp', JSON.stringify({ mode }));
+    renameSync(duetFile + '.tmp', duetFile);
+  } });
   const screenEnabled = { dsh: true };
   const excludedSources = () => [
     ...(currentControl().screen ? [] : ['chatgpt']),
@@ -36,8 +45,8 @@ export function createBridge({ launch = true } = {}) {
     return {
       service: 'dsh-pet-jonsbo',
       shuttingDown:shuttingDown || lifecycleClosing,
-      version: 2,
-      build: '0.3.6-jonsbo.8',
+      version: 3,
+      build: '1.0.0',
       pid: process.pid,
       visible: control.visible || !!f,
       control: currentControl(),
@@ -47,6 +56,7 @@ export function createBridge({ launch = true } = {}) {
       frameAt: f?.at,
       output,
       activeSources: [...sources.frames.keys()],
+      duet: duets.snapshot(sources, currentControl()),
       connections: control.connections,
       screens: { chatgpt: control.screen, dsh: screenEnabled.dsh },
       standalone: standalone?.pid || null,
@@ -104,7 +114,7 @@ export function createBridge({ launch = true } = {}) {
             pets: [
               {
                 id: 'main',
-                name: '大肥鱼',
+                name: 'ChatGPT 娘',
                 size: 380,
                 display: 'desktop',
                 balanceEnabled: false,
@@ -120,6 +130,8 @@ export function createBridge({ launch = true } = {}) {
           2,
         ),
       );
+    const charactersFile = path.join(dshHome, 'dsh-pet/characters.json');
+    if (!existsSync(charactersFile)) writeFileSync(charactersFile, JSON.stringify({ main: 'chatgpt' }));
     standalone = spawn(nodeCommand(), [path.join(root, 'lib/standalone.js'), '--port', String(port + 1)], {
       cwd: root,
       windowsHide: true,
@@ -230,6 +242,16 @@ export function createBridge({ launch = true } = {}) {
         if(value.release || !enabled)controls.release(value.id);else controls.heartbeat(value.id);
         return send(200,{enabled});
       }
+      if (url.pathname === '/device/source') {
+        if (!value || !['dsh','chatgpt'].includes(value.source) || Object.keys(value).length !== 1)
+          throw Error('Invalid screen source');
+        sources.current();
+        if (!sources.frames.has(value.source)) return send(409, { error: '所选桌宠当前未在线' });
+        sources.preferred = value.source;
+        screenEnabled[value.source] = true;
+        lastFrame = undefined;
+        return send(200, snapshot());
+      }
       if (url.pathname === '/device/connection') {
         if (!value || !['chatgpt', 'dsh'].includes(value.source) || typeof value.enabled !== 'boolean'
           || Object.keys(value).some((key) => !['source', 'enabled'].includes(key)))
@@ -248,6 +270,11 @@ export function createBridge({ launch = true } = {}) {
         }
         return send(200, snapshot());
       }
+      if (url.pathname === '/duet') {
+        if (!value || Object.keys(value).some(k => k !== 'mode')) throw Error('Expected duet mode');
+        duets.set(value.mode);
+        return send(200, snapshot());
+      }
       if (url.pathname === '/frame') {
         if (
           typeof value.png !== 'string' ||
@@ -257,10 +284,10 @@ export function createBridge({ launch = true } = {}) {
         )
           throw new Error('Invalid frame');
         if (value.source === 'chatgpt' && !control.visible) return send(200, { ok: true, ignored: true });
-        sources.put(value.source, { png: value.png, animation: value.animation });
+        sources.put(value.source, { png: value.png, animation: value.animation, character: ['fish','whale','chatgpt'].includes(value.character) ? value.character : null });
         if (value.source === 'dsh') dshSeen = true;
         if (!worker && output.worker === 'stopped' && output.exitCode === undefined) startWorker();
-        return send(200, { ok: true });
+        return send(200, { ok: true, duet: duets.snapshot(sources, currentControl()) });
       }
       if (url.pathname === '/event') {
         const before=currentControl();

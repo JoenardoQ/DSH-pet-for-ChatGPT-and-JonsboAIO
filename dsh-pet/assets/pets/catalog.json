@@ -1,10 +1,32 @@
 {
-  "schema": 1,
-  "default": "fish",
+  "schema": 2,
+  "defaultByHost": {
+    "dsh": "fish",
+    "chatgpt": "chatgpt"
+  },
   "characters": [
+    {
+      "id": "fish",
+      "label": "大肥鱼",
+      "appearance": "圆润Q版蓝发人形女仆；大肥鱼是昵称",
+      "animations": "fish/webm",
+      "memes": "fish/memes",
+      "states": "upstream 108 animations"
+    },
+    {
+      "id": "whale",
+      "label": "鲸鱼娘",
+      "appearance": "海洋风蓝发人形女仆",
+      "animations": "whale/webm",
+      "memes": "whale/memes",
+      "sourceIllustrations": "art-source/whale/illustrations"
+    },
     {
       "id": "chatgpt",
       "label": "ChatGPT 娘",
+      "appearance": "银白发、淡紫翼尾的成年龙娘女仆",
+      "animations": "chatgpt/gif",
+      "memes": "chatgpt/memes",
       "states": [
         "idle",
         "blink",
@@ -15,46 +37,31 @@
         "sleeping",
         "wave"
       ]
-    },
-    {
-      "id": "whale",
-      "label": "鲸鱼娘",
-      "states": [
-        "idle",
-        "thinking",
-        "working",
-        "success",
-        "error",
-        "sleeping",
-        "wave"
-      ]
-    },
-    {
-      "id": "fish",
-      "label": "大肥鱼",
-      "states": [
-        "idle",
-        "thinking",
-        "working",
-        "success",
-        "error",
-        "sleeping",
-        "wave"
-      ]
     }
   ],
+  "duo": {
+    "participants": [
+      "fish",
+      "chatgpt"
+    ],
+    "animations": "duo/gif",
+    "states": [
+      "boxing",
+      "volleyball",
+      "running",
+      "shopping",
+      "sunset",
+      "gardening",
+      "gaming",
+      "cafe"
+    ],
+    "requires": "both live desktop hosts and matching selected characters"
+  },
   "generation": {
-    "tool": "image_gen built-in",
-    "reference": "Two user-provided JPG illustrations; similar recreation, not original animation assets",
-    "atlasSize": [
-      1448,
-      1086
-    ],
-    "grid": [
-      4,
-      2
-    ],
-    "fps": 8,
-    "seconds": 4
+    "mode": "built-in image_gen",
+    "reference": "user supplied JPG illustrations; similar recreation",
+    "source": "art-source",
+    "runtimeFormat": "GIF",
+    "frames": "12–16 distinct articulated frames per new action"
   }
 }

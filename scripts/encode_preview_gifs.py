@@ -1,13 +1,13 @@
-"""Generate animated GIF previews from the playing assets (dsh-pet/assets/webm -> dsh-pet/assets/preview).
+"""Generate animated GIF previews from the playing assets (dsh-pet/assets/pets/fish/webm -> dsh-pet/assets/preview).
 
-素材处理链的附属步骤：把插件实际播放的透明 WebM（dsh-pet/assets/webm/）转成 GIF 预览
+素材处理链的附属步骤：把插件实际播放的透明 WebM（dsh-pet/assets/pets/fish/webm/）转成 GIF 预览
 （dsh-pet/assets/preview/），供 GitHub README 等 Markdown 页面展示。
 
 为什么需要这一步：
 - GitHub 的 Markdown 渲染器只为「网页端上传的附件」生成内联视频播放器；
   仓库内通过 <video> 引用的 webm 不会播放（raw 返回 audio/webm MIME）。
 - 仓库内图片（含 GIF）用 Markdown 图片语法可以正常内联显示。
-- 故 README 预览区用 GIF 演示，完整透明视频仍以 webm 形式保留在 assets/webm/。
+- 故 README 预览区用 GIF 演示，完整透明视频仍以 webm 形式保留在 assets/pets/fish/webm/。
 
 透明处理：GIF 支持 1bit 透明。源 webm 是透明背景，直接转 GIF 会把透明区域
 转成黑色；本脚本用 palettegen/paletteuse 保留 alpha，透明部分在页面上显示为底色。

@@ -128,8 +128,8 @@ const PACKAGE_ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
 /** 包内 assets 根 */
 const PACKAGE_ROOT_ASSETS = join(PACKAGE_ROOT, 'assets');
 
-/** 包内表情包目录（表情包池的最后一环：assets/memes/<名称>.png） */
-const PACKAGE_MEMES_DIR = join(PACKAGE_ROOT_ASSETS, 'memes');
+/** 包内表情包目录（表情包池的最后一环：assets/pets/fish/memes/<名称>.png） */
+const PACKAGE_MEMES_DIR = join(PACKAGE_ROOT_ASSETS, 'pets', 'fish', 'memes');
 
 /** 路由前缀 */
 const ROUTE_PREFIX = '/dsh-pet-7340';
@@ -146,6 +146,7 @@ const isDesktopHost = (): boolean => Boolean(process.versions.electron);
 /** 不同扩展名对应的 Content-Type 映射 */
 const MIME: Record<string, string> = {
   '.webm': 'video/webm',
+  '.gif': 'image/gif',
   '.mov': 'video/quicktime',
   '.mp4': 'video/mp4',
   '.png': 'image/png',
@@ -277,14 +278,14 @@ export function apply(ctx: any): void {
   migrateUserConfig(configPaths, (msg) => console.log('[dsh-pet] ' + msg));
   // 用户动画目录（thumb 播放时优先于包内素材；webm 放 main-animation/webm/，mov（macOS 定制）放 main-animation/mov/）
   const thumbUserRoot = join(userRoot, 'main-animation');
-  // 用户表情包目录（碎碎念/对话配图的图片：优先于包内 assets/memes，加图不必改包）
+  // 用户表情包目录（碎碎念/对话配图的图片：优先于包内 assets/pets/fish/memes，加图不必改包）
   const memesUserRoot = join(userRoot, 'memes');
   const readPetConfig = () => characters.decorate(readAllConfig(configPaths));
   /**
    * 表情包目录链 —— 与动画素材（/thumb）**同一套素材归属语义**：
    *   - `pet/<素材根>-memes/` 存在（种类自带表情包）：**只查它**，池与路由都不回落——
    *     查不到即 404 / 该条目剔除（与 `pet/<素材根>-animation/` 的独占规则逐字一致）；
-   *   - 否则：用户目录 `$DSH_HOME/dsh-pet/memes/` 优先，其次包内 `assets/memes/`（逐文件合并，
+   *   - 否则：用户目录 `$DSH_HOME/dsh-pet/memes/` 优先，其次包内 `assets/pets/fish/memes/`（逐文件合并，
    *     与「main-animation/<ext> → 包内 assets/<ext>」的主素材链同构）。
    * 池（readMemePool）与路由（/pic/memes）必须走**同一个函数**：池里能选的名字，
    * 路由必须取得到，否则气泡配图会图裂。
@@ -822,7 +823,7 @@ export function apply(ctx: any): void {
   const animSubdirFor = (ext: string): string => (ext === '.mov' ? 'mov' : 'webm');
 
   /** 包内动画素材根：按扩展名取子目录（webm/ 随包发布；mov/ 不存在时为 404 兜底，仅 macOS 自维护）。 */
-  const assetRootFor = (ext: string): string => join(PACKAGE_ROOT, 'assets', animSubdirFor(ext));
+  const assetRootFor = (ext: string): string => join(PACKAGE_ROOT_ASSETS, 'pets', 'fish', animSubdirFor(ext));
 
   /** 用户动画根：按扩展名取子目录（main-animation/webm 或 main-animation/mov）。 */
   const userRootFor = (ext: string): string => join(thumbUserRoot, animSubdirFor(ext));
@@ -1253,6 +1254,15 @@ export function apply(ctx: any): void {
     }
     const fileName = nameParts.join('/');
     const ext = fileName.slice(fileName.lastIndexOf('.')).toLowerCase();
+    if (['@chatgpt', '@whale', '@fish', '@duo'].includes(petId)) {
+      if (!['.gif', '.webm'].includes(ext) || nameParts.length !== 1)
+        return { kind: 'text', status: 400, body: 'Unsupported role asset' };
+      const role = petId.slice(1);
+      const folder = ext === '.gif' ? 'gif' : 'webm';
+      const owned = resolveExisting(join(PACKAGE_ROOT_ASSETS, 'pets', role, folder), fileName);
+      if (!owned) return { kind: 'text', status: 404, body: 'Character asset not found' };
+      return { kind: 'file', file: owned, contentType: MIME[ext] ?? 'image/webp' };
+    }
     if (ext !== '.webm' && ext !== '.mov') {
       return { kind: 'text', status: 400, body: 'dsh-pet: unsupported animation format (expected .webm or .mov)' };
     }

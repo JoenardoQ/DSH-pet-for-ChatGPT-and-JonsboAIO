@@ -1,0 +1,12 @@
+{
+  "id": "gardening",
+  "file": "dsh-pet/assets/pets/duo/gif/gardening.gif",
+  "frames": 16,
+  "uniqueFrames": 16,
+  "durationMs": 1920,
+  "bytes": 1075655,
+  "sha256": "209ed81d61d72b7c0fc1d24cb9080c64014df173880da38d18120b2faf49b408",
+  "prompt": "Use case: illustration-story. Production GIF ANIMATION SPRITE SHEET. EXACTLY 4 columns x 4 rows of equal square cells containing 16 consecutive sequential different frames of ONE natural loop in row-major order. Fully transparent background, no grid, NO TEXT/no labels/no watermark. Every cell contains the same TWO FULL BODY HUMAN girls together with fixed camera scale and baseline; safe margins. Ref1: adult elegant silver-white long-haired dragon girl, ivory horns, purple eyes, lavender wings and long tail, white/lilac rose dress. Ref2: ROUND CHIBI HUMAN BLUE-HAIRED MAID, big round face, short cute chubby body, blue eyes, frilly white headband, navy maid dress white apron whale emblem, human hands feet. 'Fat fish' is ONLY her nickname, never an animal! Preserve both appearances in all frames, anime cel-shaded detailed consistent. True articulated animation, progressive joint poses, anticipation/action/follow-through, NOT static copies with whole-body translation or wobble. Scene: Watering flowers together: blue chibi HUMAN maid lifts a small watering can and tips it, visible water droplets fall into lavender potted flowers, silver girl steadies pot with both hands, bends down then brushes a leaf, they exchange a happy glance and reset can. Real arm bends, droplets, hair and skirt follow-through.",
+  "source": "art-source/duo/gardening.png",
+  "mode": "built-in image_gen; mechanical sprite-sheet to GIF export"
+}

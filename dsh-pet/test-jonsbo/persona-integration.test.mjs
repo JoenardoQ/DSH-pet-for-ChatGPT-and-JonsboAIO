@@ -127,6 +127,16 @@ test(
             await r.arrayBuffer();
           }
       }
+      for (const id of ['chatgpt','whale','fish']) {
+        const media = S.characterMedia(id,'待机呼吸休闲');
+        const response = await fetch(base + media.path);
+        assert.equal(response.status,200,media.path);
+        assert.equal(response.headers.get('content-type'),id==='chatgpt'?'image/gif':'video/webm');
+        await response.arrayBuffer();
+      }
+      assert.equal((await fetch(base+'/thumb/@fish/working.gif')).status,404);
+      assert.equal((await fetch(base+'/thumb/@chatgpt/boxing.gif')).status,404);
+      assert.equal((await fetch(base+'/thumb/@duo/boxing.gif')).status,200);
       await post('/character', { petId: 'main', character: 'chatgpt' });
       const text = '用户任务提到大肥鱼，原文不能改';
       const image = S.DIALOGUE_IMAGES[0].name;

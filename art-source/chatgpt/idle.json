@@ -1,0 +1,12 @@
+{
+  "id": "idle",
+  "file": "dsh-pet/assets/pets/chatgpt/gif/idle.gif",
+  "frames": 16,
+  "uniqueFrames": 16,
+  "durationMs": 1920,
+  "bytes": 1038080,
+  "sha256": "181b19a86a9ab11b2ba13237fff3cb5964a9c305be33cfc9df261d8350935421",
+  "prompt": "Use case: illustration-story. Create a PRODUCTION ANIMATION SPRITE SHEET, EXACTLY 4 columns x 4 rows, 16 equal square cells, showing 16 consecutive DIFFERENT frames of ONE continuous seamless loop. Row-major chronology. Transparent background, NO text labels lines watermarks. One SAME FULL BODY character in every cell with identical camera scale baseline generous padding (wings and shoes fully inside every cell). Reference identifies the character, not motion: adult anime girl, silver-white very long hair, ivory dragon horns, purple eyes, lavender dragon wings and long tail, elegant ornate white/lilac rose maid-like dress. Faithfully retain her appearance. Clean detailed anime cel shading. Each progressive frame must have newly articulated limbs/face/hair/skirt/wings/tail. Real joint bends with anticipation, motion, follow-through and recovery. NOT eight static poses, NOT duplicated resized or shifted copies, NOT whole-body floating bob. Action: Relaxed lively waiting loop: one hand holds skirt edge, shifting weight between feet, head tilts then straightens, the other hand brushes a curl behind ear, wings gently open and fold, tail curls and releases with delayed hair follow through, soft blink.",
+  "source": "art-source/chatgpt/idle.png",
+  "mode": "built-in image_gen; mechanical sprite-sheet to GIF export"
+}

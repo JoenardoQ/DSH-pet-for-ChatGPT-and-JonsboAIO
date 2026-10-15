@@ -1,0 +1,98 @@
+[
+  {
+    "id": "boxing",
+    "file": "dsh-pet/assets/pets/duo/gif/boxing.gif",
+    "frames": 16,
+    "uniqueFrames": 16,
+    "durationMs": 1920,
+    "bytes": 1032289,
+    "sha256": "c42bf5b3f6891d6f20e628db3587b55ee9007b40a2a570f7690e0fdf9c1cc311",
+    "prompt": "Use case: illustration-story. Production animation SPRITE SHEET for an actual desktop pet GIF. EXACT 4 columns x 4 rows, 16 equal square cells, 16 SEQUENTIAL frames of ONE continuous loop ordered left to right then top to bottom. No text, no grid lines, no labels, no watermark. Fully transparent background. Each cell contains BOTH full-body characters centered together with generous transparent padding; fixed camera, fixed scale and baseline. Ref 1 identifies the adult elegant silver-white long-haired lavender dragon girl with ivory horns, lavender wings/tail, ornate white/lilac rose dress; match her design. Ref 2 identifies the OTHER character: a ROUND CUTE CHIBI HUMAN BLUE-HAIRED MAID, big round head, short plump cute body, blue eyes, frilly white maid headband, navy dress and white whale-emblem apron. She is HUMAN, with hands and legs; 'fat fish' is just her nickname. NOT an animal, NOT a fish/whale body. Preserve both identities in all 16 cells. Clean detailed anime cel-shaded style, readable at small desktop sizes. TRUE articulated animation with progressive limb joint poses and changing facial expression; not copies shifted, not whole-body affine wobble. First/last frames should loop naturally. Scene action: Playful boxing practice with padded gloves. Guard stance, left jab extends and recoils, partner dodges leaning torso, right glove jab, both reset. Friendly non-injurious sport.",
+    "source": "art-source/duo/boxing.png",
+    "mode": "built-in image_gen; mechanical sprite-sheet to GIF export"
+  },
+  {
+    "id": "volleyball",
+    "file": "dsh-pet/assets/pets/duo/gif/volleyball.gif",
+    "frames": 16,
+    "uniqueFrames": 16,
+    "durationMs": 1920,
+    "bytes": 938594,
+    "sha256": "bddc21b17defbe2b5dfd2c9ac2994d7e021900017337b67ddf7e15f763779545",
+    "prompt": "Use case: illustration-story. Production animation SPRITE SHEET for an actual desktop pet GIF. EXACT 4 columns x 4 rows, 16 equal square cells, 16 SEQUENTIAL frames of ONE continuous loop ordered left to right then top to bottom. No text, no grid lines, no labels, no watermark. Fully transparent background. Each cell contains BOTH full-body characters centered together with generous transparent padding; fixed camera, fixed scale and baseline. Ref 1 identifies the adult elegant silver-white long-haired lavender dragon girl with ivory horns, lavender wings/tail, ornate white/lilac rose dress; match her design. Ref 2 identifies the OTHER character: a ROUND CUTE CHIBI HUMAN BLUE-HAIRED MAID, big round head, short plump cute body, blue eyes, frilly white maid headband, navy dress and white whale-emblem apron. She is HUMAN, with hands and legs; 'fat fish' is just her nickname. NOT an animal, NOT a fish/whale body. Preserve both identities in all 16 cells. Clean detailed anime cel-shaded style, readable at small desktop sizes. TRUE articulated animation with progressive limb joint poses and changing facial expression; not copies shifted, not whole-body affine wobble. First/last frames should loop naturally. Scene action: Volleyball rally. Blue maid bends knees, bumps ball upward with joined forearms; silver maid reaches and jumps with one palm to volley it back; ball follows visible smooth arc, skirts and hair follow momentum, both return to starting ready stance.",
+    "source": "art-source/duo/volleyball.png",
+    "mode": "built-in image_gen; mechanical sprite-sheet to GIF export"
+  },
+  {
+    "id": "running",
+    "file": "dsh-pet/assets/pets/duo/gif/running.gif",
+    "frames": 16,
+    "uniqueFrames": 16,
+    "durationMs": 1920,
+    "bytes": 1159472,
+    "sha256": "9230fd83ccee5c6c68020a51c8ecfcbc5a1b7844e825aaed350290f0f848ed5d",
+    "prompt": "Use case: illustration-story. Production animation SPRITE SHEET for an actual desktop pet GIF. EXACT 4 columns x 4 rows, 16 equal square cells, 16 SEQUENTIAL frames of ONE continuous loop ordered left to right then top to bottom. No text, no grid lines, no labels, no watermark. Fully transparent background. Each cell contains BOTH full-body characters centered together with generous transparent padding; fixed camera, fixed scale and baseline. Ref 1 identifies the adult elegant silver-white long-haired lavender dragon girl with ivory horns, lavender wings/tail, ornate white/lilac rose dress; match her design. Ref 2 identifies the OTHER character: a ROUND CUTE CHIBI HUMAN BLUE-HAIRED MAID, big round head, short plump cute body, blue eyes, frilly white maid headband, navy dress and white whale-emblem apron. She is HUMAN, with hands and legs; 'fat fish' is just her nickname. NOT an animal, NOT a fish/whale body. Preserve both identities in all 16 cells. Clean detailed anime cel-shaded style, readable at small desktop sizes. TRUE articulated animation with progressive limb joint poses and changing facial expression; not copies shifted, not whole-body affine wobble. First/last frames should loop naturally. Scene action: Side by side running race, running in place fixed camera. Alternating full stride legs with bent knees, opposite arm swings, torso lean, distinct airborne and contact phases; flowing hair dress tails and wings bounce with follow-through.",
+    "source": "art-source/duo/running.png",
+    "mode": "built-in image_gen; mechanical sprite-sheet to GIF export"
+  },
+  {
+    "id": "shopping",
+    "file": "dsh-pet/assets/pets/duo/gif/shopping.gif",
+    "frames": 16,
+    "uniqueFrames": 16,
+    "durationMs": 1920,
+    "bytes": 1050700,
+    "sha256": "77c597201b0f04e0035c723d6e0a128e368e9368acf2cb7d21c5bf125749b7c9",
+    "prompt": "Use case: illustration-story. Production animation SPRITE SHEET for an actual desktop pet GIF. EXACT 4 columns x 4 rows, 16 equal square cells, 16 SEQUENTIAL frames of ONE continuous loop ordered left to right then top to bottom. No text, no grid lines, no labels, no watermark. Fully transparent background. Each cell contains BOTH full-body characters centered together with generous transparent padding; fixed camera, fixed scale and baseline. Ref 1 identifies the adult elegant silver-white long-haired lavender dragon girl with ivory horns, lavender wings/tail, ornate white/lilac rose dress; match her design. Ref 2 identifies the OTHER character: a ROUND CUTE CHIBI HUMAN BLUE-HAIRED MAID, big round head, short plump cute body, blue eyes, frilly white maid headband, navy dress and white whale-emblem apron. She is HUMAN, with hands and legs; 'fat fish' is just her nickname. NOT an animal, NOT a fish/whale body. Preserve both identities in all 16 cells. Clean detailed anime cel-shaded style, readable at small desktop sizes. TRUE articulated animation with progressive limb joint poses and changing facial expression; not copies shifted, not whole-body affine wobble. First/last frames should loop naturally. Scene action: Shopping stroll. Both walk side by side in place, alternate leg steps and bag swings. Blue maid excitedly points outward at an imaginary shop, silver maid turns head toward her then nods with a small tsundere blush; return to forward stroll.",
+    "source": "art-source/duo/shopping.png",
+    "mode": "built-in image_gen; mechanical sprite-sheet to GIF export"
+  },
+  {
+    "id": "sunset",
+    "file": "dsh-pet/assets/pets/duo/gif/sunset.gif",
+    "frames": 16,
+    "uniqueFrames": 16,
+    "durationMs": 1920,
+    "bytes": 1154607,
+    "sha256": "44441a516a594fb6ad9f29406370ba3f75ed5b26430c8c2a8081e07b6c349c3b",
+    "prompt": "Use case: illustration-story. Production GIF ANIMATION SPRITE SHEET. EXACTLY 4 columns x 4 rows of equal square cells containing 16 consecutive sequential different frames of ONE natural loop in row-major order. Fully transparent background, no grid, NO TEXT/no labels/no watermark. Every cell contains the same TWO FULL BODY HUMAN girls together with fixed camera scale and baseline; safe margins. Ref1: adult elegant silver-white long-haired dragon girl, ivory horns, purple eyes, lavender wings and long tail, white/lilac rose dress. Ref2: ROUND CHIBI HUMAN BLUE-HAIRED MAID, big round face, short cute chubby body, blue eyes, frilly white headband, navy maid dress white apron whale emblem, human hands feet. 'Fat fish' is ONLY her nickname, never an animal! Preserve both appearances in all frames, anime cel-shaded detailed consistent. True articulated animation, progressive joint poses, anticipation/action/follow-through, NOT static copies with whole-body translation or wobble. Scene: Sitting on a small grassy ledge side by side watching sunset together: blue chibi HUMAN maid gently swings both feet and leans toward silver girl, silver girl turns head to her smiling then back, hands adjust on lap, hair wings tail flutter in breeze. A small orange sunset sun behind them fades softly; mostly transparent.",
+    "source": "art-source/duo/sunset.png",
+    "mode": "built-in image_gen; mechanical sprite-sheet to GIF export"
+  },
+  {
+    "id": "gardening",
+    "file": "dsh-pet/assets/pets/duo/gif/gardening.gif",
+    "frames": 16,
+    "uniqueFrames": 16,
+    "durationMs": 1920,
+    "bytes": 1075655,
+    "sha256": "209ed81d61d72b7c0fc1d24cb9080c64014df173880da38d18120b2faf49b408",
+    "prompt": "Use case: illustration-story. Production GIF ANIMATION SPRITE SHEET. EXACTLY 4 columns x 4 rows of equal square cells containing 16 consecutive sequential different frames of ONE natural loop in row-major order. Fully transparent background, no grid, NO TEXT/no labels/no watermark. Every cell contains the same TWO FULL BODY HUMAN girls together with fixed camera scale and baseline; safe margins. Ref1: adult elegant silver-white long-haired dragon girl, ivory horns, purple eyes, lavender wings and long tail, white/lilac rose dress. Ref2: ROUND CHIBI HUMAN BLUE-HAIRED MAID, big round face, short cute chubby body, blue eyes, frilly white headband, navy maid dress white apron whale emblem, human hands feet. 'Fat fish' is ONLY her nickname, never an animal! Preserve both appearances in all frames, anime cel-shaded detailed consistent. True articulated animation, progressive joint poses, anticipation/action/follow-through, NOT static copies with whole-body translation or wobble. Scene: Watering flowers together: blue chibi HUMAN maid lifts a small watering can and tips it, visible water droplets fall into lavender potted flowers, silver girl steadies pot with both hands, bends down then brushes a leaf, they exchange a happy glance and reset can. Real arm bends, droplets, hair and skirt follow-through.",
+    "source": "art-source/duo/gardening.png",
+    "mode": "built-in image_gen; mechanical sprite-sheet to GIF export"
+  },
+  {
+    "id": "gaming",
+    "file": "dsh-pet/assets/pets/duo/gif/gaming.gif",
+    "frames": 16,
+    "uniqueFrames": 16,
+    "durationMs": 1920,
+    "bytes": 1177054,
+    "sha256": "95be843bd74349f817c597eec0f47159a65828aea6519fb24fa1fd839fce75f6",
+    "prompt": "Use case: illustration-story. Production GIF ANIMATION SPRITE SHEET. EXACTLY 4 columns x 4 rows of equal square cells containing 16 consecutive sequential different frames of ONE natural loop in row-major order. Fully transparent background, no grid, NO TEXT/no labels/no watermark. Every cell contains the same TWO FULL BODY HUMAN girls together with fixed camera scale and baseline; safe margins. Ref1: adult elegant silver-white long-haired dragon girl, ivory horns, purple eyes, lavender wings and long tail, white/lilac rose dress. Ref2: ROUND CHIBI HUMAN BLUE-HAIRED MAID, big round face, short cute chubby body, blue eyes, frilly white headband, navy maid dress white apron whale emblem, human hands feet. 'Fat fish' is ONLY her nickname, never an animal! Preserve both appearances in all frames, anime cel-shaded detailed consistent. True articulated animation, progressive joint poses, anticipation/action/follow-through, NOT static copies with whole-body translation or wobble. Scene: Fighting video game tournament: BOTH human girls sit on little stools holding game controllers, facing a small central screen with abstract purple/blue game shapes only (no text/logos). Blue chibi maid enthusiastically leans forward tapping buttons, silver girl tilts controller with intense proud face, brief triumphant fist pump then both reset.",
+    "source": "art-source/duo/gaming.png",
+    "mode": "built-in image_gen; mechanical sprite-sheet to GIF export"
+  },
+  {
+    "id": "cafe",
+    "file": "dsh-pet/assets/pets/duo/gif/cafe.gif",
+    "frames": 16,
+    "uniqueFrames": 16,
+    "durationMs": 1920,
+    "bytes": 1036800,
+    "sha256": "afa70173ad64a120bd40ccf5d5abce681c9996bae45f6988631d332d57e59dc3",
+    "prompt": "Use case: illustration-story. Production GIF ANIMATION SPRITE SHEET. EXACTLY 4 columns x 4 rows of equal square cells containing 16 consecutive sequential different frames of ONE natural loop in row-major order. Fully transparent background, no grid, NO TEXT/no labels/no watermark. Every cell contains the same TWO FULL BODY HUMAN girls together with fixed camera scale and baseline; safe margins. Ref1: adult elegant silver-white long-haired dragon girl, ivory horns, purple eyes, lavender wings and long tail, white/lilac rose dress. Ref2: ROUND CHIBI HUMAN BLUE-HAIRED MAID, big round face, short cute chubby body, blue eyes, frilly white headband, navy maid dress white apron whale emblem, human hands feet. 'Fat fish' is ONLY her nickname, never an animal! Preserve both appearances in all frames, anime cel-shaded detailed consistent. True articulated animation, progressive joint poses, anticipation/action/follow-through, NOT static copies with whole-body translation or wobble. Scene: Reading in a cafe: both HUMAN girls sit across a small round cafe table, teacups and open books. Blue chibi maid turns a book page with her hand then takes sip; silver girl lowers book, smiles teasingly, lifts cup then resumes reading. Small steam curls rise. Visible sequential arm/hand/head/page motion; mostly transparent backdrop.",
+    "source": "art-source/duo/cafe.png",
+    "mode": "built-in image_gen; mechanical sprite-sheet to GIF export"
+  }
+]

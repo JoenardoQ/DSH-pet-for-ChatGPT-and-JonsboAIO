@@ -18,7 +18,7 @@ import {
   readCharacter,
   characterAction,
   characterMenu,
-  characterAnimation,
+  characterMedia,
   characterLabel,
   characterMemeRoot,
   characterMemeName,
@@ -27,6 +27,7 @@ import {
   characterActionMenu,
   type CharacterId,
 } from '../shared/characters';
+import { GifPlayer } from '../shared/gif-player';
 import { flattenConfigPets, isWebVisible } from '../shared/config';
 import { balanceEventIndex, balancePercent, decideBalanceNotice, type BalanceState } from '../shared/balance';
 // 轮询统一状态 S：前端唯一的数据来源与渲染入口（拉取 / 拍平 / 比对都在 shared，两端同一份）
@@ -247,6 +248,7 @@ export function makePetUI(rt: {
     const stageRef = useRef<HTMLDivElement | null>(null);
     const videoARef = useRef<HTMLVideoElement | null>(null);
     const videoBRef = useRef<HTMLVideoElement | null>(null);
+    const gifRef = useRef<GifPlayer | null>(null);
     const frontRef = useRef(0);
     const pendingRef = useRef<null | { anim: string; once: boolean; gen: number }>(null);
     const genRef = useRef(0);
@@ -322,12 +324,33 @@ export function makePetUI(rt: {
             nextOnce,
         );
       }
-      const assetUrl =
-        '/dsh-pet-7340/thumb/' +
-        encodeURIComponent(character === 'fish' ? (cfg.assetRoot ?? cfg.id) : 'main') +
-        '/' +
-        encodeURIComponent(characterAnimation(character, next)) +
-        (character === 'fish' ? THUMB_EXT : '.webm');
+      const media = characterMedia(character, next, cfg.assetRoot ?? cfg.id, THUMB_EXT);
+      const assetUrl = '/dsh-pet-7340' + media.path;
+      if (media.kind === 'gif' && stageRef.current) {
+        gifRef.current ??= new GifPlayer(stageRef.current);
+        for (const video of [videoARef.current, videoBRef.current]) {
+          if (video) {
+            video.onended = null;
+            video.pause();
+            video.classList.remove('is-front');
+          }
+        }
+        pendingSquashRef.current = false;
+        pendingMoveRef.current = null;
+        gifRef.current
+          .play(assetUrl, nextOnce, handleEnded)
+          .then(() => {
+            if (genRef.current === gen) pendingRef.current = null;
+          })
+          .catch((error: Error) => {
+            if (genRef.current === gen) {
+              pendingRef.current = null;
+              console.error(error.message);
+            }
+          });
+        return;
+      }
+      gifRef.current?.stop();
       el.loop = !nextOnce;
       el.muted = true;
       el.autoplay = true;
@@ -415,6 +438,8 @@ export function makePetUI(rt: {
       const inflight = inflightRef.current;
       return () => {
         mountedRef.current = false;
+        gifRef.current?.dispose();
+        gifRef.current = null;
         for (const c of inflight) c.abort();
         inflight.length = 0;
         stopMove();

@@ -1,0 +1,12 @@
+{
+  "id": "boxing",
+  "file": "dsh-pet/assets/pets/duo/gif/boxing.gif",
+  "frames": 16,
+  "uniqueFrames": 16,
+  "durationMs": 1920,
+  "bytes": 1032289,
+  "sha256": "c42bf5b3f6891d6f20e628db3587b55ee9007b40a2a570f7690e0fdf9c1cc311",
+  "prompt": "Use case: illustration-story. Production animation SPRITE SHEET for an actual desktop pet GIF. EXACT 4 columns x 4 rows, 16 equal square cells, 16 SEQUENTIAL frames of ONE continuous loop ordered left to right then top to bottom. No text, no grid lines, no labels, no watermark. Fully transparent background. Each cell contains BOTH full-body characters centered together with generous transparent padding; fixed camera, fixed scale and baseline. Ref 1 identifies the adult elegant silver-white long-haired lavender dragon girl with ivory horns, lavender wings/tail, ornate white/lilac rose dress; match her design. Ref 2 identifies the OTHER character: a ROUND CUTE CHIBI HUMAN BLUE-HAIRED MAID, big round head, short plump cute body, blue eyes, frilly white maid headband, navy dress and white whale-emblem apron. She is HUMAN, with hands and legs; 'fat fish' is just her nickname. NOT an animal, NOT a fish/whale body. Preserve both identities in all 16 cells. Clean detailed anime cel-shaded style, readable at small desktop sizes. TRUE articulated animation with progressive limb joint poses and changing facial expression; not copies shifted, not whole-body affine wobble. First/last frames should loop naturally. Scene action: Playful boxing practice with padded gloves. Guard stance, left jab extends and recoils, partner dodges leaning torso, right glove jab, both reset. Friendly non-injurious sport.",
+  "source": "art-source/duo/boxing.png",
+  "mode": "built-in image_gen; mechanical sprite-sheet to GIF export"
+}

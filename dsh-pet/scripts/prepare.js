@@ -14,7 +14,7 @@
  *   1.5 构建桌面共享核心（npm run build:desktop-core：src/shared → window.PetShared）
  *   1.6 生成类型声明（npm run types：tsc → lib/types/*.d.ts）
  *   2. 改写 package.json：files 收敛为发布清单（含桌面模式运行时 runtime/electron-helper、
- *      表情包 assets/memes）—— 幂等：跑一次即定格为当前状态，再跑结果不变，无需备份/恢复
+ *      表情包 assets/pets/fish/memes）—— 幂等：跑一次即定格为当前状态，再跑结果不变，无需备份/恢复
  *
  * 用法：node scripts/prepare.js（npm run build；npm publish / npm pack 经 prepack 自动执行）
  * 发布：npm publish --tag latest
@@ -69,16 +69,14 @@ const keep = [
   '.codex-plugin',
   'lib',
   'src',
-  'assets/webm',
   'assets/pets',
   'runtime/windows-bundle.json',
   'runtime/electron-helper',
   'assets/fonts',
   'assets/pic',
-  // 表情包（碎碎念/对话配图的图片）：host 只从**包内** assets/memes 读图、与配置 memes 键配对，
+  // 表情包（碎碎念/对话配图的图片）：host 只从**包内** assets/pets/fish/memes 读图、与配置 memes 键配对，
   // 漏掉它 → 包内一张图都没有、配图功能整体失效。注意本函数每次发布（npm install/publish）都会
   // 用这个数组**覆盖** package.json 的 files，所以"只在 package.json 里加一行"是无效的，必须加在这里
-  'assets/memes',
   'assets/config.jsonc',
   // 插件图标（DSH 插件管理页显示）：package.json 顶层 icon 字段指向这张图。
   // 与 memes 同理——本数组会覆盖 package.json 的 files，漏掉它则 npm 包里没有这张图，

@@ -33,7 +33,7 @@ async function fixture(t, state) {
     old.close();old.closeAllConnections();
     try {
       const s=await(await fetch(`http://127.0.0.1:${port}/state`)).json();
-      if(s.service==='dsh-pet-jonsbo' && s.version===2)
+      if(s.service==='dsh-pet-jonsbo' && s.version===3)
         await fetch(`http://127.0.0.1:${port}/shutdown`,{method:'POST',headers:{'X-Pet-Client':'1'}});
     } catch {}
     // The fixture owns this exact temporary directory only.
@@ -48,7 +48,7 @@ test('three simultaneous installations retire an old bridge once and share one n
   const states=results.map(r=>JSON.parse(r.out));
   assert.equal(f.shutdowns(),1);
   assert.equal(new Set(states.map(s=>s.pid)).size,1);
-  assert.ok(states.every(s=>s.version===2 && s.control.visible===false && s.standalone===null));
+  assert.ok(states.every(s=>s.version===3 && s.control.visible===false && s.standalone===null));
   const connected=await(await fetch(`http://127.0.0.1:${f.port}/device/connection`,{
     method:'POST',headers:{'X-Pet-Client':'1','Content-Type':'application/json'},body:JSON.stringify({source:'dsh',enabled:false})
   })).json();
