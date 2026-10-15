@@ -35,11 +35,18 @@
     "url": "https://raw.githubusercontent.com/JoenardoQ/DSH-pet-for-ChatGPT-and-JonsboAIO/b6ed9bf57d14b8863aa30431e3e4c84836d4161d/dsh-pet/runtime/dependencies.zip",
     "sha256": "0ed05787814111a98c192910856555590413bef1d7522bc24df307843903b687"
   },
-  "worker": {
-    "name": "dsh-pet-usb.exe",
-    "local": "desktop/bin/dsh-pet-usb.exe",
-    "url": "https://raw.githubusercontent.com/JoenardoQ/DSH-pet-for-ChatGPT-and-JonsboAIO/b6ed9bf57d14b8863aa30431e3e4c84836d4161d/dsh-pet/desktop/bin/dsh-pet-usb.exe",
-    "sha256": "afb526d5322763a9c9b9b077239e321e2af592016ad0d317c888b44f5f7455ee"
+  "build": "0.3.6-jonsbo.4",
+  "pythonVersion": "3.13.2",
+  "python": {
+    "name": "python-3.13.2-embed-amd64.zip",
+    "local": "runtime/python-3.13.2.zip",
+    "url": "https://www.python.org/ftp/python/3.13.2/python-3.13.2-embed-amd64.zip",
+    "sha256": "1e803610b140cbf69dfa2ceaaeb39651bef75a239c381289e827c30862a27b93"
   },
-  "build": "0.3.6-jonsbo.4"
+  "pillow": {
+    "name": "pillow-12.3.0-cp313-win_amd64.whl",
+    "local": "runtime/pillow.whl",
+    "url": "https://files.pythonhosted.org/packages/a6/9b/7a58e61d62be561da3a356fe2384d4059a6345fc130e23ef1c36a5b81d24/pillow-12.3.0-cp313-cp313-win_amd64.whl",
+    "sha256": "1cca606cd25738df4ed873d5ad46bbdb3d83b5cbca291f6b4ff13a4df6b0bbe8"
+  }
 }

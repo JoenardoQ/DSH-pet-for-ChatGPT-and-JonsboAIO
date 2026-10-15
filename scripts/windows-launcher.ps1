@@ -23,7 +23,7 @@ if($Port -lt 1024 -or $Port -gt 65534){throw 'Invalid local port'}
 $script:base='http://127.0.0.1:'+$Port
 $script:cancelled=$false;$script:form=$null;$script:busy=$false;$script:retry=$false
 $script:stageFile=Join-Path $data 'launcher-state.json'
-$script:engine='';$script:usbWorker=''
+$script:engine='';$script:usbWorker='';$script:python=''
 function Pump {
   if($script:form){[Windows.Forms.Application]::DoEvents()}
   if($script:cancelled){throw '准备已取消，重新打开即可重试。'}
@@ -160,6 +160,28 @@ function Publish-Directory([string]$Stage,[string]$Target,[string]$Boundary) {
   if(Test-Path -LiteralPath $Target){Move-Item -LiteralPath $Target -Destination ($Target+'.previous-'+[Guid]::NewGuid().ToString('N'))}
   Move-Item -LiteralPath $Stage -Destination $Target
 }
+function Prepare-Python {
+  $runtime=Join-Path $data 'runtime'
+  $target=Join-Path $runtime ('python-'+$launcherProfile.pythonVersion)
+  $expected=$launcherProfile.python.sha256+':'+$launcherProfile.pillow.sha256
+  $marker=Join-Path $target '.ready'
+  $ready=(Test-Path -LiteralPath $marker) -and (Get-Content -LiteralPath $marker -Raw).Trim() -eq $expected -and (Test-Path -LiteralPath (Join-Path $target 'python.exe'))
+  if($ready){try{[void](Wait-TaskProcess (Start-TaskProcess (Join-Path $target 'python.exe') '-c "from PIL import Image; import ctypes, json"') 15000)}catch{$ready=$false}}
+  if(!$ready){
+    $archive=Verified-File $launcherProfile.python
+    $pillow=Verified-File $launcherProfile.pillow
+    Stage '正在准备屏幕组件' '自动安装官方 Python 与 Pillow，无需手动安装。'
+    $stage=Join-Path $runtime ('python-stage-'+[Guid]::NewGuid().ToString('N'))
+    Expand-VerifiedArchive $archive $stage
+    Expand-VerifiedArchive $pillow (Join-Path $stage 'Lib\site-packages')
+    [IO.File]::WriteAllText((Join-Path $stage 'python313._pth'),"python313.zip`n.`nLib/site-packages`nimport site`n",[Text.Encoding]::ASCII)
+    [void](Wait-TaskProcess (Start-TaskProcess (Join-Path $stage 'python.exe') '-c "from PIL import Image; import ctypes, json"') 15000)
+    [IO.File]::WriteAllText((Join-Path $stage '.ready'),$expected)
+    Publish-Directory $stage $target $runtime
+  }
+  $script:python=Join-Path $target 'python.exe'
+  $env:PET_PYTHON=$script:python
+}
 function Prepare-Runtime {
   $key=[BitConverter]::ToString([Security.Cryptography.SHA256]::Create().ComputeHash([Text.Encoding]::UTF8.GetBytes($packageRoot.ToLowerInvariant()))).Replace('-','')
   $mutex=New-Object Threading.Mutex($false,('Local\DesktopPetSetup-'+$key));$held=$false
@@ -214,14 +236,14 @@ function Prepare-Runtime {
         Publish-Directory (Join-Path $stage 'node_modules') (Join-Path $packageRoot 'node_modules') $packageRoot
         Remove-Item -LiteralPath $stage
       }
-      $worker=Verified-File $launcherProfile.worker
-      $script:usbWorker=$worker
-      $env:PET_NODE=$engine;$env:DSH_PET_ELECTRON_PATH=$engine;$env:PET_USB_WORKER=$worker
+      Prepare-Python
+      $env:PET_NODE=$engine;$env:DSH_PET_ELECTRON_PATH=$engine
+      Remove-Item Env:PET_USB_WORKER -ErrorAction SilentlyContinue
       $env:PET_DATA_DIR=$data;$env:PET_PORT=[string]$Port
       if(!$env:DSH_HOME){$env:DSH_HOME=Join-Path (Split-Path $data -Parent) 'dsh'}
     }
     $env:ELECTRON_RUN_AS_NODE='1'
-    $runtimeState=@{electron=$engine;worker=$usbWorker;dshHome=$env:DSH_HOME;kind=$launcherProfile.kind}
+    $runtimeState=@{electron=$engine;worker=$usbWorker;python=$script:python;dshHome=$env:DSH_HOME;kind=$launcherProfile.kind}
     $env:PET_RUNTIME_STATE=Join-Path $data 'launcher-runtime.json'
     [IO.File]::WriteAllText($env:PET_RUNTIME_STATE,($runtimeState|ConvertTo-Json),(New-Object Text.UTF8Encoding($false)))
     Stage '运行组件已就绪' '正在启动桌宠…'
@@ -280,14 +302,21 @@ public static class DesktopPetStdio {
   $code=[DesktopPetStdio]::Run($engine,((Quote (Join-Path $packageRoot 'bridge\mcp.mjs'))))
   if($code -ne 0){throw '桌宠连接进程已退出。'}
 }
+function Test-RuntimeReady {
+  $runtime=Join-Path $data 'runtime'
+  $electron=Join-Path $runtime ('electron-'+$launcherProfile.electronVersion)
+  $python=Join-Path $runtime ('python-'+$launcherProfile.pythonVersion)
+  foreach($file in @((Join-Path $electron '.ready'),(Join-Path $electron 'electron.exe'),(Join-Path $python '.ready'),(Join-Path $python 'python.exe'),(Join-Path $packageRoot 'node_modules\@electron\get\package.json'),(Join-Path $packageRoot 'node_modules\@electron-internal\extract-zip\package.json'))){if(!(Test-Path -LiteralPath $file -PathType Leaf)){return $false}}
+  return $true
+}
 try{
   if($Mode -eq 'stop'){Stop-Pet;exit 0}
   if($Mode -eq 'status'){Read-State|ConvertTo-Json -Depth 8;exit 0}
   if($Mode -eq 'check'){
-    $ready=if($launcherProfile.kind -eq 'whale'){(Test-Path -LiteralPath (Join-Path $data 'runtime\windows-x64-v1\electron\.ready')) -and (Test-Path -LiteralPath (Join-Path $data 'runtime\windows-x64-v1\python\.ready'))}else{Test-Path -LiteralPath (Join-Path $data ('runtime\electron-'+$launcherProfile.electronVersion+'\.ready'))}
+    $ready=Test-RuntimeReady
     @{runtimeReady=[bool]$ready;name=$launcherProfile.name}|ConvertTo-Json;exit 0
   }
-  $warm=if($launcherProfile.kind -eq 'whale'){(Test-Path -LiteralPath (Join-Path $data 'runtime\windows-x64-v1\electron\.ready')) -and (Test-Path -LiteralPath (Join-Path $data 'runtime\windows-x64-v1\python\.ready'))}else{(Test-Path -LiteralPath (Join-Path $data ('runtime\electron-'+$launcherProfile.electronVersion+'\.ready'))) -and (Test-Path -LiteralPath (Join-Path $packageRoot 'node_modules\@electron\get\package.json'))}
+  $warm=Test-RuntimeReady
   if($Mode -ne 'mcp' -or (!$warm -and $env:DESKTOP_PET_HEADLESS -ne '1')){Show-Setup}
   do{
     $script:retry=$false;$script:cancelled=$false;$script:busy=$true

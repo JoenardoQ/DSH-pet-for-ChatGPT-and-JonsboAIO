@@ -11,6 +11,8 @@ import sys
 import threading
 import time
 from PIL import Image
+# Embedded Python isolates sys.path; resolve sibling modules from this script.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from device_session import DeviceSession
 
 

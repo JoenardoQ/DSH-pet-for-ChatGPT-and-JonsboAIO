@@ -5,8 +5,8 @@ import {root,dataDir} from './runtime.mjs';
 let pending;
 function adopt(file){
   const s=JSON.parse(fs.readFileSync(file,'utf8'));
-  if(s.kind!=='pet' || !fs.existsSync(s.electron) || !fs.existsSync(s.worker))throw Error('运行组件尚未就绪，请在启动窗口点击重试。');
-  process.env.PET_NODE=s.electron;process.env.DSH_PET_ELECTRON_PATH=s.electron;process.env.PET_USB_WORKER=s.worker;
+  if(s.kind!=='pet' || !fs.existsSync(s.electron) || !fs.existsSync(s.python))throw Error('运行组件尚未就绪，请在启动窗口点击重试。');
+  process.env.PET_NODE=s.electron;process.env.DSH_PET_ELECTRON_PATH=s.electron;process.env.PET_PYTHON=s.python;
   if(s.dshHome)process.env.DSH_HOME=s.dshHome;process.env.PET_RUNTIME_STATE=file;
   return s.electron;
 }

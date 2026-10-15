@@ -22,7 +22,7 @@ const data=path.join(workspace,'isolated-data');fs.mkdirSync(data);
 fs.writeFileSync(path.join(data,'config.json'),JSON.stringify({usb:false}));
 const socket=net.createServer();await new Promise(r=>socket.listen(0,'127.0.0.1',r));const port=socket.address().port;await new Promise(r=>socket.close(r));
 const env={...process.env,PATH:[path.join(process.env.SystemRoot,'System32'),path.dirname(ps)].join(';'),DESKTOP_PET_HEADLESS:'1',WHALE_AUTOSTART:'0',PET_AUTOSTART:'0',DSH_HOME:path.join(workspace,'isolated-dsh')};
-for(const key of ['PET_RUNTIME_STATE','PET_NODE','PET_USB_WORKER','DSH_PET_ELECTRON_PATH','WHALE_NODE','WHALE_ELECTRON','WHALE_PYTHON','PET_DATA_DIR','WHALE_DATA_DIR'])delete env[key];
+for(const key of ['PET_PYTHON','PET_RUNTIME_STATE','PET_NODE','PET_USB_WORKER','DSH_PET_ELECTRON_PATH','WHALE_NODE','WHALE_ELECTRON','WHALE_PYTHON','PET_DATA_DIR','WHALE_DATA_DIR'])delete env[key];
 const invoke=mode=>{
  const log=path.join(workspace,mode+'.log'),err=path.join(workspace,mode+'.err');
  const outFd=fs.openSync(log,'w'),errFd=fs.openSync(err,'w');

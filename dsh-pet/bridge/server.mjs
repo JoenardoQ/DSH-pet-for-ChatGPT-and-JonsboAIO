@@ -60,7 +60,7 @@ export function createBridge({ launch = true } = {}) {
     if (worker || !launch || cfg.usb === false) return;
     mkdirSync(dataDir, { recursive: true });
     const executable = process.env.PET_USB_WORKER || path.join(root, 'desktop/bin/dsh-pet-usb.exe');
-    const packaged = existsSync(executable);
+    const packaged = !process.env.PET_PYTHON && existsSync(executable);
     worker = spawn(
       packaged ? executable : pythonCommand(),
       [
