@@ -274,6 +274,7 @@ function Stop-Pet {
 function Start-Pet {
   $cli=Join-Path $packageRoot 'bridge\cli.mjs'
   [void](Wait-TaskProcess (Start-TaskProcess $engine ((Quote $cli)+' wake')) 30000)
+  $lastProblem=$null
   $watch=[Diagnostics.Stopwatch]::StartNew()
   while($watch.Elapsed.TotalSeconds -lt 35){
     Pump
@@ -285,10 +286,12 @@ function Start-Pet {
         else{Stage '桌宠已启动' '可在连接设置中连接屏幕、调整方向或处理占用提示。'}
         return $s
       }
-      if($s.output.error){throw $s.output.error}
+      if($s.output.desktopError){$lastProblem=[string]$s.output.desktopError}
+      elseif($s.output.error){$lastProblem=[string]$s.output.error}
     }catch{if($_.Exception.Message -eq '本地端口正由其他程序使用。'){throw}}
     Start-Sleep -Milliseconds 160
   }
+  if($lastProblem){throw ('桌宠启动失败：'+$lastProblem+'；请点击重试或查看日志。')}
   throw '桌宠尚未完成启动，请点击重试或查看日志。'
 }
 function Relay-Mcp {

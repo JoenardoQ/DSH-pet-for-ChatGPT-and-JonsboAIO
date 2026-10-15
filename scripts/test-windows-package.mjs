@@ -28,7 +28,10 @@ const invoke=mode=>{
  const outFd=fs.openSync(log,'w'),errFd=fs.openSync(err,'w');
  try{
   const r=spawnSync(ps,['-NoProfile','-STA','-ExecutionPolicy','Bypass','-File',path.join(root,'scripts/windows-launcher.ps1'),'-Mode',mode,'-Headless','-DataDir',data,'-Port',String(port)],{cwd:root,windowsHide:true,timeout:1200000,env,stdio:['ignore',outFd,errFd]});
-  assert.equal(r.status,0,JSON.stringify({mode,error:r.error?.message,stderr:fs.readFileSync(err,'utf8'),workspace}));
+  const bridgeLog=path.join(data,'bridge.log');
+  const diagnostic={mode,error:r.error?.message,stderr:fs.readFileSync(err,'utf8'),bridgeLog:fs.existsSync(bridgeLog)?fs.readFileSync(bridgeLog,'utf8').slice(-12000):null,workspace};
+  if(r.status!==0){fs.mkdirSync(path.join(source,'.qa'),{recursive:true});fs.writeFileSync(path.join(source,'.qa/package-smoke-failure.json'),JSON.stringify(diagnostic,null,2));}
+  assert.equal(r.status,0,JSON.stringify(diagnostic));
  }finally{fs.closeSync(outFd);fs.closeSync(errFd);}
 };
 console.log(JSON.stringify({project:profile.name,phase:'cold prepare',root,data,port,noNodePythonPath:true}));

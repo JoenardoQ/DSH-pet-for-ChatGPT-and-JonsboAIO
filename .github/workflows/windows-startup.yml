@@ -38,6 +38,12 @@ jobs:
       - run: node scripts/build-windows-lite.mjs
       - run: node scripts/test-windows-package.mjs
       - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: windows-startup-diagnostics
+          path: .qa/package-smoke-failure.json
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
         with:
           name: windows-x64-lite
           path: |
