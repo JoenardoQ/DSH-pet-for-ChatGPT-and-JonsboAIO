@@ -2,12 +2,18 @@
   "mcpServers": {
     "dsh-pet-jonsbo": {
       "type": "stdio",
-      "command": "cmd.exe",
+      "command": "powershell.exe",
       "args": [
-        "/d",
-        "/c",
-        "dsh-pet\\scripts\\start-mcp.cmd"
-      ]
+        "-NoProfile",
+        "-STA",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "./scripts/windows-launcher.ps1",
+        "-Mode",
+        "mcp"
+      ],
+      "cwd": "."
     }
   }
 }

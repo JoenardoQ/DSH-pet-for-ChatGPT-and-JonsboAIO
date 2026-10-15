@@ -1,0 +1,45 @@
+{
+  "name": "大肥鱼",
+  "kind": "pet",
+  "package": "dsh-pet",
+  "folder": "DshPetJonsbo",
+  "port": 19390,
+  "service": "dsh-pet-jonsbo",
+  "header": "X-Pet-Client",
+  "artifact": "dsh-pet-windows-x64-lite.zip",
+  "electronVersion": "43.3.0",
+  "electronSha256": "ec582c7ff6a6578a4259c62f6acf05bbaa2a8eaa2d56fc835a96c2a59eb65363",
+  "electronParts": [
+    {
+      "name": "electron-win-x64.zip.001",
+      "local": "runtime/electron-win-x64.zip.001",
+      "url": "https://raw.githubusercontent.com/JoenardoQ/DSH-pet-for-ChatGPT-and-JonsboAIO/b6ed9bf57d14b8863aa30431e3e4c84836d4161d/dsh-pet/runtime/electron-win-x64.zip.001",
+      "sha256": "eb08e030edd038957a09232a9003dfdab692b3278c64cad25c2d78eca21f02b2"
+    },
+    {
+      "name": "electron-win-x64.zip.002",
+      "local": "runtime/electron-win-x64.zip.002",
+      "url": "https://raw.githubusercontent.com/JoenardoQ/DSH-pet-for-ChatGPT-and-JonsboAIO/b6ed9bf57d14b8863aa30431e3e4c84836d4161d/dsh-pet/runtime/electron-win-x64.zip.002",
+      "sha256": "36abf7e76f3f69725ffa76c3e86974e9907ad38572fd5f5296b9119dccede9ad"
+    },
+    {
+      "name": "electron-win-x64.zip.003",
+      "local": "runtime/electron-win-x64.zip.003",
+      "url": "https://raw.githubusercontent.com/JoenardoQ/DSH-pet-for-ChatGPT-and-JonsboAIO/b6ed9bf57d14b8863aa30431e3e4c84836d4161d/dsh-pet/runtime/electron-win-x64.zip.003",
+      "sha256": "71bfa0561e3365f7697f4c0ffd336cebeb4e2d6b35e80473736629d67a0cbabc"
+    }
+  ],
+  "dependencies": {
+    "name": "dependencies.zip",
+    "local": "runtime/dependencies.zip",
+    "url": "https://raw.githubusercontent.com/JoenardoQ/DSH-pet-for-ChatGPT-and-JonsboAIO/b6ed9bf57d14b8863aa30431e3e4c84836d4161d/dsh-pet/runtime/dependencies.zip",
+    "sha256": "0ed05787814111a98c192910856555590413bef1d7522bc24df307843903b687"
+  },
+  "worker": {
+    "name": "dsh-pet-usb.exe",
+    "local": "desktop/bin/dsh-pet-usb.exe",
+    "url": "https://raw.githubusercontent.com/JoenardoQ/DSH-pet-for-ChatGPT-and-JonsboAIO/b6ed9bf57d14b8863aa30431e3e4c84836d4161d/dsh-pet/desktop/bin/dsh-pet-usb.exe",
+    "sha256": "afb526d5322763a9c9b9b077239e321e2af592016ad0d317c888b44f5f7455ee"
+  },
+  "build": "0.3.6-jonsbo.4"
+}

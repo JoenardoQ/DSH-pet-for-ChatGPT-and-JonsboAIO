@@ -102,7 +102,7 @@ export async function dispatch(request) {
     return reply({
       protocolVersion: versions.includes(params?.protocolVersion) ? params.protocolVersion : '2025-06-18',
       capabilities: { tools: {} },
-      serverInfo: { name: 'dsh-pet-jonsbo', version: '0.3.6-jonsbo.3' },
+      serverInfo: { name: 'dsh-pet-jonsbo', version: '0.3.6-jonsbo.4' },
     });
   }
   if (method === 'ping') return reply({});
@@ -120,7 +120,7 @@ export async function dispatch(request) {
 if (process.argv[1]?.endsWith('mcp.mjs')) {
   const hostId = randomUUID();
   let ending = false, heartbeat;
-  const start = (async () => {
+  const start = process.env.PET_AUTOSTART==='0'?Promise.resolve():(async () => {
     await ensureBridge();
     if (ending) return;
     const lease = await updateHost(hostId);
@@ -129,6 +129,7 @@ if (process.argv[1]?.endsWith('mcp.mjs')) {
     heartbeat = setInterval(() => { void updateHost(hostId).catch(() => {}); }, 2500).unref();
   })().catch(error => console.error('[dsh-pet startup]', error.message));
   const release = async () => {
+    if(process.env.PET_AUTOSTART==='0')return;
     ending = true;
     clearInterval(heartbeat);
     await start;

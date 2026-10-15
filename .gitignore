@@ -32,7 +32,7 @@ npm-debug.log*
 # ── 临时/备份目录 ──
 temp/
 
-# ── dsh-pet 构建产物（全部由 src/ 构建生成，不入仓库；克隆后先 npm run prepare:webm）──
+# ── dsh-pet 构建产物（全部由 src/ 构建生成，不入仓库；发布所需 lib 与共享运行代码保留跟踪）──
 #   lib/                      tsdown bundle（lib/index.js、lib/client.js）+ tsc 声明（lib/types/*.d.ts，npm run types）
 #   runtime/electron-helper/shared-core.js  桌面共享纯逻辑（scripts/build-desktop-core.mjs 产出，window.PetShared）
 # （lib/types 曾是手写声明才保留跟踪；自 gen-types.mjs 起为生成产物，与 lib/*.js 同等对待）
@@ -59,6 +59,16 @@ dsh-pet/.mcp.json
 dsh-pet/.codex-plugin/
 
 
-# Windows runtimes are tracked so Git installs can start without extra tools.
+# Windows runtimes are downloaded and verified on first launch.
 
 *.log
+
+# Runtime binaries are fetched by the verified native launcher.
+.qa/
+dsh-pet/runtime/node/
+dsh-pet/runtime/electron-win-x64.zip.*
+dsh-pet/runtime/dependencies.zip
+dsh-pet/desktop/bin/*.exe
+
+# README previews remain available at the pinned previous revision.
+dsh-pet/assets/preview/

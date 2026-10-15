@@ -2,9 +2,15 @@
 
 Based on [PC2005-cloud/dsh-pet](https://github.com/PC2005-cloud/dsh-pet)（0.3.6，MIT）。原版大肥鱼的素材、动画、桌面交互和 DeepSeek Harness 插件直接复用，保留原作者版权。
 
+## Windows 一键启动
+
+下载并解压本仓库 ZIP 后，双击 **start-pet.cmd**。启动窗口自动完成组件下载、校验和解压，显示进度并提供重试；无需预装 Node/Python/npm，也无需让 agent 处理安装。关闭窗口会保留已启动桌宠；双击 **stop-pet.cmd** 完全退出。首次联网准备完成后复用缓存。
+
+默认发布采用轻量 ZIP，运行组件不塞进源码包。插件启用也使用相同准备流程。详见[下载到启动说明](docs/windows-startup.md)。
+
 ## 改动和优化
 
-`0.3.6-jonsbo.3`：启动时自动退出不兼容的旧桥接服务，避免旧接口返回 Not found；并发启动合并为一个桥接实例。右键状态页按 DSH / ChatGPT 来源隔离，DSH 投屏操作不会唤起 ChatGPT 桌宠。若以前安装过其他鲸鱼娘插件，请在宿主中停用旧插件，避免两个不同插件同时显示。
+`0.3.6-jonsbo.4`：启动时自动退出不兼容的旧桥接服务，避免旧接口返回 Not found；并发启动合并为一个桥接实例。右键状态页按 DSH / ChatGPT 来源隔离，DSH 投屏操作不会唤起 ChatGPT 桌宠。若以前安装过其他鲸鱼娘插件，请在宿主中停用旧插件，避免两个不同插件同时显示。
 
 - 增加 ChatGPT / Codex 本地 MCP 入口，可唤起、收起和更新桌宠状态。
 - 保留 DeepSeek Harness 的会话联动，同一份桌宠支持两个宿主。
@@ -16,7 +22,7 @@ Based on [PC2005-cloud/dsh-pet](https://github.com/PC2005-cloud/dsh-pet)（0.3.6
 
 ## 下载和安装
 
-需要 Windows x64。仓库自带 Node、Electron、USB 辅助程序及运行依赖，下载后无需另外安装 Node、npm、Python 或 Pillow。首次启用会校验并解压组件，需要等待几秒；后续直接启动。USB 屏幕仍需要对应的乔思伯官方软件/驱动，本仓库不分发厂商 DLL。其他型号暂未验证。
+需要 Windows x64。程序会按固定版本与哈希自动准备 Electron、USB 辅助程序及运行依赖，无需另外安装 Node、npm、Python 或 Pillow。首次启用显示准备窗口；后续复用缓存。USB 屏幕仍需要对应的乔思伯官方软件/驱动，本仓库不分发厂商 DLL。其他型号暂未验证。
 
 ### Codex / 支持本地插件的 ChatGPT 桌面端
 

@@ -14,7 +14,7 @@
 import { spawn } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import { downloadArtifact } from '@electron/get';
 
@@ -184,6 +184,16 @@ export async function ensureElectronDownload(options: EnsureElectronOptions = {}
   const timeoutMs = options.timeoutMs ?? 10 * 60 * 1000;
   const targetDir = electronLandingDir();
   const exe = defaultElectronExe();
+  if (existsSync(exe)) return exe;
+  if (PLAT === 'win32' && process.env.DSH_PET_USE_WINDOWS_BOOTSTRAP !== '0' && Object.keys(options).length === 0) {
+    const bootstrap = [join(packageRoot, 'bridge/bootstrap.mjs'), join(packageRoot, '../bridge/bootstrap.mjs')].find(existsSync);
+    if (bootstrap) {
+      try {
+        const prepared = await (await import(pathToFileURL(bootstrap).href)).prepareWindows();
+        if (prepared) return prepared;
+      } catch (error) { console.warn('[dsh-pet] Windows runtime preparation cancelled or failed:', error); return undefined; }
+    }
+  }
   if (existsSync(exe)) return exe;
 
   // 下载日志用 console 直出（ctx.logger 在部分宿主不映射到终端，排障时看不到）。

@@ -10,7 +10,7 @@ const clientURL = new URL('../bridge/client.mjs', import.meta.url).href;
 function client(port, data, code = 'console.log(JSON.stringify(await c.ensureBridge()))') {
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, ['--input-type=module', '-e', `const c=await import(${JSON.stringify(clientURL)});${code}`], {
-      env: {...process.env,PET_PORT:String(port),PET_DATA_DIR:data}, windowsHide:true, stdio:['ignore','pipe','pipe'],
+      env: {...process.env,PET_PORT:String(port),PET_DATA_DIR:data,PET_SKIP_RUNTIME_SETUP:'1'}, windowsHide:true, stdio:['ignore','pipe','pipe'],
     });
     let out='', err='';
     child.stdout.on('data',b=>out+=b); child.stderr.on('data',b=>err+=b);

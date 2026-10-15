@@ -2,7 +2,7 @@ import { createReadStream, existsSync, fstatSync, mkdirSync, readFileSync, readd
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join, normalize, resolve, sep } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { resolveDshHome } from "@deepseek-ai/dsh-home-paths";
 import { credentialRef } from "@deepseek-ai/dsh-credentials";
 import { BlockAssembler, ReasoningEffortId, createAssistantMessage, createUserMessage } from "@deepseek-ai/dsh-llm";
@@ -2046,6 +2046,17 @@ async function ensureElectronDownload(options = {}) {
 	const timeoutMs = options.timeoutMs ?? 10 * 60 * 1e3;
 	const targetDir = electronLandingDir();
 	const exe = defaultElectronExe();
+	if (existsSync(exe)) return exe;
+	if (PLAT === "win32" && process.env.DSH_PET_USE_WINDOWS_BOOTSTRAP !== "0" && Object.keys(options).length === 0) {
+		const bootstrap = [join(packageRoot, "bridge/bootstrap.mjs"), join(packageRoot, "../bridge/bootstrap.mjs")].find(existsSync);
+		if (bootstrap) try {
+			const prepared = await (await import(pathToFileURL(bootstrap).href)).prepareWindows();
+			if (prepared) return prepared;
+		} catch (error) {
+			console.warn("[dsh-pet] Windows runtime preparation cancelled or failed:", error);
+			return void 0;
+		}
+	}
 	if (existsSync(exe)) return exe;
 	const log = (message) => console.log(`[dsh-pet] ${message}`);
 	const warn = (message) => console.warn(`[dsh-pet] ${message}`);

@@ -15,6 +15,7 @@ export function config() {
   return existsSync(file) ? JSON.parse(readFileSync(file, 'utf8').replace(/^\uFEFF/, '')) : {};
 }
 export function nodeCommand() {
+  if(process.env.PET_NODE)return process.env.PET_NODE;
   const portable = path.join(root, 'runtime/node/node.exe');
   if (existsSync(portable)) return portable;
   return process.env.PET_NODE || local.node || process.execPath;
@@ -23,6 +24,6 @@ export function pythonCommand() {
   const bundled = path.join(os.homedir(), '.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe');
   return process.env.PET_PYTHON || config().python || local.python || (existsSync(bundled) ? bundled : 'python');
 }
-export const dshHome = local.dshHome || path.join(userData, 'dsh');
+export const dshHome = process.env.DSH_HOME || local.dshHome || path.join(userData, 'dsh');
 export const electronPath =
   process.env.DSH_PET_ELECTRON_PATH || local.electron || path.join(dshHome, 'electron/electron.exe');

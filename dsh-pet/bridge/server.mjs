@@ -43,7 +43,7 @@ export function createBridge({ launch = true } = {}) {
     return {
       service: 'dsh-pet-jonsbo',
       version: 2,
-      build: '0.3.6-jonsbo.3',
+      build: '0.3.6-jonsbo.4',
       pid: process.pid,
       visible: control.visible || !!f,
       control: currentControl(),
@@ -59,7 +59,7 @@ export function createBridge({ launch = true } = {}) {
   function startWorker() {
     if (worker || !launch || cfg.usb === false) return;
     mkdirSync(dataDir, { recursive: true });
-    const executable = path.join(root, 'desktop/bin/dsh-pet-usb.exe');
+    const executable = process.env.PET_USB_WORKER || path.join(root, 'desktop/bin/dsh-pet-usb.exe');
     const packaged = existsSync(executable);
     worker = spawn(
       packaged ? executable : pythonCommand(),
@@ -130,7 +130,7 @@ export function createBridge({ launch = true } = {}) {
       env: {
         ...process.env,
         DSH_HOME: dshHome,
-        DSH_PET_ELECTRON_PATH: electronPath,
+        DSH_PET_ELECTRON_PATH: process.env.DSH_PET_ELECTRON_PATH || electronPath,
         PET_DATA_DIR: dataDir,
         PET_PORT: String(port),
         DSH_PET_JONSBO_SOURCE: 'chatgpt',

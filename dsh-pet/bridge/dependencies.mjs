@@ -25,8 +25,10 @@ function run(command, args, { quiet = false, cwd = root } = {}) {
       tail = (tail + bytes.toString()).slice(-1600);
       if (!quiet) process.stderr.write(bytes);
     });
-    child.once('error', reject);
-    child.once('exit', code => code === 0 ? resolve() : reject(new Error(`${path.basename(command)} exited ${code}: ${tail.trim()}`)));
+    const timer=setTimeout(()=>{child.kill();reject(new Error('运行依赖准备超时，请在启动窗口点击重试。'));},120000);
+    timer.unref?.();
+    child.once('error', error=>{clearTimeout(timer);reject(error);});
+    child.once('exit', code => {clearTimeout(timer);code === 0 ? resolve() : reject(new Error(`${path.basename(command)} exited ${code}: ${tail.trim()}`));});
   });
 }
 export async function npmCommand() {
@@ -85,7 +87,7 @@ export async function ensureDependencies() {
     await run(command, [...prefix, 'install', '--omit=dev', '--omit=peer', '--ignore-scripts', '--package-lock=false', '--no-audit', '--no-fund']);
     if (!available()) throw new Error('Runtime dependencies remain unavailable after npm install');
   })().catch(error => {
-    throw new Error('桌宠运行依赖安装失败：' + error.message + '\n请检查网络后重试“打开桌宠”。');
+    throw new Error('桌宠运行依赖安装失败：' + error.message + '\n请检查网络后在启动窗口点击重试，或重新启用插件。');
   }).finally(() => { pending = undefined; });
   await pending;
 }

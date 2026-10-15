@@ -1,6 +1,6 @@
 {
   "name": "dsh-pet",
-  "version": "0.3.6-jonsbo.3",
+  "version": "0.3.6-jonsbo.4",
   "type": "module",
   "license": "MIT",
   "engines": {
@@ -62,14 +62,14 @@
   "scripts": {
     "build": "npm --prefix dsh-pet ci --ignore-scripts --legacy-peer-deps && npm --prefix dsh-pet run build",
     "pet": "node dsh-pet/bridge/cli.mjs",
-    "test:jonsbo": "node --test dsh-pet/test-jonsbo/*.test.mjs"
+    "test:jonsbo": "node --test dsh-pet/test-jonsbo/*.test.mjs",
+    "build:windows-lite": "node scripts/build-windows-lite.mjs",
+    "test:workflow": "node --test test/windows-launcher.test.mjs"
   },
   "files": [
     "dsh-pet/lib",
     "dsh-pet/src",
-    "dsh-pet/assets",
     "dsh-pet/runtime/electron-helper",
-    "dsh-pet/bridge",
     "dsh-pet/desktop/*.py",
     "dsh-pet/desktop/requirements.txt",
     "dsh-pet/config.jonsbo.example.json",
@@ -78,10 +78,19 @@
     "dsh-pet/scripts/ensure-electron.mjs",
     "README.md",
     "LICENSE",
-    "dsh-pet/runtime/node",
-    "dsh-pet/runtime/electron-win-x64.zip.*",
-    "dsh-pet/runtime/dependencies.zip",
     "dsh-pet/runtime/windows-bundle.json",
-    "dsh-pet/desktop/bin"
+    "scripts/windows-launcher.ps1",
+    "scripts/windows-launcher.json",
+    "start-pet.cmd",
+    "stop-pet.cmd",
+    "dsh-pet/bridge/*.mjs",
+    "dsh-pet/bridge/*.html",
+    "dsh-pet/desktop/bin/licenses",
+    "dsh-pet/assets/webm",
+    "dsh-pet/assets/fonts",
+    "dsh-pet/assets/pic",
+    "dsh-pet/assets/memes",
+    "dsh-pet/assets/config.jsonc",
+    "dsh-pet/assets/logo.png"
   ]
 }

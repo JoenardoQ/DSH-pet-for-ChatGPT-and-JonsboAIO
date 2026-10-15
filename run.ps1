@@ -1,14 +1,6 @@
-param(
-  [ValidateSet('wake','hide','status','stop','state','prepare')][string]$Action='wake',
-  [string]$State='idle',
-  [string]$Message=''
-)
+param([ValidateSet('wake','hide','status','stop','state','prepare')][string]$Action='wake',[string]$State='idle',[string]$Message='')
 $ErrorActionPreference='Stop'
-$petRoot=Join-Path $PSScriptRoot 'dsh-pet'
-$bundled=Join-Path $env:USERPROFILE '.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe'
-$portable=Join-Path $petRoot 'runtime\node\node.exe'
-$petNode=if(Test-Path -LiteralPath $portable){$portable}elseif(Test-Path -LiteralPath $bundled){$bundled}else{(Get-Command node -ErrorAction Stop).Source}
-if($Action -eq 'prepare') { & $petNode (Join-Path $petRoot 'scripts\prepare-jonsbo.mjs') $PSScriptRoot }
-elseif($Action -eq 'state') { & $petNode (Join-Path $petRoot 'bridge\cli.mjs') state $State $Message }
-else { & $petNode (Join-Path $petRoot 'bridge\cli.mjs') $Action }
-exit $LASTEXITCODE
+if($Action -in @('wake','status','stop','prepare')) { & (Join-Path $PSScriptRoot 'scripts/windows-launcher.ps1') -Mode $Action;exit $LASTEXITCODE }
+$headers=@{'X-Pet-Client'='1'}
+$event=@{source='chatgpt';action=$(if($Action -eq 'hide'){'hide'}else{'update'});state=$State;message=$Message}
+Invoke-RestMethod -Uri 'http://127.0.0.1:19390/event' -Method Post -Headers $headers -ContentType 'application/json' -Body ($event|ConvertTo-Json)

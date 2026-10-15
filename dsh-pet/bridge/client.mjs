@@ -5,6 +5,7 @@ import { base, root, dataDir, nodeCommand, port } from './runtime.mjs';
 import { validateEvent } from './state.mjs';
 import { ensureDependencies } from './dependencies.mjs';
 import { withStartupLock } from './startup-lock.mjs';
+import {prepareWindows} from './bootstrap.mjs';
 const protocol = 2;
 async function inspect() {
   const r = await fetch(base + '/state', { headers: { Connection: 'close' }, signal: AbortSignal.timeout(1500) });
@@ -48,6 +49,7 @@ async function startBridge() {
     }
     if (!gone) throw new Error('旧版桌宠服务仍在退出，请稍后重试。');
   }
+  if(process.env.PET_SKIP_RUNTIME_SETUP!=='1')await prepareWindows();
   await ensureDependencies();
   mkdirSync(dataDir, { recursive: true });
   const log = openSync(path.join(dataDir, 'bridge.log'), 'a');
