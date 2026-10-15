@@ -10,6 +10,7 @@
 // ---------- 单只宠物（行为与浏览器 PetCard 一致；纯逻辑来自 src/shared） ----------
 class PetSprite {
   constructor(pet) {
+    this.character = S.readCharacter(window.localStorage,pet.id);
     this.pet = pet; // 这只宠物的配置段（拍平后的成品实例，条目级字段已吹入：动画池/权重/周期）
     // 页面级缩放（main 对窗口 setZoomFactor(CONFIG.scale)，见 DESIGN.md §3.5）统一放大整窗：
     // pet.size 即 CSS 像素基准，**不再手工乘 CONFIG.scale**——固定 px UI（菜单/积分/聊天）
@@ -149,7 +150,7 @@ class PetSprite {
     this.hit.style.width = ((S.HIT_BOX.x1 - S.HIT_BOX.x0) / 640) * 100 + '%';
     this.hit.style.height = ((S.HIT_BOX.y1 - S.HIT_BOX.y0) / 360) * 100 + '%';
     // 原先这里挂 title（原生系统提示）：已换成自绘浮层，但无障碍名称不能跟着丢
-    this.hit.setAttribute('aria-label', this.pet.name);
+    this.hit.setAttribute('aria-label', this.character==='fish'?this.pet.name:S.characterLabel(this.character));
     this.bubble = document.createElement('div');
     this.bubble.className = 'pet-bubble';
     // 悬浮提示：与气泡同处 this.el 内的绝对定位浮层，位置/翻转由 renderTip 决定，
@@ -361,7 +362,9 @@ class PetSprite {
     const target = this.front === 0 ? this.videoB : this.videoA;
     const el = target;
     if (!el) return;
-    el.src = this.assetBase + encodeURIComponent(next) + (S.ANIMATION_EXT || '.webm');
+    const visual=S.characterAnimation(this.character,next);
+    const assetBase=this.character==='fish'?this.assetBase:BASE+'/thumb/main/';
+    el.src = assetBase + encodeURIComponent(visual) + (this.character==='fish'?(S.ANIMATION_EXT || '.webm'):'.webm');
     el.loop = !nextOnce;
     el.muted = true;
     el.autoplay = true;
@@ -1149,7 +1152,7 @@ class PetSprite {
       if (window.__jonsboDebug?.source === 'chatgpt')
         tools.push({ label: '关闭桌宠', action: 'jonsbo-shutdown' });
     }
-    const tree = tools.concat(S.buildMenuTree(this.animations));
+    const tree = [S.characterMenu(this.character)].concat(tools,S.buildMenuTree(this.animations));
     if (!tree.length) return;
     this.menuOpen = true;
     this.setInteractive(true); // 菜单是窗口内 DOM：悬停期间整窗保持可交互，关闭后恢复命中区穿透
@@ -1175,6 +1178,14 @@ class PetSprite {
   onMenuAction(leaf) {
     this.closeMenu();
     if (!leaf || typeof leaf !== 'object') return;
+    const character=S.characterAction(leaf.action);
+    if(character) {
+      try { window.localStorage.setItem('dsh-pet:character:'+this.pet.id,character); } catch { return; }
+      this.character=character;this.gen++;this.pending=null;
+      this.hit.setAttribute('aria-label',character==='fish'?this.pet.name:S.characterLabel(character));
+      this.switchTo(this.anim||this.animations.idle[0],this.once);
+      return;
+    }
     if (leaf.action?.startsWith('jonsbo-') && window.jonsboBridge) {
       const bridge = window.jonsboBridge;
       const request = leaf.action === 'jonsbo-status' ? bridge.openStatus()

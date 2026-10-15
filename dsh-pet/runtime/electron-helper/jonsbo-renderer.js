@@ -36,7 +36,7 @@
       ctx.fillStyle = '#d7eeff';
       ctx.textAlign = 'center';
       ctx.font = '20px "Microsoft YaHei"';
-      const text = (pet.workText || pet.pet.name || '大肥鱼陪着你').replace(/\n/g, ' ');
+      const text = (pet.workText || (pet.character==='fish'?pet.pet.name:S.characterLabel(pet.character)) || '大肥鱼陪着你').replace(/\n/g, ' ');
       let caption = text;
       while (caption.length && ctx.measureText(caption).width > 430) caption = caption.slice(0, -1);
       ctx.fillText(caption, 240, 428);

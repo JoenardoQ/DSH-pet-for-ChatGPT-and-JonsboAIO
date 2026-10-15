@@ -1,16 +1,12 @@
 // Thin output adapter. All animation, physics and menus remain upstream dsh-pet.
 const { app, ipcMain, BrowserWindow, Notification, shell } = require('electron');
 const path = require('node:path');
-const { mkdirSync, existsSync, readFileSync } = require('node:fs');
+const { mkdirSync } = require('node:fs');
 const { pathToFileURL } = require('node:url');
 const root = path.resolve(__dirname, '../..');
 const source = process.env.DSH_PET_JONSBO_SOURCE === 'chatgpt' ? 'chatgpt' : 'dsh';
-const localFile = path.join(root, 'bridge/local.json');
-const local = existsSync(localFile) ? JSON.parse(readFileSync(localFile, 'utf8')) : {};
-const dataDir =
-  process.env.PET_DATA_DIR ||
-  local.dataDir ||
-  path.join(process.env.LOCALAPPDATA || require('node:os').homedir(), 'DshPetJonsbo/jonsbo');
+const {resolveDataDir}=require('../../bridge/user-paths.cjs');
+const dataDir=resolveDataDir();
 const profile = path.join(dataDir, 'electron-' + source);
 mkdirSync(profile, { recursive: true });
 app.setPath('userData', profile);
@@ -25,6 +21,7 @@ async function connect() {
   await client.ensureBridge();
 }
 ipcMain.handle('jonsbo:frame', async (event, payload) => {
+  if(process.env.DSH_PET_JONSBO_ENABLED==='0')return {source};
   const win = BrowserWindow.fromWebContents(event.sender);
   if (!win || !event.sender.getURL().startsWith('file:')) return { error: 'Invalid sender' };
   if (typeof payload?.png !== 'string' || payload.png.length > 1900000) return { error: 'Invalid frame' };

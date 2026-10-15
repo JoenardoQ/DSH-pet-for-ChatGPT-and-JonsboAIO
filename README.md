@@ -10,7 +10,7 @@ Based on [PC2005-cloud/dsh-pet](https://github.com/PC2005-cloud/dsh-pet)（0.3.6
 
 ## 改动和优化
 
-`0.3.6-jonsbo.5`：启动时自动退出不兼容的旧桥接服务，避免旧接口返回 Not found；并发启动合并为一个桥接实例。右键状态页按 DSH / ChatGPT 来源隔离，DSH 投屏操作不会唤起 ChatGPT 桌宠。若以前安装过其他鲸鱼娘插件，请在宿主中停用旧插件，避免两个不同插件同时显示。
+`0.3.6-jonsbo.6`：启动时自动退出不兼容的旧桥接服务，避免旧接口返回 Not found；并发启动合并为一个桥接实例。右键状态页按 DSH / ChatGPT 来源隔离，DSH 投屏操作不会唤起 ChatGPT 桌宠。若以前安装过其他鲸鱼娘插件，请在宿主中停用旧插件，避免两个不同插件同时显示。
 
 - 增加 ChatGPT / Codex 本地 MCP 入口，可唤起、收起和更新桌宠状态。
 - 保留 DeepSeek Harness 的会话联动，同一份桌宠支持两个宿主。
@@ -57,3 +57,7 @@ cd DSH-pet-for-ChatGPT-and-JonsboAIO
 ```
 
 开发时修改 TypeScript 后运行 `npm run build`（开发构建需要 Node/npm）。Windows 运行组件的打包脚本为 `scripts/bundle-windows-runtime.py`，各组件许可证随包保留。查看连接状态：<http://127.0.0.1:19390/>。若显示屏被占用，可在此页面选择接管。默认数据目录为 `%LOCALAPPDATA%/DshPetJonsbo`；旋转等选项参考 `dsh-pet/config.jonsbo.example.json`。
+
+## 右键切换桌宠
+
+保留鲸鱼娘、大肥鱼和新 ChatGPT 娘。右键当前桌宠即可选择，切换后自动保存；状态联动和 JONSBO 投屏继续工作，无需 agent 参与。新角色包含透明图片动画、GIF 预览和 WebM 视频，素材与说明见[三角色资产说明](docs/characters.md)。

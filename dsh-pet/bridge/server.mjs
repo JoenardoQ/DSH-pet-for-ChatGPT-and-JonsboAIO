@@ -37,7 +37,7 @@ export function createBridge({ launch = true } = {}) {
       service: 'dsh-pet-jonsbo',
       shuttingDown:shuttingDown || lifecycleClosing,
       version: 2,
-      build: '0.3.6-jonsbo.5',
+      build: '0.3.6-jonsbo.6',
       pid: process.pid,
       visible: control.visible || !!f,
       control: currentControl(),

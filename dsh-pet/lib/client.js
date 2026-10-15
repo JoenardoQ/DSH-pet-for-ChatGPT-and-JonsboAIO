@@ -91,6 +91,58 @@ const planMove = (o) => {
 };
 
 //#endregion
+//#region src/shared/characters.ts
+const CHARACTERS = [
+	{
+		id: "whale",
+		label: "鲸鱼娘"
+	},
+	{
+		id: "fish",
+		label: "大肥鱼"
+	},
+	{
+		id: "chatgpt",
+		label: "ChatGPT 娘"
+	}
+];
+function readCharacter(storage, petId) {
+	try {
+		const id = storage.getItem("dsh-pet:character:" + petId);
+		return CHARACTERS.some((c) => c.id === id) ? id : "fish";
+	} catch {
+		return "fish";
+	}
+}
+function characterState(name) {
+	if (/叹气|皱眉|生气|败|袋空|分文|失败|error|failure/i.test(name)) return "error";
+	if (/小憩|沉眠|睡|瞌睡|sleep/i.test(name)) return "sleeping";
+	if (/思考|张望|think/i.test(name)) return "thinking";
+	if (/写代码|忙碌|归档|记录|点按|敲击|work|tool/i.test(name)) return "working";
+	if (/庆祝|开心|雀跃|成功|success/i.test(name)) return "success";
+	if (/挥手|回应|互动|拖拽|wave/i.test(name)) return "wave";
+	return "idle";
+}
+function characterAnimation(character, name) {
+	return character === "fish" ? name : "__skin-" + character + "-" + characterState(name);
+}
+function characterMenu(selected) {
+	return {
+		label: "切换桌宠",
+		children: CHARACTERS.map((c) => ({
+			label: (c.id === selected ? "✓ " : "") + c.label,
+			action: "skin-" + c.id
+		}))
+	};
+}
+function characterAction(action) {
+	return CHARACTERS.find((c) => action === "skin-" + c.id)?.id;
+}
+function characterLabel(id) {
+	return CHARACTERS.find((c) => c.id === id)?.label || "大肥鱼";
+}
+
+//#endregion
 //#region src/shared/config.ts
 const PET_DISPLAYS = [
 	"web",
@@ -3022,6 +3074,7 @@ function makePetUI(rt) {
 		const bottomPad = size * (9 / 16) * (CANVAS_H - FEET_Y) / CANVAS_H;
 		const petAnims = cfg.animations;
 		const petWeights = cfg.animationWeights;
+		const [character, setCharacter] = useState(() => readCharacter(window.localStorage, cfg.id));
 		const [anim, setAnim] = useState(petAnims.idle[0] ?? "");
 		const [once, setOnce] = useState(true);
 		const [facing, setFacing] = useState("left");
@@ -3124,7 +3177,7 @@ function makePetUI(rt) {
 			if (!el) return;
 			const inEvents = isEventAnim(petAnims.events, next);
 			if (inEvents) console.log("[dsh-pet] " + new Date().toTimeString().slice(0, 8) + " pet=" + cfg.id + " switch " + next + " once=" + nextOnce);
-			const assetUrl = "/dsh-pet-7340/thumb/" + encodeURIComponent(cfg.assetRoot ?? cfg.id) + "/" + encodeURIComponent(next) + THUMB_EXT;
+			const assetUrl = "/dsh-pet-7340/thumb/" + encodeURIComponent(character === "fish" ? cfg.assetRoot ?? cfg.id : "main") + "/" + encodeURIComponent(characterAnimation(character, next)) + (character === "fish" ? THUMB_EXT : ".webm");
 			el.loop = !nextOnce;
 			el.muted = true;
 			el.autoplay = true;
@@ -3189,7 +3242,8 @@ function makePetUI(rt) {
 		}, [
 			anim,
 			once,
-			seq
+			seq,
+			character
 		]);
 		useEffect(() => {
 			mountedRef.current = true;
@@ -3986,6 +4040,19 @@ function makePetUI(rt) {
 			setAnim(name);
 		};
 		const handleMenuAction = (leaf$1) => {
+			const selected = characterAction(leaf$1.action);
+			if (selected) {
+				try {
+					window.localStorage.setItem("dsh-pet:character:" + cfg.id, selected);
+				} catch {
+					return;
+				}
+				pendingRef.current = null;
+				genRef.current++;
+				setCharacter(selected);
+				setSeq((s) => s + 1);
+				return;
+			}
 			if (leaf$1.action === "whisper") {
 				console.info("[dsh-pet] 菜单触发碎碎念 pet=" + cfg.id);
 				postAction("/dsh-pet-7340/whisper?pet=" + encodeURIComponent(cfg.id)).then((ok) => {
@@ -4034,6 +4101,7 @@ function makePetUI(rt) {
 		};
 		const handleContextMenu = (e) => {
 			const tree = [
+				characterMenu(character),
 				{
 					label: "碎碎念",
 					action: "whisper"
@@ -4124,7 +4192,7 @@ function makePetUI(rt) {
 			},
 			onPointerLeave: () => setTipOn(false),
 			onContextMenu: handleContextMenu,
-			"aria-label": cfg.name
+			"aria-label": character === "fish" ? cfg.name : characterLabel(character)
 		};
 		return h("div", {
 			ref: rootRef,
@@ -4158,7 +4226,7 @@ function makePetUI(rt) {
 					ref: tipRef,
 					className: TOOLTIP_CLASS + (tipOn ? " is-on" : ""),
 					"aria-hidden": "true",
-					children: cfg.name
+					children: character === "fish" ? cfg.name : characterLabel(character)
 				})
 			]
 		});

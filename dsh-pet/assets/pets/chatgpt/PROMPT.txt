@@ -1,0 +1,3 @@
+Built-in image_gen, 2026-10-15. Two user-provided reference JPGs.
+Eight consistent full-body transparent poses in a 4x2 grid: idle, blink, thinking, working, success, error, sleeping, wave. Adult white-haired lavender dragon woman, ivory horns, pointed ears, lavender eyes, flowing layered white/lilac rose dress, wings and scaled tail; fine anime linework and soft pastel shading. Preserve reference design; no labels or background. Similar recreation approved by user.
+Animation packaging: 8 fps / 4-second loops, subtle vertical breathing, idle blink. Source artwork is atlas.png; runtime formats retain alpha.

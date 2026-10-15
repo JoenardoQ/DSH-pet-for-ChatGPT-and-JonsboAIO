@@ -1,6 +1,6 @@
 {
   "name": "dsh-pet",
-  "version": "0.3.6-jonsbo.5",
+  "version": "0.3.6-jonsbo.6",
   "type": "module",
   "license": "MIT",
   "engines": {
@@ -91,6 +91,8 @@
     "dsh-pet/assets/pic",
     "dsh-pet/assets/memes",
     "dsh-pet/assets/config.jsonc",
-    "dsh-pet/assets/logo.png"
+    "dsh-pet/assets/logo.png",
+    "dsh-pet/assets/pets",
+    "dsh-pet/bridge/*.cjs"
   ]
 }

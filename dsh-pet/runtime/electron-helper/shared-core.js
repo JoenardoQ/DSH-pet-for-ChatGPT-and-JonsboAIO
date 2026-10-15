@@ -1562,10 +1562,63 @@ const TOOLTIP_CSS = [
 ].join("");
 
 //#endregion
+//#region src/shared/characters.ts
+const CHARACTERS = [
+	{
+		id: "whale",
+		label: "鲸鱼娘"
+	},
+	{
+		id: "fish",
+		label: "大肥鱼"
+	},
+	{
+		id: "chatgpt",
+		label: "ChatGPT 娘"
+	}
+];
+function readCharacter(storage, petId) {
+	try {
+		const id = storage.getItem("dsh-pet:character:" + petId);
+		return CHARACTERS.some((c) => c.id === id) ? id : "fish";
+	} catch {
+		return "fish";
+	}
+}
+function characterState(name) {
+	if (/叹气|皱眉|生气|败|袋空|分文|失败|error|failure/i.test(name)) return "error";
+	if (/小憩|沉眠|睡|瞌睡|sleep/i.test(name)) return "sleeping";
+	if (/思考|张望|think/i.test(name)) return "thinking";
+	if (/写代码|忙碌|归档|记录|点按|敲击|work|tool/i.test(name)) return "working";
+	if (/庆祝|开心|雀跃|成功|success/i.test(name)) return "success";
+	if (/挥手|回应|互动|拖拽|wave/i.test(name)) return "wave";
+	return "idle";
+}
+function characterAnimation(character, name) {
+	return character === "fish" ? name : "__skin-" + character + "-" + characterState(name);
+}
+function characterMenu(selected) {
+	return {
+		label: "切换桌宠",
+		children: CHARACTERS.map((c) => ({
+			label: (c.id === selected ? "✓ " : "") + c.label,
+			action: "skin-" + c.id
+		}))
+	};
+}
+function characterAction(action) {
+	return CHARACTERS.find((c) => action === "skin-" + c.id)?.id;
+}
+function characterLabel(id) {
+	return CHARACTERS.find((c) => c.id === id)?.label || "大肥鱼";
+}
+
+//#endregion
 exports.ACCEL_GAIN_MAX = ACCEL_GAIN_MAX
 exports.ACCEL_REF = ACCEL_REF
 exports.ANIMATION_EXT = ANIMATION_EXT
 exports.CANVAS_H = CANVAS_H
+exports.CHARACTERS = CHARACTERS
 exports.CHAT_CSS = CHAT_CSS
 exports.DEAD_ZONE_SPEED = DEAD_ZONE_SPEED
 exports.DEFAULT_PHYSICS = DEFAULT_PHYSICS
@@ -1619,6 +1672,11 @@ exports.balancePercent = balancePercent
 exports.bodyPixelBox = bodyPixelBox
 exports.boundingRect = boundingRect
 exports.buildMenuTree = buildMenuTree
+exports.characterAction = characterAction
+exports.characterAnimation = characterAnimation
+exports.characterLabel = characterLabel
+exports.characterMenu = characterMenu
+exports.characterState = characterState
 exports.clampPointInRect = clampPointInRect
 exports.clampPointToRegion = clampPointToRegion
 exports.clickScore = clickScore
@@ -1655,6 +1713,7 @@ exports.postAction = postAction
 exports.randomBetween = randomBetween
 exports.readAnim = readAnim
 exports.readBalance = readBalance
+exports.readCharacter = readCharacter
 exports.readSay = readSay
 exports.readWorkStatus = readWorkStatus
 exports.rectAtPoint = rectAtPoint

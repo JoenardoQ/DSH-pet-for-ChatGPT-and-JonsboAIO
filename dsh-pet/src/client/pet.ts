@@ -14,6 +14,14 @@ import {
   nextWorkStatusAnim,
 } from '../shared/pickers';
 import { planMove } from '../shared/motion';
+import {
+  readCharacter,
+  characterAction,
+  characterMenu,
+  characterAnimation,
+  characterLabel,
+  type CharacterId,
+} from '../shared/characters';
 import { flattenConfigPets, isWebVisible } from '../shared/config';
 import { balanceEventIndex, balancePercent, decideBalanceNotice, type BalanceState } from '../shared/balance';
 // 轮询统一状态 S：前端唯一的数据来源与渲染入口（拉取 / 拍平 / 比对都在 shared，两端同一份）
@@ -181,6 +189,7 @@ export function makePetUI(rt: {
     const petWeights = cfg.animationWeights;
 
     // ---- React 状态 ----
+    const [character, setCharacter] = useState<CharacterId>(() => readCharacter(window.localStorage, cfg.id));
     const [anim, setAnim] = useState(petAnims.idle[0] ?? '');
     const [once, setOnce] = useState(true);
     const [facing, setFacing] = useState('left' as 'left' | 'right');
@@ -300,10 +309,10 @@ export function makePetUI(rt: {
       }
       const assetUrl =
         '/dsh-pet-7340/thumb/' +
-        encodeURIComponent(cfg.assetRoot ?? cfg.id) +
+        encodeURIComponent(character === 'fish' ? (cfg.assetRoot ?? cfg.id) : 'main') +
         '/' +
-        encodeURIComponent(next) +
-        THUMB_EXT;
+        encodeURIComponent(characterAnimation(character, next)) +
+        (character === 'fish' ? THUMB_EXT : '.webm');
       el.loop = !nextOnce;
       el.muted = true;
       el.autoplay = true;
@@ -384,7 +393,7 @@ export function makePetUI(rt: {
     useEffect(() => {
       switchTo(anim, once);
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [anim, once, seq]);
+    }, [anim, once, seq, character]);
     useEffect(() => {
       mountedRef.current = true;
       const bu = blobUrlRef.current;
@@ -1367,6 +1376,19 @@ export function makePetUI(rt: {
     // 绝不进入/改动 DSH 页面自己的菜单；浏览器端只有「碎碎念 / 回到初始位置 + 动作」——
     // 无「打开网站 / 查看余额」（打开网站=就在网页里；查看余额已由对话框 /balance 命令实现）。
     const handleMenuAction = (leaf: MenuLeaf) => {
+      const selected = characterAction(leaf.action);
+      if (selected) {
+        try {
+          window.localStorage.setItem('dsh-pet:character:' + cfg.id, selected);
+        } catch {
+          return;
+        }
+        pendingRef.current = null;
+        genRef.current++;
+        setCharacter(selected);
+        setSeq((s) => s + 1);
+        return;
+      }
       if (leaf.action === 'whisper') {
         // 手动碎碎念：POST 动作端点让 host 立即新生成一句（写进 S）。
         // 动作**不回文本**——收到 ok 后叫醒一拍 /state，文本随下一拍到达并弹气泡（0 延迟）。
@@ -1434,6 +1456,7 @@ export function makePetUI(rt: {
       // 工具项（碎碎念——手动触发**不受 whisperEnabled 限制**，该字段只影响自动周期轮询；
       // 回到初始位置，两端共用）+ 动作树（动作→分类→具体动画）
       const tree: MenuNode[] = [
+        characterMenu(character),
         { label: '碎碎念', action: 'whisper' },
         { label: '对话', action: 'chat' },
         { label: '回到初始位置', action: 'home' },
@@ -1526,7 +1549,7 @@ export function makePetUI(rt: {
       onPointerLeave: () => setTipOn(false),
       onContextMenu: handleContextMenu,
       // 原先这里挂 title（原生系统提示）：已换成自绘浮层，但无障碍名称不能跟着丢
-      'aria-label': cfg.name,
+      'aria-label': character === 'fish' ? cfg.name : characterLabel(character),
     };
     return h('div', {
       ref: rootRef,
@@ -1561,7 +1584,7 @@ export function makePetUI(rt: {
           ref: tipRef,
           className: TOOLTIP_CLASS + (tipOn ? ' is-on' : ''),
           'aria-hidden': 'true',
-          children: cfg.name,
+          children: character === 'fish' ? cfg.name : characterLabel(character),
         }),
       ],
     });

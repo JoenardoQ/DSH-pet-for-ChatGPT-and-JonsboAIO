@@ -1,0 +1,60 @@
+{
+  "schema": 1,
+  "default": "fish",
+  "characters": [
+    {
+      "id": "chatgpt",
+      "label": "ChatGPT 娘",
+      "states": [
+        "idle",
+        "blink",
+        "thinking",
+        "working",
+        "success",
+        "error",
+        "sleeping",
+        "wave"
+      ]
+    },
+    {
+      "id": "whale",
+      "label": "鲸鱼娘",
+      "states": [
+        "idle",
+        "thinking",
+        "working",
+        "success",
+        "error",
+        "sleeping",
+        "wave"
+      ]
+    },
+    {
+      "id": "fish",
+      "label": "大肥鱼",
+      "states": [
+        "idle",
+        "thinking",
+        "working",
+        "success",
+        "error",
+        "sleeping",
+        "wave"
+      ]
+    }
+  ],
+  "generation": {
+    "tool": "image_gen built-in",
+    "reference": "Two user-provided JPG illustrations; similar recreation, not original animation assets",
+    "atlasSize": [
+      1448,
+      1086
+    ],
+    "grid": [
+      4,
+      2
+    ],
+    "fps": 8,
+    "seconds": 4
+  }
+}
