@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import threading
 import time
+from screen_lease import ScreenLease
 
 
 class Resolution(C.Structure):
@@ -37,22 +38,32 @@ class Display:
         path = Path(dll_path or Path(os.environ['LOCALAPPDATA']) / 'JONSBO-AIO/dll/x64/MSDISPLAYSDKWRRAPER.dll').resolve()
         if not path.is_file():
             raise RuntimeError('Install JONSBO-AIO first or set sdkDll in config.json')
-        self.dll_dir = os.add_dll_directory(str(path.parent))
-        usb_dir = path.parent.parent.parent / 'libusb/amd64'
-        self.usb_dir = os.add_dll_directory(str(usb_dir)) if usb_dir.is_dir() else None
-        self.dll = C.CDLL(str(path))  # cdecl, including callbacks
-        self.width, self.height, self.serial = width, height, serial
-        self.devices, self.selected, self.error = {}, None, None
-        self.lock = threading.Lock()
-        self.started = False
-        self._bind('RegisterCallback', [Attach, Detach], None)
-        self._bind('Start', [C.c_int, C.POINTER(Edid)])
-        self._bind('Stop', [])
-        self._bind('SetVideoParam', [C.c_uint32, C.POINTER(Resolution)])
-        self._bind('SendPicture', [C.c_uint32, C.POINTER(Picture), C.c_bool])
-        self._bind('ReadSN', [C.c_uint32, C.c_void_p])
-        self.attach_cb, self.detach_cb = Attach(self._attach), Detach(self._detach)
-        self.dll.Wrraper_MSDisplayRegisterCallback(self.attach_cb, self.detach_cb)
+        self.lease = ScreenLease()
+        self.lease.__enter__()
+        try:
+            self.dll_dir = os.add_dll_directory(str(path.parent))
+            usb_dir = path.parent.parent.parent / 'libusb/amd64'
+            self.usb_dir = os.add_dll_directory(str(usb_dir)) if usb_dir.is_dir() else None
+            self.dll = C.CDLL(str(path))  # cdecl, including callbacks
+            self.width, self.height, self.serial = width, height, serial
+            self.devices, self.selected, self.error = {}, None, None
+            self.lock = threading.Lock()
+            self.started = False
+            self._bind('RegisterCallback', [Attach, Detach], None)
+            self._bind('Start', [C.c_int, C.POINTER(Edid)])
+            self._bind('Stop', [])
+            self._bind('SetVideoParam', [C.c_uint32, C.POINTER(Resolution)])
+            self._bind('SendPicture', [C.c_uint32, C.POINTER(Picture), C.c_bool])
+            self._bind('ReadSN', [C.c_uint32, C.c_void_p])
+            self.attach_cb, self.detach_cb = Attach(self._attach), Detach(self._detach)
+            self.dll.Wrraper_MSDisplayRegisterCallback(self.attach_cb, self.detach_cb)
+        except BaseException:
+            for resource in ('dll_dir', 'usb_dir'):
+                value = getattr(self, resource, None)
+                if value:
+                    value.close()
+            self.lease.close()
+            raise
 
     def _bind(self, name, args, result=C.c_int):
         fn = getattr(self.dll, 'Wrraper_MSDisplay' + name)
@@ -136,9 +147,15 @@ class Display:
         return True
 
     def close(self):
-        if self.started:
-            self.dll.Wrraper_MSDisplayStop()
-            self.started = False
-        self.dll_dir.close()
-        if self.usb_dir:
-            self.usb_dir.close()
+        try:
+            if self.started:
+                self.dll.Wrraper_MSDisplayStop()
+                self.started = False
+        finally:
+            try:
+                self.dll_dir.close()
+                if self.usb_dir:
+                    self.usb_dir.close()
+            finally:
+                if getattr(self, 'lease', None):
+                    self.lease.close()

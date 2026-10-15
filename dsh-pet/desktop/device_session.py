@@ -9,6 +9,7 @@ from pathlib import Path
 import subprocess
 import time
 import urllib.request
+from screen_lease import ScreenLease, ScreenBusy, WAITING
 
 VENDOR_IMAGE = 'jonsbo-aio.exe'
 SUPPORTED_ID = 'VID_345F&PID_9132'
@@ -128,19 +129,23 @@ class DeviceSession:
         self.marker.parent.mkdir(parents=True,exist_ok=True)
         self.marker.write_text(json.dumps(self.owned),encoding='utf-8')
 
-    def previous_bridge(self,restore=False):
-        # Explicit compatibility with project 1; never act on an unidentified service.
-        base='http://127.0.0.1:19389'
-        try:
-            with urllib.request.urlopen(base+'/state',timeout=.5) as response:state=json.load(response)
-            if state.get('service')!='whale-musume' or state.get('version')!=1:return
-            if not restore and not (state.get('source')=='chatgpt' and state.get('screen')):return
-            request=urllib.request.Request(base+'/event',data=json.dumps({'source':'chatgpt','action':'update','screen':restore}).encode(),headers={'Content-Type':'application/json','X-Whale-Client':'1'},method='POST')
-            if not restore:self.owned['legacy']=True;self.save()
-            with urllib.request.urlopen(request,timeout=1):pass
-        except Exception:pass
-
     def prepare(self):
+        try:
+            with ScreenLease():
+                return self._prepare()
+        except ScreenBusy:
+            return {'usb': 'waiting-screen', 'error': WAITING}
+
+    def restore(self):
+        if not self.owned:
+            return
+        try:
+            with ScreenLease():
+                self._restore()
+        except ScreenBusy:
+            pass  # Keep restore intent; never restart the vendor over another pet.
+
+    def _prepare(self):
         if os.name!='nt':return {'usb':'unsupported-platform','error':'乔斯伯输出需要 Windows x64。'}
         devices=present_devices()
         if not devices:return {'usb':'waiting-device','devices':[],'error':None}
@@ -159,17 +164,17 @@ class DeviceSession:
                     # We did not stop it, so must not restart it on release.
                     self.owned.pop('vendor',None);self.save()
                     return {'usb':'busy','error':'已请求官方程序退出，但它仍在占用。点击预览页“接管屏幕”允许结束该程序，或从托盘退出。'}
-            self.previous_bridge()
+            # Never disable another pet: its display lease determines ownership.
         elif processes:return {'usb':'busy','error':'官方程序正在占用屏幕；自动接管已关闭。'}
         return {'usb':'ready','devices':devices,'sdkDll':str(sdk)}
 
-    def restore(self):
+    def _restore(self):
         if not self.owned:return
         if self.config.get('restoreOnExit',True):
             executable=self.owned.get('vendor')
             if executable and Path(executable).is_file() and Path(executable).name.lower()==VENDOR_IMAGE and not vendor_processes():
                 startup=subprocess.STARTUPINFO();startup.dwFlags|=subprocess.STARTF_USESHOWWINDOW;startup.wShowWindow=0
                 subprocess.Popen([executable],cwd=str(Path(executable).parent),startupinfo=startup,creationflags=0x00000008,stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
-            if self.owned.get('legacy'):self.previous_bridge(restore=True)
+            # Older legacy markers must not re-enable another pet's output.
         self.owned={}
         self.marker.unlink(missing_ok=True)

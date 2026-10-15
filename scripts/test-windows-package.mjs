@@ -39,7 +39,10 @@ try{
  const state=await fetch('http://127.0.0.1:'+port+'/state').then(r=>r.json());
  assert.equal(state.service,profile.service);
  assert.equal(profile.kind==='whale'?state.output.desktop==='visible':state.activeSources.includes('chatgpt'),true);
- const result={project:profile.name,mode:input,root,data,port,coldDownloads:true,noNodePythonPath:true,desktopReady:true,usbDisabledForTest:true,service:state.service,output:state.output};
+ invoke('stop');invoke('wake');
+ const restarted=await fetch('http://127.0.0.1:'+port+'/state').then(r=>r.json());
+ assert.equal(restarted.service,profile.service);assert.equal(profile.kind==='whale'?restarted.output.desktop==='visible':restarted.activeSources.includes('chatgpt'),true);
+ const result={restartReady:true,project:profile.name,mode:input,root,data,port,coldDownloads:true,noNodePythonPath:true,desktopReady:true,usbDisabledForTest:true,service:state.service,output:state.output};
  fs.writeFileSync(path.join(workspace,'result.json'),JSON.stringify(result,null,2));
  fs.mkdirSync(path.join(source,'.qa'),{recursive:true});
  fs.copyFileSync(path.join(workspace,'result.json'),path.join(source,'.qa',input+'-cold-smoke-result.json'));

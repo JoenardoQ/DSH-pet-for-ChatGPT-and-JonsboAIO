@@ -10,7 +10,7 @@ Based on [PC2005-cloud/dsh-pet](https://github.com/PC2005-cloud/dsh-pet)（0.3.6
 
 ## 改动和优化
 
-`0.3.6-jonsbo.4`：启动时自动退出不兼容的旧桥接服务，避免旧接口返回 Not found；并发启动合并为一个桥接实例。右键状态页按 DSH / ChatGPT 来源隔离，DSH 投屏操作不会唤起 ChatGPT 桌宠。若以前安装过其他鲸鱼娘插件，请在宿主中停用旧插件，避免两个不同插件同时显示。
+`0.3.6-jonsbo.5`：启动时自动退出不兼容的旧桥接服务，避免旧接口返回 Not found；并发启动合并为一个桥接实例。右键状态页按 DSH / ChatGPT 来源隔离，DSH 投屏操作不会唤起 ChatGPT 桌宠。若以前安装过其他鲸鱼娘插件，请在宿主中停用旧插件，避免两个不同插件同时显示。
 
 - 增加 ChatGPT / Codex 本地 MCP 入口，可唤起、收起和更新桌宠状态。
 - 保留 DeepSeek Harness 的会话联动，同一份桌宠支持两个宿主。

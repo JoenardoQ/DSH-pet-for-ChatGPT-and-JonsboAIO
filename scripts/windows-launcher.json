@@ -35,7 +35,7 @@
     "url": "https://raw.githubusercontent.com/JoenardoQ/DSH-pet-for-ChatGPT-and-JonsboAIO/b6ed9bf57d14b8863aa30431e3e4c84836d4161d/dsh-pet/runtime/dependencies.zip",
     "sha256": "0ed05787814111a98c192910856555590413bef1d7522bc24df307843903b687"
   },
-  "build": "0.3.6-jonsbo.4",
+  "build": "0.3.6-jonsbo.5",
   "pythonVersion": "3.13.2",
   "python": {
     "name": "python-3.13.2-embed-amd64.zip",

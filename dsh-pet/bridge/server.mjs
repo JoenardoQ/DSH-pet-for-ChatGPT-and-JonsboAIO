@@ -3,28 +3,21 @@ import { spawn } from 'node:child_process';
 import { mkdirSync, existsSync, writeFileSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { Sources, validateEvent } from './state.mjs';
+import { Sources, validateEvent, Controls } from './state.mjs';
 import { HostLeases } from './plugin-lifetime.mjs';
 import { root, port, dataDir, config, pythonCommand, nodeCommand, dshHome, electronPath } from './runtime.mjs';
 
 export function createBridge({ launch = true } = {}) {
   const sources = new Sources();
   const hosts = new HostLeases();
-  let lifecycleClosing = false, dshSeen = false;
+  let lifecycleClosing = false, dshSeen = false, shuttingDown=false;
   let worker,
     standalone,
     workerPending = '',
     lastFrame;
   let output = { worker: 'stopped', usb: 'not-started' };
-  let control = {
-    visible: false,
-    desktop: true,
-    screen: true,
-    state: 'idle',
-    message: '',
-    revision: 0,
-    updatedAt: Date.now(),
-  };
+  const controls=new Controls();
+  let control=controls.snapshot();
   const cfg = config();
   const screenEnabled = { dsh: true };
   const excludedSources = () => [
@@ -33,25 +26,28 @@ export function createBridge({ launch = true } = {}) {
   ];
   if (cfg.usb === false) output.usb = 'disabled';
   function currentControl() {
-    if (Date.now() - control.updatedAt > 90000 && ['thinking', 'working', 'success', 'error'].includes(control.state)) {
-      control = { ...control, state: 'idle', message: '', revision: control.revision + 1 };
-    }
+    control=controls.snapshot();
+    if(screenEnabled.chatgpt !== undefined)control.screen=screenEnabled.chatgpt;
     return control;
   }
   function snapshot() {
     const f = sources.current();
+    currentControl();
     return {
       service: 'dsh-pet-jonsbo',
+      shuttingDown:shuttingDown || lifecycleClosing,
       version: 2,
-      build: '0.3.6-jonsbo.4',
+      build: '0.3.6-jonsbo.5',
       pid: process.pid,
       visible: control.visible || !!f,
       control: currentControl(),
       source: f?.source,
+      screenSource: sources.current(excludedSources())?.source,
       animation: f?.animation,
       frameAt: f?.at,
       output,
       activeSources: [...sources.frames.keys()],
+      connections: control.connections,
       screens: { chatgpt: control.screen, dsh: screenEnabled.dsh },
       standalone: standalone?.pid || null,
     };
@@ -215,6 +211,7 @@ export function createBridge({ launch = true } = {}) {
         });
       }
       if (url.pathname === '/shutdown') {
+        shuttingDown=true;controls.sessions.clear();currentControl();
         send(200, { stopping: true });
         void stopPet().finally(() => server.close());
         return;
@@ -229,14 +226,16 @@ export function createBridge({ launch = true } = {}) {
       if (url.pathname === '/host') {
         if (!value || typeof value.id !== 'string' || !/^[a-zA-Z0-9-]{1,80}$/.test(value.id)
           || (value.release !== undefined && typeof value.release !== 'boolean')) throw new Error('Invalid host lease');
-        return send(200, { enabled: hosts.update(value.id, value.release === true) });
+        const enabled=hosts.update(value.id,value.release===true);
+        if(value.release || !enabled)controls.release(value.id);else controls.heartbeat(value.id);
+        return send(200,{enabled});
       }
       if (url.pathname === '/device/connection') {
         if (!value || !['chatgpt', 'dsh'].includes(value.source) || typeof value.enabled !== 'boolean'
           || Object.keys(value).some((key) => !['source', 'enabled'].includes(key)))
           throw new Error('Expected source and enabled');
         if (value.source === 'chatgpt')
-          control = { ...control, screen: value.enabled, revision: control.revision + 1 };
+          screenEnabled.chatgpt = value.enabled;
         else screenEnabled.dsh = value.enabled;
         if (value.enabled) {
           if (cfg.usb === false) {
@@ -264,22 +263,14 @@ export function createBridge({ launch = true } = {}) {
         return send(200, { ok: true });
       }
       if (url.pathname === '/event') {
-        validateEvent(value);
-        if (value.action === 'hide') {
-          control = { ...control, visible: false, revision: control.revision + 1 };
-          sources.frames.delete('chatgpt');
-          await stopPet();
-        } else {
-          if (value.action === 'update' && !control.visible) throw new Error('Call wake_pet first');
-          const { action, source, ...rest } = value;
-          if (!control.visible) startPet();
-          control = { ...control, ...rest, visible: true, revision: control.revision + 1, updatedAt: Date.now() };
-          if (output.worker === 'stopped' || output.worker === 'error') {
-            output = { worker: 'stopped', usb: 'not-started' };
-            startWorker();
-          }
+        const before=currentControl();
+        controls.apply(value);currentControl();
+        if(!control.visible){sources.frames.delete('chatgpt');await stopPet();}
+        else {
+          if(!before.visible)startPet();
+          if(output.worker==='stopped'||output.worker==='error'){output={worker:'stopped',usb:'not-started'};startWorker();}
         }
-        return send(200, snapshot());
+        return send(200,snapshot());
       }
       send(404, { error: 'Not found' });
     } catch (e) {
@@ -291,12 +282,10 @@ export function createBridge({ launch = true } = {}) {
     const active = hosts.active();
     sources.current(); // Drop expired DSH frames before checking its lifetime.
     const dshActive = sources.frames.has('dsh');
-    if (hosts.hadHost && !active && control.visible) {
-      lifecycleClosing = true;
-      control = { ...control, visible: false, revision: control.revision + 1 };
-      sources.frames.delete('chatgpt');
-      await stopPet();
-      lifecycleClosing = false;
+    if(hosts.hadHost && !active)controls.clearSessions();
+    currentControl();
+    if(!control.visible && standalone){
+      lifecycleClosing=true;sources.frames.delete('chatgpt');await stopPet();lifecycleClosing=false;
     }
     if ((hosts.hadHost || dshSeen) && !active && !control.visible && !dshActive && server.listening) {
       lifecycleClosing = true;

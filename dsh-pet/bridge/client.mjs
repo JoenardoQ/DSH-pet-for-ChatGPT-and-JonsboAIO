@@ -21,7 +21,12 @@ export async function status() {
 }
 let starting;
 export async function ensureBridge() {
-  try { return await status(); }
+  try {
+    let current=await status();
+    for(let i=0;current.shuttingDown && i<80;i++){await new Promise(resolve=>setTimeout(resolve,100));current=await status();}
+    if(current.shuttingDown)throw Error('桌宠尚未完成退出，请稍后重试。');
+    return current;
+  }
   catch { /* Recheck under the cross-installation lock before changing anything. */ }
   starting ||= withStartupLock(port, startBridge).finally(() => { starting = undefined; });
   return starting;
@@ -30,6 +35,7 @@ async function startBridge() {
   let existing;
   try { existing = await inspect(); }
   catch (error) { if (error.cause?.code !== 'ECONNREFUSED') throw error; }
+  if(existing?.shuttingDown)throw Error('桌宠尚未完成退出，请稍后重试。');
   if (existing?.version === protocol) return existing;
   if (existing) {
     // Only our known old protocol may be retired. Never shut down an unknown service/version.

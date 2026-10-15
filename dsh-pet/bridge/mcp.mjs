@@ -1,9 +1,11 @@
 // Dependency-free MCP stdio transport: newline-delimited JSON-RPC, no stdout logs.
 import readline from 'node:readline';
 import { randomUUID } from 'node:crypto';
-import { postEvent, status, ensureBridge, shutdownBridge, updateHost } from './client.mjs';
+import { postEvent as sendEvent, status, ensureBridge, shutdownBridge, updateHost } from './client.mjs';
 import { base } from './runtime.mjs';
 import { statePoses } from './state.mjs';
+const hostId=process.env.PET_SESSION_ID || randomUUID();
+const postEvent=(event,options)=>sendEvent({...event,sessionId:hostId},options);
 const props = {
   state: { type: 'string', enum: Object.keys(statePoses) },
   message: {
@@ -59,7 +61,11 @@ async function callTool(name, args = {}) {
   if (!args || Array.isArray(args) || typeof args !== 'object') throw new Error('Invalid arguments');
   const allowed = ['wake_pet', 'set_pet_state'].includes(name) ? Object.keys(props) : [];
   if (Object.keys(args).some((k) => !allowed.includes(k))) throw new Error('Unknown argument');
-  if (name === 'shutdown_pet') return shutdownBridge();
+  if(name==='shutdown_pet'){
+    const current=await status().catch(()=>null);
+    if(current && ((current.connections || []).some(s=>s.sessionId!==hostId) || current.activeSources?.includes('dsh')))throw Error('还有其他连接正在使用桌宠，请使用 hide_pet 仅收起当前会话；完全退出请在本机操作。');
+    return shutdownBridge();
+  }
   if (name === 'pet_status') {
     try {
       return await status();
@@ -102,7 +108,7 @@ export async function dispatch(request) {
     return reply({
       protocolVersion: versions.includes(params?.protocolVersion) ? params.protocolVersion : '2025-06-18',
       capabilities: { tools: {} },
-      serverInfo: { name: 'dsh-pet-jonsbo', version: '0.3.6-jonsbo.4' },
+      serverInfo: { name: 'dsh-pet-jonsbo', version: '0.3.6-jonsbo.5' },
     });
   }
   if (method === 'ping') return reply({});
@@ -118,7 +124,6 @@ export async function dispatch(request) {
   return { jsonrpc: '2.0', id, error: { code: -32601, message: 'Method not found' } };
 }
 if (process.argv[1]?.endsWith('mcp.mjs')) {
-  const hostId = randomUUID();
   let ending = false, heartbeat;
   const start = process.env.PET_AUTOSTART==='0'?Promise.resolve():(async () => {
     await ensureBridge();

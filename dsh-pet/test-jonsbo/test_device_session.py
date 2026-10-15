@@ -1,3 +1,5 @@
+import os
+import uuid
 import tempfile
 from pathlib import Path
 import sys
@@ -7,6 +9,11 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'desktop'))
 import device_session as d
 
 class SessionTests(unittest.TestCase):
+    def setUp(self):
+        isolated = patch.dict(os.environ, {'JONSBO_SCREEN_LOCK_NAME': r'Local\JonsboUnit-' + uuid.uuid4().hex})
+        isolated.start()
+        self.addCleanup(isolated.stop)
+
     def test_composite_interfaces_are_not_extra_screens(self):
         self.assertTrue(d.compatible_device('USB\\VID_345F&PID_9132\\SERIAL'))
         self.assertFalse(d.compatible_device('USB\\VID_345F&PID_9132&MI_03\\INTERFACE'))
@@ -28,7 +35,7 @@ class SessionTests(unittest.TestCase):
             self.assertNotIn('vendor',s.owned)
 
     def test_successful_handoff_records_exact_program(self):
-        with tempfile.TemporaryDirectory() as directory, patch.object(d,'present_devices',return_value=['USB/'+d.SUPPORTED_ID]), patch.object(d,'vendor_processes',return_value=[{'pid':42,'path':'C:/JONSBO/JONSBO-AIO.exe'}]), patch.object(d,'find_sdk',return_value=Path('sdk.dll')), patch.object(d,'close_vendor',return_value=True) as close, patch.object(d.DeviceSession,'previous_bridge'):
+        with tempfile.TemporaryDirectory() as directory, patch.object(d,'present_devices',return_value=['USB/'+d.SUPPORTED_ID]), patch.object(d,'vendor_processes',return_value=[{'pid':42,'path':'C:/JONSBO/JONSBO-AIO.exe'}]), patch.object(d,'find_sdk',return_value=Path('sdk.dll')), patch.object(d,'close_vendor',return_value=True) as close:
             s=d.DeviceSession({'forceTakeover':True},directory)
             self.assertEqual(s.prepare()['usb'],'ready')
             close.assert_called_once_with(42,True)

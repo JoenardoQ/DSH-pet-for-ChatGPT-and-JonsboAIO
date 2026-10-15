@@ -28,6 +28,18 @@ function Pump {
   if($script:form){[Windows.Forms.Application]::DoEvents()}
   if($script:cancelled){throw '准备已取消，重新打开即可重试。'}
 }
+function Write-AtomicText([string]$File,[string]$Value) {
+  $temp=$File+'.'+$PID+'.'+[Guid]::NewGuid().ToString('N')+'.tmp'
+  try{
+    [IO.File]::WriteAllText($temp,$Value,(New-Object Text.UTF8Encoding($false)))
+    for($attempt=0;$attempt -lt 8;$attempt++){
+      try{
+        if([IO.File]::Exists($File)){[IO.File]::Replace($temp,$File,($temp+'.previous'))}else{[IO.File]::Move($temp,$File)}
+        return
+      }catch [IO.IOException]{if($attempt -eq 7){throw};Start-Sleep -Milliseconds 25}
+    }
+  }finally{if([IO.File]::Exists($temp)){[IO.File]::Delete($temp)};if([IO.File]::Exists($temp+'.previous')){[IO.File]::Delete($temp+'.previous')}}
+}
 function Stage([string]$Name,[string]$Detail='') {
   if($script:form){$script:titleLabel.Text=$Name;$script:detailLabel.Text=$Detail;[Windows.Forms.Application]::DoEvents()}
   New-Item -ItemType Directory -Path $data -Force | Out-Null
@@ -36,7 +48,7 @@ function Stage([string]$Name,[string]$Detail='') {
     $image=New-Object Drawing.Bitmap($form.Width,$form.Height)
     try{$form.DrawToBitmap($image,(New-Object Drawing.Rectangle(0,0,$form.Width,$form.Height)));$image.Save((Join-Path $data 'startup-window.png'),[Drawing.Imaging.ImageFormat]::Png)}finally{$image.Dispose()}
   }
-  [IO.File]::WriteAllText($script:stageFile,($value|ConvertTo-Json -Compress),(New-Object Text.UTF8Encoding($false)))
+  Write-AtomicText $script:stageFile ($value|ConvertTo-Json -Compress)
 }
 function Show-Setup {
   if($Headless -or $script:form){return}
@@ -245,7 +257,7 @@ function Prepare-Runtime {
     $env:ELECTRON_RUN_AS_NODE='1'
     $runtimeState=@{electron=$engine;worker=$usbWorker;python=$script:python;dshHome=$env:DSH_HOME;kind=$launcherProfile.kind}
     $env:PET_RUNTIME_STATE=Join-Path $data 'launcher-runtime.json'
-    [IO.File]::WriteAllText($env:PET_RUNTIME_STATE,($runtimeState|ConvertTo-Json),(New-Object Text.UTF8Encoding($false)))
+    Write-AtomicText $env:PET_RUNTIME_STATE ($runtimeState|ConvertTo-Json)
     Stage '运行组件已就绪' '正在启动桌宠…'
   }finally{if($held){$mutex.ReleaseMutex()};$mutex.Dispose()}
 }
@@ -287,13 +299,16 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 public static class DesktopPetStdio {
+ static void Pump(System.IO.Stream from,System.IO.Stream to) {
+  var bytes=new byte[4096];int count;
+  while((count=from.Read(bytes,0,bytes.Length))>0){to.Write(bytes,0,count);to.Flush();}
+ }
  public static int Run(string exe,string args) {
   var info=new ProcessStartInfo(exe,args) {UseShellExecute=false,CreateNoWindow=true,RedirectStandardInput=true,RedirectStandardOutput=true,RedirectStandardError=true};
   using(var process=Process.Start(info)) {
-   var input=Console.OpenStandardInput().CopyToAsync(process.StandardInput.BaseStream);
-   input.ContinueWith(t=>{try{process.StandardInput.Close();}catch{}});
-   var output=process.StandardOutput.BaseStream.CopyToAsync(Console.OpenStandardOutput());
-   var error=process.StandardError.BaseStream.CopyToAsync(Console.OpenStandardError());
+   var input=Task.Run(()=>{try{Pump(Console.OpenStandardInput(),process.StandardInput.BaseStream);}finally{try{process.StandardInput.Close();}catch{}}});
+   var output=Task.Run(()=>Pump(process.StandardOutput.BaseStream,Console.OpenStandardOutput()));
+   var error=Task.Run(()=>Pump(process.StandardError.BaseStream,Console.OpenStandardError()));
    process.WaitForExit();Task.WaitAll(new[]{output,error},5000);return process.ExitCode;
   }
  }

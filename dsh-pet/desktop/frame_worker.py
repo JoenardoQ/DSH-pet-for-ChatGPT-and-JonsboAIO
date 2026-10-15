@@ -14,6 +14,7 @@ from PIL import Image
 # Embedded Python isolates sys.path; resolve sibling modules from this script.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from device_session import DeviceSession
+from screen_lease import ScreenBusy, WAITING
 
 
 def decode_frame(png, width=480, height=480, rotation=0):
@@ -113,6 +114,9 @@ def run(config, data_dir):
                         elif time.monotonic()-waiting_since>5:
                             release()
                             retry_at=time.monotonic()+1
+            except ScreenBusy:
+                report(usb='waiting-screen',error=WAITING)
+                retry_at=time.monotonic()+2
             except Exception as exc:
                 report(usb='error',error=str(exc))
                 try:
