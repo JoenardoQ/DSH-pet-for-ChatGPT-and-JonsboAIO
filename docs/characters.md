@@ -9,3 +9,5 @@ ChatGPT 娘根据用户提供的两张 JPG，使用内置 imagegen 重新绘制�
 鲸鱼娘项目：`assets/generated/` 为原始鲸鱼娘；`assets/pets/fish/*.webp` 为原视频转换的显示动画；`assets/pets/chatgpt/*.webp` 为新角色显示动画，`*.webm` 为视频导出。
 
 大肥鱼项目：`dsh-pet/assets/webm/` 为原始大肥鱼视频；`__skin-whale-*.webm` 和 `__skin-chatgpt-*.webm` 是两个新增角色的透明 VP9 动画；`dsh-pet/assets/pets/chatgpt/` 保存新角色图集、参考图、GIF 和生成说明。两仓库各自完整分发，互不依赖另一项目的本机路径。
+
+角色文字与对话插图随右键选择切换；ChatGPT 娘的 27 张对话 PNG 和生成提示词记录在 `assets/pets/chatgpt/`（大肥鱼仓库前缀为 `dsh-pet/`），基于参考图重新制作相似版本。原版大肥鱼素材和鲸鱼娘有效动作保留。

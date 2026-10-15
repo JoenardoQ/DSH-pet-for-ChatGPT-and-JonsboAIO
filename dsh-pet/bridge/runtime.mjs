@@ -20,8 +20,7 @@ export function nodeCommand() {
   return process.env.PET_NODE || process.execPath;
 }
 export function pythonCommand() {
-  const bundled = path.join(os.homedir(), '.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe');
-  return process.env.PET_PYTHON || config().python || (existsSync(bundled) ? bundled : 'python');
+  return process.env.PET_PYTHON || config().python || 'python';
 }
 export const dshHome = process.env.DSH_HOME || path.join(userData, 'dsh');
 export const electronPath =

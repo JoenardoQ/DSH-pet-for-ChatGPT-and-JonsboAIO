@@ -1,6 +1,6 @@
 {
   "name": "dsh-pet",
-  "version": "0.3.6-jonsbo.6",
+  "version": "0.3.6-jonsbo.7",
   "type": "module",
   "license": "MIT",
   "engines": {
@@ -64,7 +64,7 @@
     "pet": "node dsh-pet/bridge/cli.mjs",
     "test:jonsbo": "node --test dsh-pet/test-jonsbo/*.test.mjs",
     "build:windows-lite": "node scripts/build-windows-lite.mjs",
-    "test:workflow": "node --test test/windows-launcher.test.mjs"
+    "test:workflow": "node --test test/*.test.mjs"
   },
   "files": [
     "dsh-pet/lib",
@@ -93,6 +93,14 @@
     "dsh-pet/assets/config.jsonc",
     "dsh-pet/assets/logo.png",
     "dsh-pet/assets/pets",
-    "dsh-pet/bridge/*.cjs"
+    "dsh-pet/bridge/*.cjs",
+    "install-plugins.cmd",
+    "scripts/install-plugins.ps1",
+    "plugin.json",
+    "mcp.json",
+    ".mcp.json",
+    ".codex-plugin",
+    ".agents/plugins/marketplace.json",
+    "docs/installation.md"
   ]
 }

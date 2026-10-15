@@ -1,7 +1,7 @@
 {
   "width": 480,
   "height": 480,
-  "rotation": 0,
+  "rotation": 90,
   "fps": 10,
   "usb": true,
   "autoTakeover": true,

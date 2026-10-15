@@ -51,7 +51,7 @@ def run(config, data_dir):
             stop.set()
     threading.Thread(target=read_input, daemon=True).start()
     width, height = int(config.get('width', 480)), int(config.get('height', 480))
-    rotation = int(config.get('rotation', 0))
+    rotation = int(config.get('rotation', 90))
     if not (64 <= width <= 2048 and 64 <= height <= 2048) or rotation not in (0,90,180,270):
         raise ValueError('Invalid dimensions or rotation')
     display = None

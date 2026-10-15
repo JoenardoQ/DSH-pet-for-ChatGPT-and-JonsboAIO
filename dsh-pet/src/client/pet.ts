@@ -20,6 +20,11 @@ import {
   characterMenu,
   characterAnimation,
   characterLabel,
+  characterMemeRoot,
+  characterMemeName,
+  characterWorkTexts,
+  saveCharacter,
+  characterActionMenu,
   type CharacterId,
 } from '../shared/characters';
 import { flattenConfigPets, isWebVisible } from '../shared/config';
@@ -40,14 +45,7 @@ import { makeBalanceBubble, makeWhisperBubble } from './bubble';
 import { clickScore, SCORE_MIN_SPEED, mountScorePopup, spawnScoreBurst } from '../shared/score-popup';
 import { CANVAS_H, FEET_Y, HIT_BOX, DRAG_THRESHOLD, PET_REF_WIDTH, ANIMATION_EXT } from '../shared/constants';
 // 统一右键菜单：与桌面共用同一份组件（树 + 渲染 + 样式，src/shared/menu.ts）
-import {
-  buildMenuTree,
-  mountContextMenu,
-  isNoMirrorAnimation,
-  MENU_CSS,
-  type MenuLeaf,
-  type MenuNode,
-} from '../shared/menu';
+import { mountContextMenu, isNoMirrorAnimation, MENU_CSS, type MenuLeaf, type MenuNode } from '../shared/menu';
 // 悬浮提示：与桌面共用同一份样式与摆位判据（替代原先挂在命中层上的原生 title 提示）
 import { TOOLTIP_CLASS, TOOLTIP_CSS, TOOLTIP_GAP_RATIO, tooltipPlacement } from '../shared/tooltip';
 // 对话弹窗：与桌面共用同一份组件（数据经 host /chat 读写同一份记忆）
@@ -189,7 +187,9 @@ export function makePetUI(rt: {
     const petWeights = cfg.animationWeights;
 
     // ---- React 状态 ----
-    const [character, setCharacter] = useState<CharacterId>(() => readCharacter(window.localStorage, cfg.id));
+    const [character, setCharacter] = useState<CharacterId>(
+      cfg.character || readCharacter(window.localStorage, cfg.id),
+    );
     const [anim, setAnim] = useState(petAnims.idle[0] ?? '');
     const [once, setOnce] = useState(true);
     const [facing, setFacing] = useState('left' as 'left' | 'right');
@@ -227,6 +227,19 @@ export function makePetUI(rt: {
     }, [cfg.size, cfg.position.corner, cfg.position.marginX, cfg.position.marginY]);
     const [seq, setSeq] = useState(0);
 
+    useEffect(() => {
+      if (cfg.character && cfg.character !== character) {
+        chatRef.current?.close();
+        chatRef.current = null;
+        pendingRef.current = null;
+        genRef.current++;
+        setCharacter(cfg.character);
+        setSeq((s) => s + 1);
+        setWhisperBubbleOn(false);
+        setWhisperImage(undefined);
+        setWorkBubbleOn(false);
+      }
+    }, [cfg.character]);
     // ---- DOM / 状态 refs ----
     const rootRef = useRef<HTMLDivElement | null>(null);
     const stageRef = useRef<HTMLDivElement | null>(null);
@@ -565,7 +578,7 @@ export function makePetUI(rt: {
       stopMove();
       // 气泡文本：任务详情（todo/write 提供，如"正在做 X"）优先，否则从条目级配置
       // workStatusTexts[档位]（数组）随机抽一句；整字段/整档缺失 = 不弹文本，只播动画。
-      const textGroup = Array.isArray(cfg.workStatusTexts) ? cfg.workStatusTexts[idx] : undefined;
+      const textGroup = characterWorkTexts(character)[idx];
       const configuredText =
         Array.isArray(textGroup) && textGroup.length > 0
           ? textGroup[Math.floor(Math.random() * textGroup.length)]
@@ -589,7 +602,7 @@ export function makePetUI(rt: {
       setOnce(terminal || rotating);
       setAnim(name);
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [workStatusTick]);
+    }, [workStatusTick, character]);
 
     // 说话（碎碎念周期 / 命令气泡 / 对话回复**三合一**）：容器统一轮询 /state 后，把属于本宠物的
     // pets.<id>.say 分发下来；seq 变化即播说话动画 + 弹气泡（10s）。
@@ -1378,15 +1391,20 @@ export function makePetUI(rt: {
     const handleMenuAction = (leaf: MenuLeaf) => {
       const selected = characterAction(leaf.action);
       if (selected) {
-        try {
-          window.localStorage.setItem('dsh-pet:character:' + cfg.id, selected);
-        } catch {
-          return;
-        }
-        pendingRef.current = null;
-        genRef.current++;
-        setCharacter(selected);
-        setSeq((s) => s + 1);
+        saveCharacter('/dsh-pet-7340', cfg.id, selected)
+          .then(() => {
+            chatRef.current?.close();
+            chatRef.current = null;
+            pendingRef.current = null;
+            genRef.current++;
+            setCharacter(selected);
+            setSeq((s) => s + 1);
+            setWhisperBubbleOn(false);
+            setWhisperImage(undefined);
+            setWorkBubbleOn(false);
+            statePoller.now();
+          })
+          .catch((error) => console.error(error.message));
         return;
       }
       if (leaf.action === 'whisper') {
@@ -1412,6 +1430,7 @@ export function makePetUI(rt: {
         const hitRect = stageRef.current?.querySelector('.dsh-pet-hit')?.getBoundingClientRect();
         chatRef.current = mountChatDialog({
           petId: cfg.id,
+          petName: characterLabel(character),
           baseUrl: '/dsh-pet-7340/chat',
           x: hitRect ? hitRect.right + 6 : window.innerWidth - 256,
           y: hitRect ? hitRect.top + 6 : 8,
@@ -1460,7 +1479,7 @@ export function makePetUI(rt: {
         { label: '碎碎念', action: 'whisper' },
         { label: '对话', action: 'chat' },
         { label: '回到初始位置', action: 'home' },
-        ...buildMenuTree(petAnims),
+        ...characterActionMenu(character, petAnims),
       ];
       if (!tree.length) return;
       e.preventDefault();
@@ -1515,8 +1534,8 @@ export function makePetUI(rt: {
         // assetRoot：配图去哪个表情包目录链取（种类独占 → 用户目录 → 包内），与动画素材同一套归属
         return h(WhisperBubble, {
           text: whisperText,
-          image: whisperImage,
-          assetRoot: cfg.assetRoot,
+          image: characterMemeName(character, whisperImage || ''),
+          assetRoot: characterMemeRoot(character, cfg.assetRoot),
           on: whisperBubbleOn,
         });
       }
@@ -1549,7 +1568,7 @@ export function makePetUI(rt: {
       onPointerLeave: () => setTipOn(false),
       onContextMenu: handleContextMenu,
       // 原先这里挂 title（原生系统提示）：已换成自绘浮层，但无障碍名称不能跟着丢
-      'aria-label': character === 'fish' ? cfg.name : characterLabel(character),
+      'aria-label': characterLabel(character),
     };
     return h('div', {
       ref: rootRef,
@@ -1584,7 +1603,7 @@ export function makePetUI(rt: {
           ref: tipRef,
           className: TOOLTIP_CLASS + (tipOn ? ' is-on' : ''),
           'aria-hidden': 'true',
-          children: character === 'fish' ? cfg.name : characterLabel(character),
+          children: characterLabel(character),
         }),
       ],
     });
@@ -1702,6 +1721,18 @@ export function makePetUI(rt: {
         try {
           const s = await fetchState();
           if (!alive || !s) return;
+          setPets((current) => {
+            let changed = false;
+            const next = current.map((p) => {
+              const id = s.pets[p.id]?.character?.data as { id?: CharacterId } | undefined;
+              if (id?.id && id.id !== p.character) {
+                changed = true;
+                return { ...p, character: id.id, name: characterLabel(id.id) };
+              }
+              return p;
+            });
+            return changed ? next : current;
+          });
           if (baseline === null) {
             baseline = flattenCounters(s); // 首拉：只记基线，不渲染
             return;

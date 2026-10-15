@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "dsh-pet-jonsbo",
-  "version": "0.3.6-jonsbo.6",
+  "version": "0.3.6-jonsbo.7",
   "description": "大肥鱼桌宠：ChatGPT / Codex / DeepSeek Harness 与乔思伯 USB 屏幕同步。",
   "extensions": {
     "com.openai": {

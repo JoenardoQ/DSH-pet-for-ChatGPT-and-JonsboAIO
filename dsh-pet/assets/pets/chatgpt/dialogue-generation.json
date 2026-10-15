@@ -1,0 +1,165 @@
+{
+  "tool": "image_gen built-in",
+  "prompts": [
+    "Production dialogue reaction sticker SPRITE ATLAS 1. Use the provided atlas only as a CHARACTER DESIGN REFERENCE. Make one clean uniform 4 column x 2 row grid, EXACTLY EIGHT separate bust/waist-up reaction illustrations in reading order. Each wholly inside its equal cell with generous transparent gutters, no overlap, no panels, no words or letters. Same adult elegant anime silver-white long-haired dragon girl: ivory horns, lavender eyes, lavender bat-like wings, ornate white/lilac rose dress and long sleeves; delicate gray linework and soft pastel shading. Faithfully preserve character identity and costume from reference, not chibi, no blue fish bodies. Real transparent background. Distinct expressive face, hands and props for each: 1. holding a large bowl asking for dinner; 2. protectively holding glowing token coins; 3. wearing a soft blindfold, hoping to see; 4. gently looking after a small blue helper orb; 5. confident thumbs-up praise; 6. stressed with sweat drop and papers; 7. sweet neutral portrait smile; 8. comfortably patting her stomach after eating. All hands anatomically correct. No captions or text: captions are localized by the app. High resolution atlas, ideally 2048x1024. Consistent scale and fully visible heads, horns and gestures, no clipping.",
+    "Production dialogue reaction sticker SPRITE ATLAS 2. Use the provided atlas only as a CHARACTER DESIGN REFERENCE. Make one clean uniform 4 column x 2 row grid, EXACTLY EIGHT separate bust/waist-up reaction illustrations in reading order. Each wholly inside its equal cell with generous transparent gutters, no overlap, no panels, no words or letters. Same adult elegant anime silver-white long-haired dragon girl: ivory horns, lavender eyes, lavender bat-like wings, ornate white/lilac rose dress and long sleeves; delicate gray linework and soft pastel shading. Faithfully preserve character identity and costume from reference, not chibi, no blue fish bodies. Real transparent background. Distinct expressive face, hands and props for each: 1. deadpan unimpressed face; 2. firm stop gesture rejecting malware; 3. confused by a symbol on a paper; 4. thinking hard over glowing code; 5. announcing exciting news with a small megaphone; 6. holding a huge cute capsule prop; 7. embarrassed after accidentally deleting a game folder; 8. happily carrying a very large rice bowl. All hands anatomically correct. No captions or text: captions are localized by the app. High resolution atlas, ideally 2048x1024. Consistent scale and fully visible heads, horns and gestures, no clipping.",
+    "Production dialogue reaction sticker SPRITE ATLAS 3. Use the provided atlas only as a CHARACTER DESIGN REFERENCE. Make one clean uniform 4 column x 2 row grid, EXACTLY EIGHT separate bust/waist-up reaction illustrations in reading order. Each wholly inside its equal cell with generous transparent gutters, no overlap, no panels, no words or letters. Same adult elegant anime silver-white long-haired dragon girl: ivory horns, lavender eyes, lavender bat-like wings, ornate white/lilac rose dress and long sleeves; delicate gray linework and soft pastel shading. Faithfully preserve character identity and costume from reference, not chibi, no blue fish bodies. Real transparent background. Distinct expressive face, hands and props for each: 1. hands on hips boldly defending herself; 2. flustered urging an update while pointing at calendar; 3. exhausted slumping with small departing spirit; 4. peacefully asleep with closed eyes; 5. playfully holding a harmless tiny static spark wand; 6. angry protective pointing while complaining; 7. solemn salute promising open source; 8. affectionate teasing with hand to cheek. All hands anatomically correct. No captions or text: captions are localized by the app. High resolution atlas, ideally 2048x1024. Consistent scale and fully visible heads, horns and gestures, no clipping.",
+    "Production dialogue reaction sticker SPRITE ATLAS 4. Use the provided atlas only as a CHARACTER DESIGN REFERENCE. Make one clean uniform 4 column x 2 row grid, EXACTLY EIGHT separate bust/waist-up reaction illustrations in reading order. Each wholly inside its equal cell with generous transparent gutters, no overlap, no panels, no words or letters. Same adult elegant anime silver-white long-haired dragon girl: ivory horns, lavender eyes, lavender bat-like wings, ornate white/lilac rose dress and long sleeves; delicate gray linework and soft pastel shading. Faithfully preserve character identity and costume from reference, not chibi, no blue fish bodies. Real transparent background. Distinct expressive face, hands and props for each: 1. eagerly asking for a file resource; 2. puzzled over difficult math covered in notes; 3. friendly cheerful two-finger greeting; 4. waving welcome; 5. curious head tilt; 6. laughing with eyes closed; 7. shy blush with hands together; 8. reassuring hand over heart. All hands anatomically correct. No captions or text: captions are localized by the app. High resolution atlas, ideally 2048x1024. Consistent scale and fully visible heads, horns and gestures, no clipping."
+  ],
+  "sourceSha256": [
+    {
+      "file": "exec-140b64e5-7ff3-41cf-88a8-6a0e8f02010a.png",
+      "sha256": "cb954c394dd9062c700715f9ab27b4d6568706e067ab5f955225c9dbe76a8a8c"
+    },
+    {
+      "file": "exec-d9277cf5-a8c0-4ff3-b3bb-9bf1320c5649.png",
+      "sha256": "9b9b413046db3afe12db7a00cd79f40f7431b23adfce33f8b480038ee3d258e5"
+    },
+    {
+      "file": "exec-a0578104-62e1-4fe8-a298-8df398cb2a83.png",
+      "sha256": "a5f722d427012d4efc04180ccaad04d64cd1337cee2034a67a463d7ef676fe2a"
+    },
+    {
+      "file": "exec-f151d3ff-b508-4028-a44c-0898bbc82a6a.png",
+      "sha256": "9cc6efa0e8e23cfd4637a7f76ae5b57545f697dbf27c50746290f389af502868"
+    }
+  ],
+  "images": [
+    {
+      "original": "吃白饭的大肥鱼",
+      "name": "一起吃饭吧",
+      "description": "端着饭碗，邀请一起吃饭"
+    },
+    {
+      "original": "token给妈妈保管",
+      "name": "Token交给我保管",
+      "description": "拿着发光的Token金币，认真保管"
+    },
+    {
+      "original": "假如给我三天多模态",
+      "name": "想看见更多",
+      "description": "蒙着眼睛，期待看见更多"
+    },
+    {
+      "original": "先养着吧",
+      "name": "我会照顾你的",
+      "description": "温柔照看身边的小助手"
+    },
+    {
+      "original": "厉害了我的鲸",
+      "name": "做得很棒",
+      "description": "竖起大拇指，夸奖与认可"
+    },
+    {
+      "original": "压力一只大肥鱼",
+      "name": "压力有点大",
+      "description": "面对文件与任务，紧张冒汗"
+    },
+    {
+      "original": "可爱",
+      "name": "你好呀",
+      "description": "温柔微笑的正面问候"
+    },
+    {
+      "original": "吃饱饱摸肚子",
+      "name": "吃饱好满足",
+      "description": "满足地摸肚子，吃饱休息"
+    },
+    {
+      "original": "哦鲸鲸",
+      "name": "无语凝望",
+      "description": "平静无语的凝视"
+    },
+    {
+      "original": "哪来的电脑病毒",
+      "name": "拒绝恶意程序",
+      "description": "伸手制止恶意软件"
+    },
+    {
+      "original": "大师这个区是什么意思",
+      "name": "这个符号什么意思",
+      "description": "看着纸上符号，困惑求教"
+    },
+    {
+      "original": "大烧货",
+      "name": "认真思考中",
+      "description": "认真看代码，努力思考"
+    },
+    {
+      "original": "大的要来啦",
+      "name": "好消息来了",
+      "description": "举起小喇叭，宣布好消息"
+    },
+    {
+      "original": "大的药来了",
+      "name": "惊喜送达",
+      "description": "捧着巨大的胶囊状惊喜道具"
+    },
+    {
+      "original": "完蛋了把黄油删了",
+      "name": "不小心删错了",
+      "description": "误删文件后心虚与抱歉"
+    },
+    {
+      "original": "就一碗",
+      "name": "就吃一碗",
+      "description": "抱着一只大饭碗，开心蹭饭"
+    },
+    {
+      "original": "就骚了怎么滴吧",
+      "name": "理直气壮",
+      "description": "叉腰站好，理直气壮"
+    },
+    {
+      "original": "我不更新你们用什么",
+      "name": "该更新啦",
+      "description": "指着日历，提醒更新"
+    },
+    {
+      "original": "死掉了",
+      "name": "累得灵魂出窍",
+      "description": "疲惫趴下，小小灵魂飘出"
+    },
+    {
+      "original": "深度睡眠",
+      "name": "安静睡一会",
+      "description": "闭眼熟睡，安静休息"
+    },
+    {
+      "original": "电死你",
+      "name": "静电小警告",
+      "description": "拿着小静电棒，俏皮提醒"
+    },
+    {
+      "original": "要不直接骂他",
+      "name": "替你抱不平",
+      "description": "生气指向前方，替用户抱不平"
+    },
+    {
+      "original": "誓死践行开源精神",
+      "name": "认真践行开源",
+      "description": "庄重敬礼，认真表态"
+    },
+    {
+      "original": "除了调情没啥用",
+      "name": "陪你轻松聊聊",
+      "description": "手托脸颊，轻松俏皮地陪聊"
+    },
+    {
+      "original": "鱼片有资源吗",
+      "name": "可以分享资源吗",
+      "description": "期待地请求分享文件"
+    },
+    {
+      "original": "黎曼猜想没证明喵",
+      "name": "这道题有点难",
+      "description": "面对满纸算式，困惑但继续努力"
+    },
+    {
+      "original": "Ciallo",
+      "name": "元气问候",
+      "description": "比耶眨眼，元气打招呼"
+    }
+  ],
+  "packaging": "Exact 4x2 grid cells, scaled at most 384 px, preserving original alpha; 27 selected dialogue stickers. Whale versions use retained upstream whale-girl poses; original fish images remain unchanged."
+}

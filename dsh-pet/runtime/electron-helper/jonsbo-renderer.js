@@ -36,7 +36,7 @@
       ctx.fillStyle = '#d7eeff';
       ctx.textAlign = 'center';
       ctx.font = '20px "Microsoft YaHei"';
-      const text = (pet.workText || (pet.character==='fish'?pet.pet.name:S.characterLabel(pet.character)) || '大肥鱼陪着你').replace(/\n/g, ' ');
+      const text = (pet.workText || S.characterLabel(pet.character) || '桌宠陪着你').replace(/\n/g, ' ');
       let caption = text;
       while (caption.length && ctx.measureText(caption).width > 430) caption = caption.slice(0, -1);
       ctx.fillText(caption, 240, 428);
@@ -45,10 +45,10 @@
       ctx.fillText('DSH PET · JONSBO', 240, 459);
       const reply = await window.jonsboBridge.frame({
         png: canvas.toDataURL('image/png').split(',')[1],
-        animation: pet.anim,
+        animation: pet.anim,character:pet.character,
       });
       window.__jonsboDebug = {
-        animation: pet.anim,
+        animation: pet.anim,character:pet.character,
         lastFrameAt: Date.now(),
         error: reply.error || null,
         source: reply.source,

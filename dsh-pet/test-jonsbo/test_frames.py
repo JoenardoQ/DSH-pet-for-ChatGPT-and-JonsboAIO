@@ -19,6 +19,10 @@ class FrameTests(unittest.TestCase):
         self.assertEqual(frame.getpixel((479,0)),(255,0,0))
         self.assertEqual(frame.size,(480,480))
 
+    def test_runtime_defaults_to_clockwise_90(self):
+        source=(Path(__file__).resolve().parents[1]/'desktop'/'frame_worker.py').read_text(encoding='utf-8')
+        self.assertIn("config.get('rotation', 90)",source)
+
     def test_reject_wrong_dimensions(self):
         with self.assertRaises(ValueError):decode_frame(self.encoded((100,100)))
 

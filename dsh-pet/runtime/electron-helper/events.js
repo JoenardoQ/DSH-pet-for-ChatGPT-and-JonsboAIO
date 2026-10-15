@@ -67,12 +67,13 @@ PetSprite.prototype.onWorkTick = function onWorkTick(snapshot, tick) {
   this.stopMove();
   // 气泡文本：任务详情（todo/write 提供）优先，否则从条目级 workStatusTexts[档位]（数组）随机抽一句；
   // 整字段/整档缺失 = 不弹文本，只播动画（与浏览器同一语义）。
-  const textGroup = Array.isArray(this.pet.workStatusTexts) ? this.pet.workStatusTexts[idx] : undefined;
+  const textGroup = S.characterWorkTexts(this.character)[idx];
   const configuredText =
     Array.isArray(textGroup) && textGroup.length > 0
       ? textGroup[Math.floor(Math.random() * textGroup.length)]
       : undefined;
-  this.workText = (snapshot && snapshot.task) || configuredText || null;
+  this.workTask=(snapshot&&snapshot.task)||null;
+  this.workText = this.workTask || configuredText || null;
   const terminal = state === 'success' || state === 'error';
   // 气泡点亮/收起只在状态变化时动作：同状态后续 tick（todo 文案更新、其它会话事件搅动 ts）
   // 不重新点亮**已自动收起的终态气泡**——否则"任务完成"的气泡会被后续 ts 变化反复弹回（Bug 2，
@@ -262,6 +263,7 @@ async function pollStateOnce() {
   try {
     const s = await S.fetchState(STATE_URL);
     if (!s) return;
+    for(const pet of sprites){const id=s.pets?.[pet.pet.id]?.character?.data?.id;if(id)pet.applyCharacter(id);}
     if (stateBaseline === null) {
       stateBaseline = S.flattenCounters(s); // 首拉：只记基线，不渲染（避免启动/重载时重放旧气泡）
       return;

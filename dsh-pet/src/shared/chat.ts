@@ -97,6 +97,7 @@ export interface ChatDialogMount {
  *  约束到该矩形内即可完整显示，**窗口/宠物零移动零闪帧**。 */
 export function mountChatDialog(opts: {
   petId: string;
+  petName?: string;
   /** 端点基址：浏览器默认相对 /dsh-pet-7340/chat；桌面传绝对 URL（file:// 页面需绝对） */
   baseUrl?: string;
   x: number;
@@ -122,7 +123,7 @@ export function mountChatDialog(opts: {
 
   const input = document.createElement('textarea');
   input.className = 'dsh-pet-chat-input';
-  input.placeholder = '说点什么…';
+  input.placeholder = opts.petName ? '和' + opts.petName + '说点什么…' : '说点什么…';
   input.maxLength = 2000;
   input.rows = 1;
 

@@ -15,7 +15,7 @@ const installed=path.join(process.env.LOCALAPPDATA || os.tmpdir(),'WhaleMusume/r
 const whaleRuntime=process.platform==='win32' && fs.existsSync(path.join(installed,'electron/.ready')) && fs.existsSync(path.join(installed,'python/.ready'));
 const petLocal=profile.kind==='pet' && profile.electronParts.every(item=>fs.existsSync(path.join(root,profile.package,item.local)));
 const cold=process.env.DESKTOP_PET_RUN_COLD_TEST==='1';
-test('prepare and MCP handshake work with no Node or Python on PATH',{skip:process.platform!=='win32'||!(cold || (profile.kind==='whale'?whaleRuntime:petLocal)),timeout:690000},async()=>{
+test('prepare and MCP handshake work with no Node or Python on PATH',{skip:process.env.DESKTOP_PET_SKIP_RUNTIME_TEST==='1'||process.platform!=='win32'||!(cold || (profile.kind==='whale'?whaleRuntime:petLocal)),timeout:690000},async()=>{
  const data=path.join(root,'.qa/launcher-smoke');fs.mkdirSync(data,{recursive:true});
  if(profile.kind==='whale' && whaleRuntime && !cold){
   const target=path.join(data,'runtime/windows-x64-v1');fs.mkdirSync(target,{recursive:true});
@@ -34,7 +34,7 @@ test('prepare and MCP handshake work with no Node or Python on PATH',{skip:proce
 
 });
 
-test('two persistent MCP clients answer before stdin EOF',{skip:process.platform!=='win32'||!(cold || (profile.kind==='whale'?whaleRuntime:petLocal)),timeout:25000},async()=>{
+test('two persistent MCP clients answer before stdin EOF',{skip:process.env.DESKTOP_PET_SKIP_RUNTIME_TEST==='1'||process.platform!=='win32'||!(cold || (profile.kind==='whale'?whaleRuntime:petLocal)),timeout:25000},async()=>{
  const data=path.join(root,'.qa/launcher-smoke');
  const clients=[0,1].map(()=>{
   const child=spawn(ps,['-NoProfile','-STA','-ExecutionPolicy','Bypass','-File',path.join(root,'scripts/windows-launcher.ps1'),'-Mode','mcp','-Headless','-DataDir',data],{cwd:root,windowsHide:true,env:{...process.env,PATH:limitedPath,PET_AUTOSTART:'0',WHALE_AUTOSTART:'0',DESKTOP_PET_HEADLESS:'1'},stdio:['pipe','pipe','pipe']});

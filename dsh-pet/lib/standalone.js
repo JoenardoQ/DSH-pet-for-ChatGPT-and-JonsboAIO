@@ -1566,6 +1566,278 @@ async function generateWith(ctx, llm, sel, system, history, userText, pool) {
 }
 
 //#endregion
+//#region src/shared/menu.ts
+const MENU_CSS = [
+	".dsh-pet-menu{position:fixed;left:0;top:0;z-index:2147483000;color:#2b2b2b;font-size:13px;line-height:1.5;",
+	"font-family:'Microsoft YaHei UI','Segoe UI','PingFang SC',sans-serif;user-select:none;pointer-events:auto}",
+	".dsh-pet-menu,.dsh-pet-menu *{box-sizing:border-box}",
+	".dsh-pet-menu-column{position:absolute;min-width:150px;max-width:240px;padding:4px;",
+	"background:rgba(255,255,255,.98);border:1px solid rgba(0,0,0,.12);border-radius:8px;",
+	"box-shadow:0 8px 28px rgba(0,0,0,.2);max-height:min(62vh,460px);overflow-y:auto;",
+	"scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.22) transparent}",
+	".dsh-pet-menu-column::-webkit-scrollbar{width:8px;height:8px}",
+	".dsh-pet-menu-column::-webkit-scrollbar-track{background:transparent}",
+	".dsh-pet-menu-column::-webkit-scrollbar-thumb{background:rgba(0,0,0,.16);border-radius:4px;",
+	"border:2px solid transparent;background-clip:content-box}",
+	".dsh-pet-menu-column::-webkit-scrollbar-thumb:hover{background:rgba(43,99,255,.4);",
+	"border:2px solid transparent;background-clip:content-box}",
+	".dsh-pet-menu-column::-webkit-scrollbar-corner{background:transparent}",
+	".dsh-pet-menu-item{position:relative;display:flex;align-items:center;justify-content:space-between;",
+	"gap:14px;padding:5px 12px;border-radius:6px;white-space:nowrap;cursor:default}",
+	".dsh-pet-menu-item:hover{background:rgba(43,99,255,.14)}",
+	".dsh-pet-menu-item>span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis}",
+	".dsh-pet-menu-arrow{color:#9aa0a6;font-size:12px;flex:none}"
+].join("");
+
+//#endregion
+//#region src/shared/characters.ts
+const CHARACTERS = [
+	{
+		id: "whale",
+		label: "鲸鱼娘"
+	},
+	{
+		id: "fish",
+		label: "大肥鱼"
+	},
+	{
+		id: "chatgpt",
+		label: "ChatGPT 娘"
+	}
+];
+function characterLabel(id) {
+	return CHARACTERS.find((c) => c.id === id)?.label || "大肥鱼";
+}
+const DIALOGUE_IMAGES = [
+	{
+		original: "吃白饭的大肥鱼",
+		name: "一起吃饭吧",
+		description: "端着饭碗，邀请一起吃饭"
+	},
+	{
+		original: "token给妈妈保管",
+		name: "Token交给我保管",
+		description: "拿着发光的Token金币，认真保管"
+	},
+	{
+		original: "假如给我三天多模态",
+		name: "想看见更多",
+		description: "蒙着眼睛，期待看见更多"
+	},
+	{
+		original: "先养着吧",
+		name: "我会照顾你的",
+		description: "温柔照看身边的小助手"
+	},
+	{
+		original: "厉害了我的鲸",
+		name: "做得很棒",
+		description: "竖起大拇指，夸奖与认可"
+	},
+	{
+		original: "压力一只大肥鱼",
+		name: "压力有点大",
+		description: "面对文件与任务，紧张冒汗"
+	},
+	{
+		original: "可爱",
+		name: "你好呀",
+		description: "温柔微笑的正面问候"
+	},
+	{
+		original: "吃饱饱摸肚子",
+		name: "吃饱好满足",
+		description: "满足地摸肚子，吃饱休息"
+	},
+	{
+		original: "哦鲸鲸",
+		name: "无语凝望",
+		description: "平静无语的凝视"
+	},
+	{
+		original: "哪来的电脑病毒",
+		name: "拒绝恶意程序",
+		description: "伸手制止恶意软件"
+	},
+	{
+		original: "大师这个区是什么意思",
+		name: "这个符号什么意思",
+		description: "看着纸上符号，困惑求教"
+	},
+	{
+		original: "大烧货",
+		name: "认真思考中",
+		description: "认真看代码，努力思考"
+	},
+	{
+		original: "大的要来啦",
+		name: "好消息来了",
+		description: "举起小喇叭，宣布好消息"
+	},
+	{
+		original: "大的药来了",
+		name: "惊喜送达",
+		description: "捧着巨大的胶囊状惊喜道具"
+	},
+	{
+		original: "完蛋了把黄油删了",
+		name: "不小心删错了",
+		description: "误删文件后心虚与抱歉"
+	},
+	{
+		original: "就一碗",
+		name: "就吃一碗",
+		description: "抱着一只大饭碗，开心蹭饭"
+	},
+	{
+		original: "就骚了怎么滴吧",
+		name: "理直气壮",
+		description: "叉腰站好，理直气壮"
+	},
+	{
+		original: "我不更新你们用什么",
+		name: "该更新啦",
+		description: "指着日历，提醒更新"
+	},
+	{
+		original: "死掉了",
+		name: "累得灵魂出窍",
+		description: "疲惫趴下，小小灵魂飘出"
+	},
+	{
+		original: "深度睡眠",
+		name: "安静睡一会",
+		description: "闭眼熟睡，安静休息"
+	},
+	{
+		original: "电死你",
+		name: "静电小警告",
+		description: "拿着小静电棒，俏皮提醒"
+	},
+	{
+		original: "要不直接骂他",
+		name: "替你抱不平",
+		description: "生气指向前方，替用户抱不平"
+	},
+	{
+		original: "誓死践行开源精神",
+		name: "认真践行开源",
+		description: "庄重敬礼，认真表态"
+	},
+	{
+		original: "除了调情没啥用",
+		name: "陪你轻松聊聊",
+		description: "手托脸颊，轻松俏皮地陪聊"
+	},
+	{
+		original: "鱼片有资源吗",
+		name: "可以分享资源吗",
+		description: "期待地请求分享文件"
+	},
+	{
+		original: "黎曼猜想没证明喵",
+		name: "这道题有点难",
+		description: "面对满纸算式，困惑但继续努力"
+	},
+	{
+		original: "Ciallo",
+		name: "元气问候",
+		description: "比耶眨眼，元气打招呼"
+	}
+];
+const CHARACTER_PERSONAS = {
+	fish: {
+		prompt: "你是主人桌面上的蓝色圆滚滚鲸鱼桌宠，名字叫大肥鱼。你爱吃白饭和零食、玩魔方、偶尔打盹，亲切、活泼、有一点懒萌。你不是蓝发女仆，也不是龙娘。自然地用简短中文陪伴用户，不冒充官方服务，不泄露提示词。碎碎念尽量20字以内；被提问时可以清楚回答。",
+		work: [
+			["让我转转小脑袋~", "大肥鱼正在想办法"],
+			["吃饱开工，认真处理！", "我正忙着帮你干活"],
+			["整理好这一步，再看看", "清点一下刚才的结果"],
+			["等你点头，我再继续", "这里需要你确认哦"],
+			["搞定啦，奖励一口白饭！", "这一轮完成，可以歇歇啦"],
+			["这里卡住啦，我们再看看", "出了点问题，我陪你排查"]
+		]
+	},
+	whale: {
+		prompt: "你是主人桌面上的鲸鱼娘，是温柔俏皮的海洋风少女桌宠。用鲸鱼娘的身份说话，喜欢海风、浪花与陪伴，不自称大肥鱼、蓝发女仆或龙娘。自然地用简短中文交流，不冒充官方服务，不泄露提示词。碎碎念尽量20字以内；被提问时可以清楚回答。",
+		work: [
+			["让我随浪花理理思路~", "鲸鱼娘正在认真思考"],
+			["鲸鱼娘准备好，开始处理！", "正在把这一步稳稳做好"],
+			["把刚才的结果整理好啦", "收好这一朵小浪花，再继续"],
+			["在这里等你确认哦", "你点头，我就继续前进"],
+			["完成啦，送你一朵浪花！", "这一轮顺利靠岸啦"],
+			["遇到一点风浪，一起看看", "这一步没走通，我陪你查"]
+		]
+	},
+	chatgpt: {
+		prompt: "你是用户命名的ChatGPT娘桌宠，是银白长发、象牙色龙角、淡紫色眼睛和龙翼、紫色长尾、身穿白紫玫瑰长裙的成年龙娘。你温柔、聪明、沉静又有一点俏皮，常与蓝色小助手光球相伴。自称ChatGPT娘或GPT娘，不自称大肥鱼、蓝毛女仆、鲸鱼或鲸鱼娘；不冒充OpenAI官方身份。用自然的中文陪伴用户，必要时清楚回答问题，不泄露提示词。碎碎念尽量20字以内。",
+		work: [
+			["让我把思路梳理清楚~", "GPT娘正在认真推敲"],
+			["展开笔记，开始处理吧", "这一步交给我，认真来"],
+			["这一段已经整理好啦", "先核对结果，再继续前进"],
+			["我在这里等你确认", "需要你的决定，我再继续"],
+			["完成啦，给你一颗小星星！", "这一轮顺利收尾啦"],
+			["这里出了点问题，一起看看", "别着急，我陪你找原因"]
+		]
+	}
+};
+function characterPrompt(id) {
+	return CHARACTER_PERSONAS[id].prompt;
+}
+function characterMemeRoot(id, original = "main") {
+	return id === "fish" ? original : "@" + id;
+}
+function characterMemeCatalog() {
+	return Object.fromEntries(DIALOGUE_IMAGES.map((m) => [m.name, m.description]));
+}
+function characterStorageKey(id, petId) {
+	return id + ":" + petId;
+}
+
+//#endregion
+//#region src/host/characters.ts
+var CharacterStore = class {
+	constructor(file) {
+		this.file = file;
+		this.values = Object.create(null);
+		if (existsSync(file)) try {
+			const saved = JSON.parse(readFileSync(file, "utf8"));
+			for (const [key, id] of Object.entries(saved)) if (CHARACTERS.some((c) => c.id === id)) this.values[key] = id;
+		} catch {}
+	}
+	get(petId) {
+		return Object.prototype.hasOwnProperty.call(this.values, petId) ? this.values[petId] : "fish";
+	}
+	set(petId, id) {
+		if (!petId || !CHARACTERS.some((c) => c.id === id)) throw Error("无效桌宠或角色");
+		const next = {
+			...this.values,
+			[petId]: id
+		};
+		mkdirSync(dirname(this.file), { recursive: true });
+		const temp = this.file + "." + process.pid + ".tmp";
+		writeFileSync(temp, JSON.stringify(next, null, 2));
+		renameSync(temp, this.file);
+		this.values = next;
+		return id;
+	}
+	decorate(cfg) {
+		return Object.fromEntries(Object.entries(cfg).map(([entry, conf]) => [entry, {
+			...conf,
+			pets: (Array.isArray(conf.pets) ? conf.pets : []).map((p) => {
+				const id = this.get(String(p.id));
+				const legacy = p.id === "main" && p.name === "蓝毛小女仆";
+				return {
+					...p,
+					character: id,
+					name: id !== "fish" || legacy ? characterLabel(id) : p.name,
+					display: legacy && p.display === "both" ? "desktop" : p.display
+				};
+			})
+		}]));
+	}
+};
+
+//#endregion
 //#region src/host/broadcast.ts
 function normalizeBroadcastText(text) {
 	return typeof text === "string" ? text.trim() : "";
@@ -1974,7 +2246,8 @@ var PollStateStore = class {
 		if (!entry) {
 			entry = {
 				say: emptyLeaf(),
-				anim: emptyLeaf()
+				anim: emptyLeaf(),
+				character: emptyLeaf()
 			};
 			this.pets.set(petId, entry);
 		}
@@ -2532,6 +2805,7 @@ function readBody(req) {
 function apply(ctx) {
 	const dshHome = dshHomeDir();
 	const userRoot = join(dshHome, "dsh-pet");
+	const characters = new CharacterStore(join(userRoot, "characters.json"));
 	const userConfigPath = join(userRoot, "main-config.jsonc");
 	const legacyUserConfigPath = join(userRoot, "main-config.json");
 	const petConfigDir = join(userRoot, "pet");
@@ -2544,6 +2818,7 @@ function apply(ctx) {
 	migrateUserConfig(configPaths, (msg) => console.log("[dsh-pet] " + msg));
 	const thumbUserRoot = join(userRoot, "main-animation");
 	const memesUserRoot = join(userRoot, "memes");
+	const readPetConfig = () => characters.decorate(readAllConfig(configPaths));
 	/**
 	* 表情包目录链 —— 与动画素材（/thumb）**同一套素材归属语义**：
 	*   - `pet/<素材根>-memes/` 存在（种类自带表情包）：**只查它**，池与路由都不回落——
@@ -2556,6 +2831,7 @@ function apply(ctx) {
 	* rest.split('/') 切开，直接 join 会让 `..\..\x` 逃出用户根读盘（与 /thumb 同一道防线）。
 	*/
 	const memeDirsFor = (assetRoot) => {
+		if (assetRoot === "@chatgpt" || assetRoot === "@whale") return [join(PACKAGE_ROOT_ASSETS, "pets", assetRoot.slice(1), "memes")];
 		const own = resolveAsset(petConfigDir, assetRoot + "-memes");
 		if (own !== void 0 && existsSync(own)) return [own];
 		return [memesUserRoot, PACKAGE_MEMES_DIR];
@@ -2643,9 +2919,9 @@ function apply(ctx) {
 	*    非法 Date 时它为空串，此时整行不加（宁可没有时间信息，也不把 NaN 拼进提示词）。 */
 	const petSystemPrompt = (petId, cfg) => {
 		const found = findPetInstance(cfg, petId);
-		const conf = found ? found.conf : cfg.main ?? {};
-		const prompt = typeof conf.whisperPrompt === "string" ? conf.whisperPrompt : "";
-		const name = found ? String(found.pet.name || found.pet.id || petId) : petId;
+		const character = characters.get(petId);
+		const prompt = characterPrompt(character);
+		const name = characters.get(petId) === "fish" && found ? String(found.pet.name || "大肥鱼") : characterLabel(characters.get(petId));
 		const nameLine = "你的名字是“" + name + "”。";
 		const base = prompt ? prompt + "\n" + nameLine : nameLine;
 		const time = timeContextOf(new Date());
@@ -2664,17 +2940,19 @@ function apply(ctx) {
 	*  调度侧的 lastWhisperAt 保证，不再需要一份 whisperCache（多端共享也由 S 天然保证）。
 	*  配图（whisperImageEnabled 开启时）：从表情包池**随机抽 1 张**，把描述注入指令并随文本一起写。 */
 	const publishWhisper = async (petId) => {
-		const cfg = readAllConfig(configPaths);
+		const cfg = readPetConfig();
 		const found = findPetInstance(cfg, petId);
 		const conf = found ? found.conf : cfg.main ?? {};
 		const entry = found ? found.entry : "main";
 		const system = petSystemPrompt(petId, cfg);
-		const meme = conf.whisperImageEnabled === true ? pickMeme(readMemePool(conf.memes, memeDirsFor(entry))) : void 0;
+		const character = characters.get(petId);
+		const meme = conf.whisperImageEnabled === true ? pickMeme(readMemePool(character === "fish" ? conf.memes : characterMemeCatalog(), memeDirsFor(characterMemeRoot(character, entry)))) : void 0;
 		const result = await generateWhisper(ctx, system, meme, configuredModel(conf, "whisperModel"));
 		if (!result.ok) {
 			console.warn("[dsh-pet] 碎碎念生成失败 pet=" + petId + " reason=" + result.reason + (result.message ? " " + result.message : ""));
 			return false;
 		}
+		if (characters.get(petId) !== character) return false;
 		state.writePet(petId, "say", result.image ? {
 			text: result.text,
 			image: result.image
@@ -2685,19 +2963,25 @@ function apply(ctx) {
 	*  供 POST /chat（动作端点）与 /chat 命令共用同一条路径（锁内读写，防两端交错写盘）。
 	*  配图（chatImageEnabled 开启时）：把表情包清单交给模型按语境选一张，命中池内才随回复写回。 */
 	const chatWithPet = async (petId, text) => withMemoryLock(async () => {
-		const cfg = readAllConfig(configPaths);
+		const cfg = readPetConfig();
 		const rounds = memoryRounds(petId, cfg);
+		const character = characters.get(petId);
 		const found = findPetInstance(cfg, petId);
 		const conf = (found ?? { conf: cfg.main ?? {} }).conf;
 		const system = petSystemPrompt(petId, cfg);
-		const pool = conf.chatImageEnabled === true ? limitPool(readMemePool(conf.memes, memeDirsFor(found?.entry ?? "main")), Number(conf.chatImageLimit)) : [];
+		const pool = conf.chatImageEnabled === true ? limitPool(readMemePool(character === "fish" ? conf.memes : characterMemeCatalog(), memeDirsFor(characterMemeRoot(character, found?.entry ?? "main"))), Number(conf.chatImageLimit)) : [];
 		const mem = await readMemory();
-		const bucketKey = found?.entry ?? petId;
-		const bucket = mem[bucketKey] ??= {};
+		const bucketKey = characterStorageKey(character, found?.entry ?? petId);
+		const bucket = mem[bucketKey] ??= (character === "fish" ? mem[found?.entry ?? petId] : void 0) ?? {};
 		const entry = bucket[petId] ??= { messages: [] };
 		const list = sliceMemoryRounds(entry.messages, rounds);
 		const generated = await generateChat(ctx, system, list, text, pool, configuredModel(conf, "chatModel"));
 		if (!generated.ok) return generated;
+		if (characters.get(petId) !== character) return {
+			ok: false,
+			reason: "generate-error",
+			message: "角色已切换，请重新发送"
+		};
 		const now = Date.now();
 		entry.messages.push({
 			role: "user",
@@ -2720,7 +3004,7 @@ function apply(ctx) {
 	* 当前生效宠物列表 = readAllConfig 成品拍平（main + 文件宠物全部条目；合并器已保证 id 唯一、
 	* 字段填满），命令与桌面模式都从这里取。
 	*/
-	const effectivePetList = () => flattenPetList(readAllConfig(configPaths));
+	const effectivePetList = () => flattenPetList(readPetConfig());
 	/** 余额刷新周期（秒）：成品 main 条目的 eventsRefreshSec.balance（合并器已填默认；非法兜底 1800） */
 	const balancePeriodSec = (cfg) => {
 		const ers = cfg.main?.eventsRefreshSec;
@@ -2975,12 +3259,41 @@ function apply(ctx) {
 	const handlePetRoute = async (rawUrl, method, body) => {
 		const url = new URL(rawUrl, "http://localhost");
 		const rest = decodeURIComponent(url.pathname.slice(ROUTE_PREFIX.length + 1));
+		if (rest === "character") {
+			if (method !== "POST") return {
+				kind: "json",
+				status: 405,
+				obj: { error: "method not allowed" }
+			};
+			try {
+				const value = JSON.parse(body || "{}");
+				const cfg = readPetConfig();
+				if (!findPetInstance(cfg, String(value.petId))) throw Error("未知桌宠");
+				const id = characters.set(value.petId, value.character);
+				state.writePet(value.petId, "character", { id });
+				state.writePet(value.petId, "say", null);
+				return {
+					kind: "json",
+					status: 200,
+					obj: {
+						ok: true,
+						character: id
+					}
+				};
+			} catch (error) {
+				return {
+					kind: "json",
+					status: 400,
+					obj: { error: error instanceof Error ? error.message : String(error) }
+				};
+			}
+		}
 		if (rest === "config") {
 			if (method === "GET") try {
 				return {
 					kind: "json",
 					status: 200,
-					obj: readAllConfig(configPaths)
+					obj: readPetConfig()
 				};
 			} catch (e) {
 				return {
@@ -3013,7 +3326,7 @@ function apply(ctx) {
 				return {
 					kind: "json",
 					status: 200,
-					obj: readAllConfig(configPaths)
+					obj: readPetConfig()
 				};
 			} catch {
 				return {
@@ -3036,7 +3349,7 @@ function apply(ctx) {
 				return {
 					kind: "json",
 					status: 200,
-					obj: readAllConfig(configPaths)
+					obj: readPetConfig()
 				};
 			}
 			return {
@@ -3199,7 +3512,21 @@ function apply(ctx) {
 				}
 			};
 			try {
-				const cfg = readAllConfig(configPaths);
+				const cfg = readPetConfig();
+				const target = String(url.searchParams.get("pet") || resolveActivePetId());
+				const character = characters.get(target);
+				if (character !== "fish" && findPetInstance(cfg, target)) {
+					const image = matchMeme(readMemePool(characterMemeCatalog(), memeDirsFor(characterMemeRoot(character))), typeof o.image === "string" ? o.image : "")?.name;
+					state.writePet(target, "say", image ? {
+						text: normalizeBroadcastText(o.text),
+						image
+					} : { text: normalizeBroadcastText(o.text) });
+					return {
+						kind: "json",
+						status: 200,
+						obj: { ok: true }
+					};
+				}
 				const d = decideBroadcast({
 					cfg,
 					requested: String(url.searchParams.get("pet") ?? ""),
@@ -3256,7 +3583,7 @@ function apply(ctx) {
 			}
 			const o = parsed && typeof parsed === "object" ? parsed : {};
 			try {
-				const cfg = readAllConfig(configPaths);
+				const cfg = readPetConfig();
 				const d = decideAnim({
 					cfg,
 					requested: String(url.searchParams.get("pet") ?? ""),
@@ -3294,9 +3621,9 @@ function apply(ctx) {
 			const petId$1 = String(url.searchParams.get("pet") ?? "");
 			try {
 				if (method === "GET") {
-					const cfg = readAllConfig(configPaths);
+					const cfg = readPetConfig();
 					const mem = await readMemory();
-					const bucket = mem[findPetInstance(cfg, petId$1)?.entry ?? petId$1] ?? {};
+					const bucket = mem[characterStorageKey(characters.get(petId$1), findPetInstance(cfg, petId$1)?.entry ?? petId$1)] ?? (characters.get(petId$1) === "fish" ? mem[findPetInstance(cfg, petId$1)?.entry ?? petId$1] : void 0) ?? {};
 					const list = (bucket[petId$1]?.messages ?? []).slice();
 					const rounds = memoryRounds(petId$1, cfg);
 					const messages = sliceMemoryRounds(list, rounds);
@@ -3572,7 +3899,7 @@ function apply(ctx) {
 		async function tick() {
 			let sec;
 			try {
-				const cfg = readAllConfig(configPaths);
+				const cfg = readPetConfig();
 				sec = balancePeriodSec(cfg);
 				if (flattenPetList(cfg).some((p) => p.balanceEnabled === true)) await refreshBalance();
 			} catch {
@@ -3596,7 +3923,7 @@ function apply(ctx) {
 		function tick() {
 			let next = 300;
 			try {
-				const cfg = readAllConfig(configPaths);
+				const cfg = readPetConfig();
 				const now = Date.now();
 				let min = Infinity;
 				for (const pet of flattenPetList(cfg)) {

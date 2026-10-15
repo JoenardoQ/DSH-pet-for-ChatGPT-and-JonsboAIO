@@ -33,7 +33,7 @@ jobs:
           key: windows-runtime-${{ hashFiles('scripts/windows-launcher.json', 'scripts/runtime-lock.json') }}
       - run: npm install --omit=dev --omit=peer --ignore-scripts --package-lock=false --no-audit --no-fund
       - run: python -m pip install -r dsh-pet/desktop/requirements.txt
-      - run: node --test dsh-pet/test-jonsbo/*.test.mjs test/windows-launcher.test.mjs
+      - run: node --test dsh-pet/test-jonsbo/*.test.mjs test/*.test.mjs
       - run: python -m unittest discover -s dsh-pet/test-jonsbo -p 'test_*.py'
       - run: node scripts/build-windows-lite.mjs
       - run: node scripts/test-windows-package.mjs

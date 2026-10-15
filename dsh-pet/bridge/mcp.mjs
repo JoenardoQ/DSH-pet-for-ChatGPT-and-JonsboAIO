@@ -20,19 +20,19 @@ const annotations = { readOnlyHint: false, destructiveHint: false, idempotentHin
 export const definitions = [
   {
     name: 'wake_pet',
-    description: '唤起大肥鱼桌宠，同时尝试在本机乔斯伯 USB 屏幕显示。必须检查返回 output 的实际连接状态。',
+    description: '唤起桌宠桌宠，同时尝试在本机乔斯伯 USB 屏幕显示。必须检查返回 output 的实际连接状态。',
     inputSchema: { type: 'object', properties: props, additionalProperties: false },
     annotations,
   },
   {
     name: 'set_pet_state',
-    description: '更新已唤起的大肥鱼状态和简短台词。工作或思考状态 90 秒未更新会回到待机。',
+    description: '更新已唤起的桌宠状态和简短台词。工作或思考状态 90 秒未更新会回到待机。',
     inputSchema: { type: 'object', properties: props, additionalProperties: false },
     annotations,
   },
   {
     name: 'hide_pet',
-    description: '收起 ChatGPT 唤起的大肥鱼。若 DSH 仍在同步，它可以继续显示。',
+    description: '收起 ChatGPT 唤起的桌宠。若 DSH 仍在同步，它可以继续显示。',
     inputSchema: { type: 'object', properties: {}, additionalProperties: false },
     annotations,
   },
@@ -108,7 +108,7 @@ export async function dispatch(request) {
     return reply({
       protocolVersion: versions.includes(params?.protocolVersion) ? params.protocolVersion : '2025-06-18',
       capabilities: { tools: {} },
-      serverInfo: { name: 'dsh-pet-jonsbo', version: '0.3.6-jonsbo.6' },
+      serverInfo: { name: 'dsh-pet-jonsbo', version: '0.3.6-jonsbo.7' },
     });
   }
   if (method === 'ping') return reply({});

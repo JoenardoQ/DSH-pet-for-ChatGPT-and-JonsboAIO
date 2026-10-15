@@ -72,7 +72,15 @@ import { queryBalance } from './balance/index';
 import { generateWhisper } from './whisper';
 import { generateChat, type ChatMemoryMessage } from './chat';
 import { configuredModel } from './model-selection';
-import { limitPool, pickMeme, readMemePool } from './memes';
+import { limitPool, pickMeme, readMemePool, matchMeme } from './memes';
+import { CharacterStore } from './characters';
+import {
+  characterLabel,
+  characterPrompt,
+  characterMemeCatalog,
+  characterMemeRoot,
+  characterStorageKey,
+} from '../shared/characters';
 import { decideBroadcast, normalizeBroadcastText } from './broadcast';
 import { decideAnim } from './anim';
 import {
@@ -250,6 +258,7 @@ export function apply(ctx: any): void {
   // 用户数据根：配置与用户素材统一收敛于此（扩展包按 <插件id> 各自建目录）
   const dshHome = resolveDshHome();
   const userRoot = join(dshHome, 'dsh-pet');
+  const characters = new CharacterStore(join(userRoot, 'characters.json'));
   // 用户主配置（可编辑层）与文件宠物目录；配置读取/合并统一走 readAllConfig（./config）。
   // 主配置是 **JSONC**（main-config.jsonc）——与包内默认 config.jsonc 同名同格式：
   // 「同步」写进去的就是带注释的原文，扩展名如实反映内容（旧版 main-config.json 只读回落 + 启动迁移）
@@ -270,6 +279,7 @@ export function apply(ctx: any): void {
   const thumbUserRoot = join(userRoot, 'main-animation');
   // 用户表情包目录（碎碎念/对话配图的图片：优先于包内 assets/memes，加图不必改包）
   const memesUserRoot = join(userRoot, 'memes');
+  const readPetConfig = () => characters.decorate(readAllConfig(configPaths));
   /**
    * 表情包目录链 —— 与动画素材（/thumb）**同一套素材归属语义**：
    *   - `pet/<素材根>-memes/` 存在（种类自带表情包）：**只查它**，池与路由都不回落——
@@ -282,6 +292,8 @@ export function apply(ctx: any): void {
    * rest.split('/') 切开，直接 join 会让 `..\..\x` 逃出用户根读盘（与 /thumb 同一道防线）。
    */
   const memeDirsFor = (assetRoot: string): string[] => {
+    if (assetRoot === '@chatgpt' || assetRoot === '@whale')
+      return [join(PACKAGE_ROOT_ASSETS, 'pets', assetRoot.slice(1), 'memes')];
     const own = resolveAsset(petConfigDir, assetRoot + '-memes');
     if (own !== undefined && existsSync(own)) return [own];
     return [memesUserRoot, PACKAGE_MEMES_DIR];
@@ -407,9 +419,12 @@ export function apply(ctx: any): void {
    *    非法 Date 时它为空串，此时整行不加（宁可没有时间信息，也不把 NaN 拼进提示词）。 */
   const petSystemPrompt = (petId: string, cfg: Record<string, Record<string, unknown>>): string => {
     const found = findPetInstance(cfg, petId);
-    const conf = found ? found.conf : (cfg.main ?? {});
-    const prompt = typeof conf.whisperPrompt === 'string' ? conf.whisperPrompt : '';
-    const name = found ? String(found.pet.name || found.pet.id || petId) : petId;
+    const character = characters.get(petId);
+    const prompt = characterPrompt(character);
+    const name =
+      characters.get(petId) === 'fish' && found
+        ? String(found.pet.name || '大肥鱼')
+        : characterLabel(characters.get(petId));
     const nameLine = '你的名字是“' + name + '”。';
     const base = prompt ? prompt + '\n' + nameLine : nameLine;
     const time = timeContextOf(new Date());
@@ -430,13 +445,22 @@ export function apply(ctx: any): void {
    *  调度侧的 lastWhisperAt 保证，不再需要一份 whisperCache（多端共享也由 S 天然保证）。
    *  配图（whisperImageEnabled 开启时）：从表情包池**随机抽 1 张**，把描述注入指令并随文本一起写。 */
   const publishWhisper = async (petId: string): Promise<boolean> => {
-    const cfg = readAllConfig(configPaths);
+    const cfg = readPetConfig();
     const found = findPetInstance(cfg, petId);
     const conf = found ? found.conf : (cfg.main ?? {});
     const entry = found ? found.entry : 'main';
     const system = petSystemPrompt(petId, cfg);
     // 配图：全局开关关闭 / 池为空 / 池内图片全缺失 → 纯文本（不报错，退化为原行为）
-    const meme = conf.whisperImageEnabled === true ? pickMeme(readMemePool(conf.memes, memeDirsFor(entry))) : undefined;
+    const character = characters.get(petId);
+    const meme =
+      conf.whisperImageEnabled === true
+        ? pickMeme(
+            readMemePool(
+              character === 'fish' ? conf.memes : characterMemeCatalog(),
+              memeDirsFor(characterMemeRoot(character, entry)),
+            ),
+          )
+        : undefined;
     // 模型：条目配置的 whisperModel 优先（留空 = 不指定）；生成侧失败会回落到当前对话的模型重试一次
     const result = await generateWhisper(ctx, system, meme, configuredModel(conf, 'whisperModel'));
     if (!result.ok) {
@@ -450,6 +474,7 @@ export function apply(ctx: any): void {
       );
       return false;
     }
+    if (characters.get(petId) !== character) return false;
     state.writePet(petId, 'say', result.image ? { text: result.text, image: result.image } : { text: result.text });
     return true;
   };
@@ -462,8 +487,9 @@ export function apply(ctx: any): void {
     text: string,
   ): Promise<{ ok: true } | { ok: false; reason: 'provider-missing' | 'generate-error'; message?: string }> =>
     withMemoryLock(async () => {
-      const cfg = readAllConfig(configPaths);
+      const cfg = readPetConfig();
       const rounds = memoryRounds(petId, cfg);
+      const character = characters.get(petId);
       const found = findPetInstance(cfg, petId);
       const conf = (found ?? { conf: cfg.main ?? {} }).conf;
       // 人设：所属条目的 whisperPrompt（合并器已填默认）+ 名字声明（与碎碎念同一拼装）
@@ -472,11 +498,17 @@ export function apply(ctx: any): void {
       // 张数上限（chatImageLimit，0 = 不限制）：整张清单每条消息都要附，截断后费用上限可控。
       const pool =
         conf.chatImageEnabled === true
-          ? limitPool(readMemePool(conf.memes, memeDirsFor(found?.entry ?? 'main')), Number(conf.chatImageLimit))
+          ? limitPool(
+              readMemePool(
+                character === 'fish' ? conf.memes : characterMemeCatalog(),
+                memeDirsFor(characterMemeRoot(character, found?.entry ?? 'main')),
+              ),
+              Number(conf.chatImageLimit),
+            )
           : [];
       const mem = await readMemory();
-      const bucketKey = found?.entry ?? petId;
-      const bucket = (mem[bucketKey] ??= {});
+      const bucketKey = characterStorageKey(character, found?.entry ?? petId);
+      const bucket = (mem[bucketKey] ??= (character === 'fish' ? mem[found?.entry ?? petId] : undefined) ?? {});
       const entry = (bucket[petId] ??= { messages: [] });
       // rounds = 0（用户关掉历史）→ 空历史；否则截尾部 rounds 轮（1 轮 = 1 问 1 答）。
       // 不能写 slice(-rounds * 2)：-0 在 JS 里 === 0，slice(-0) 返回整个数组而不是空。
@@ -484,6 +516,8 @@ export function apply(ctx: any): void {
       // 模型：条目配置的 chatModel 优先（留空 = 不指定）；生成侧失败会回落到当前对话的模型重试一次
       const generated = await generateChat(ctx, system, list, text, pool, configuredModel(conf, 'chatModel'));
       if (!generated.ok) return generated;
+      if (characters.get(petId) !== character)
+        return { ok: false as const, reason: 'generate-error' as const, message: '角色已切换，请重新发送' };
       const now = Date.now();
       entry.messages.push({ role: 'user', content: text, ts: now });
       // 记忆只存正文（配图属展示层，不进上下文——否则下次请求会把标记当历史读回去）
@@ -502,7 +536,7 @@ export function apply(ctx: any): void {
    * 当前生效宠物列表 = readAllConfig 成品拍平（main + 文件宠物全部条目；合并器已保证 id 唯一、
    * 字段填满），命令与桌面模式都从这里取。
    */
-  const effectivePetList = (): Record<string, unknown>[] => flattenPetList(readAllConfig(configPaths));
+  const effectivePetList = (): Record<string, unknown>[] => flattenPetList(readPetConfig());
 
   /** 余额刷新周期（秒）：成品 main 条目的 eventsRefreshSec.balance（合并器已填默认；非法兜底 1800） */
   const balancePeriodSec = (cfg: Record<string, Record<string, unknown>>): number => {
@@ -801,12 +835,26 @@ export function apply(ctx: any): void {
     const rest = decodeURIComponent(url.pathname.slice(ROUTE_PREFIX.length + 1));
 
     // 成品配置：/dsh-pet-7340/config（GET 读取合并成品 / PUT 保存用户层 / POST 同步内置默认）
+    if (rest === 'character') {
+      if (method !== 'POST') return { kind: 'json', status: 405, obj: { error: 'method not allowed' } };
+      try {
+        const value = JSON.parse(body || '{}');
+        const cfg = readPetConfig();
+        if (!findPetInstance(cfg, String(value.petId))) throw Error('未知桌宠');
+        const id = characters.set(value.petId, value.character);
+        state.writePet(value.petId, 'character', { id });
+        state.writePet(value.petId, 'say', null);
+        return { kind: 'json', status: 200, obj: { ok: true, character: id } };
+      } catch (error) {
+        return { kind: 'json', status: 400, obj: { error: error instanceof Error ? error.message : String(error) } };
+      }
+    }
     if (rest === 'config') {
       if (method === 'GET') {
         // 唯一配置入口：readAllConfig 返回绝对正确的完成品聚合（{ main:{...}, test1:{...} }），
         // 浏览器/桌面/设置页直接消费，无需任何校验/兜底
         try {
-          return { kind: 'json', status: 200, obj: readAllConfig(configPaths) };
+          return { kind: 'json', status: 200, obj: readPetConfig() };
         } catch (e) {
           return { kind: 'json', status: 500, obj: { error: e instanceof Error ? e.message : String(e) } };
         }
@@ -847,7 +895,7 @@ export function apply(ctx: any): void {
           // 响应体 = 保存后的**成品聚合**（与 GET /config 同一份，字段已填满）：
           // 设置页把它直接交给容器的 flattenConfigPets 拍平渲染——客户端的条目级字段
           // （动画池/权重/物理参数/工作状态文案）只有这一处填充，不再有第二份补吹实现。
-          return { kind: 'json', status: 200, obj: readAllConfig(configPaths) };
+          return { kind: 'json', status: 200, obj: readPetConfig() };
         } catch {
           return { kind: 'json', status: 400, obj: { error: 'invalid JSON body' } };
         }
@@ -863,7 +911,7 @@ export function apply(ctx: any): void {
           return { kind: 'json', status: 500, obj: { error: e instanceof Error ? e.message : String(e) } };
         }
         void syncDesktop(); // 配置变了：重解析桌面宠物并重启 Helper（异步，不阻塞响应）
-        return { kind: 'json', status: 200, obj: readAllConfig(configPaths) };
+        return { kind: 'json', status: 200, obj: readPetConfig() };
       }
       return { kind: 'json', status: 405, obj: { error: 'method not allowed' } };
     }
@@ -1012,7 +1060,21 @@ export function apply(ctx: any): void {
         return { kind: 'json', status: 200, obj: { ok: false, reason: 'bad-request', message: 'text 为空' } };
       }
       try {
-        const cfg = readAllConfig(configPaths);
+        const cfg = readPetConfig();
+        const target = String(url.searchParams.get('pet') || resolveActivePetId());
+        const character = characters.get(target);
+        if (character !== 'fish' && findPetInstance(cfg, target)) {
+          const image = matchMeme(
+            readMemePool(characterMemeCatalog(), memeDirsFor(characterMemeRoot(character))),
+            typeof o.image === 'string' ? o.image : '',
+          )?.name;
+          state.writePet(
+            target,
+            'say',
+            image ? { text: normalizeBroadcastText(o.text), image } : { text: normalizeBroadcastText(o.text) },
+          );
+          return { kind: 'json', status: 200, obj: { ok: true } };
+        }
         const d = decideBroadcast({
           cfg,
           requested: String(url.searchParams.get('pet') ?? ''),
@@ -1054,7 +1116,7 @@ export function apply(ctx: any): void {
       }
       const o = parsed && typeof parsed === 'object' ? (parsed as Record<string, unknown>) : {};
       try {
-        const cfg = readAllConfig(configPaths);
+        const cfg = readPetConfig();
         const d = decideAnim({
           cfg,
           requested: String(url.searchParams.get('pet') ?? ''),
@@ -1084,11 +1146,15 @@ export function apply(ctx: any): void {
       const petId = String(url.searchParams.get('pet') ?? '');
       try {
         if (method === 'GET') {
-          const cfg = readAllConfig(configPaths);
+          const cfg = readPetConfig();
           const mem = await readMemory();
-          const bucket = mem[findPetInstance(cfg, petId)?.entry ?? petId] ?? {};
+          const bucket =
+            mem[characterStorageKey(characters.get(petId), findPetInstance(cfg, petId)?.entry ?? petId)] ??
+            (characters.get(petId) === 'fish' ? mem[findPetInstance(cfg, petId)?.entry ?? petId] : undefined) ??
+            {};
           const list = (bucket[petId]?.messages ?? []).slice();
           const rounds = memoryRounds(petId, cfg);
+
           // 与 chatWithPet 同一语义：rounds = 0 → 空历史（slice(-0) 会返回整个数组，见上）
           const messages = sliceMemoryRounds(list, rounds);
           return { kind: 'json', status: 200, obj: { ok: true, messages, rounds } };
@@ -1380,7 +1446,7 @@ export function apply(ctx: any): void {
     async function tick(): Promise<void> {
       let sec: number;
       try {
-        const cfg = readAllConfig(configPaths);
+        const cfg = readPetConfig();
         sec = balancePeriodSec(cfg);
         // 没有任何启用余额的宠物 → 不查（省外部调用）；配置改了下一拍自然跟上
         if (flattenPetList(cfg).some((p) => p.balanceEnabled === true)) await refreshBalance();
@@ -1412,7 +1478,7 @@ export function apply(ctx: any): void {
     function tick(): void {
       let next = 300;
       try {
-        const cfg = readAllConfig(configPaths);
+        const cfg = readPetConfig();
         const now = Date.now();
         let min = Infinity;
         for (const pet of flattenPetList(cfg)) {

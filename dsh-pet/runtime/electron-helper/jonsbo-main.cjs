@@ -42,7 +42,7 @@ ipcMain.handle('jonsbo:frame', async (event, payload) => {
       if (['missing-sdk', 'missing-driver', 'busy', 'error'].includes(usb) && usb !== lastNotice) {
         lastNotice = usb;
         const notice = new Notification({
-          title: '大肥鱼 · 乔斯伯屏幕',
+          title: ({fish:'大肥鱼',whale:'鲸鱼娘',chatgpt:'ChatGPT 娘'}[payload.character]||'桌宠')+' · 乔斯伯屏幕',
           body: status.output.error || '屏幕需要设置；点击查看连接状态。',
         });
         notice.on('click', () => shell.openExternal(runtime.base + '/?source=' + source));

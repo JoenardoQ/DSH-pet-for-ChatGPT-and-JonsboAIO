@@ -87,6 +87,7 @@ export interface Animations {
 export interface Pet {
   /** 唯一标识（程序定位用：素材/记忆/端点参数都按它；绝不重叠，冲突即配置错误） */
   id: string;
+  character?: import('./characters').CharacterId;
   /** 显示名（可重复）：悬浮提示、AI 人设（无条件追加「你的名字是 X」）、未来命令行定位的显示层。
    *  与 id 的区别：id 唯一、程序认它；name 给人看、可重复。缺失/留空按该宠物 id 处理并告警 */
   name: string;

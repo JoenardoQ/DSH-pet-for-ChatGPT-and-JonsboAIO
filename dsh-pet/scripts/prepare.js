@@ -70,6 +70,8 @@ const keep = [
   'lib',
   'src',
   'assets/webm',
+  'assets/pets',
+  'runtime/windows-bundle.json',
   'runtime/electron-helper',
   'assets/fonts',
   'assets/pic',

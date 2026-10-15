@@ -10,7 +10,7 @@
 // ---------- 单只宠物（行为与浏览器 PetCard 一致；纯逻辑来自 src/shared） ----------
 class PetSprite {
   constructor(pet) {
-    this.character = S.readCharacter(window.localStorage,pet.id);
+    this.character = pet.character||S.readCharacter(window.localStorage,pet.id);
     this.pet = pet; // 这只宠物的配置段（拍平后的成品实例，条目级字段已吹入：动画池/权重/周期）
     // 页面级缩放（main 对窗口 setZoomFactor(CONFIG.scale)，见 DESIGN.md §3.5）统一放大整窗：
     // pet.size 即 CSS 像素基准，**不再手工乘 CONFIG.scale**——固定 px UI（菜单/积分/聊天）
@@ -150,7 +150,7 @@ class PetSprite {
     this.hit.style.width = ((S.HIT_BOX.x1 - S.HIT_BOX.x0) / 640) * 100 + '%';
     this.hit.style.height = ((S.HIT_BOX.y1 - S.HIT_BOX.y0) / 360) * 100 + '%';
     // 原先这里挂 title（原生系统提示）：已换成自绘浮层，但无障碍名称不能跟着丢
-    this.hit.setAttribute('aria-label', this.character==='fish'?this.pet.name:S.characterLabel(this.character));
+    this.hit.setAttribute('aria-label', S.characterLabel(this.character));
     this.bubble = document.createElement('div');
     this.bubble.className = 'pet-bubble';
     // 悬浮提示：与气泡同处 this.el 内的绝对定位浮层，位置/翻转由 renderTip 决定，
@@ -1013,7 +1013,7 @@ class PetSprite {
    * 在这里按当前窗口原点重算一次，贴光标不会漂（sendBounds 每帧会调本函数）。
    */
   renderTip() {
-    if (this.tip.textContent !== this.pet.name) this.tip.textContent = this.pet.name;
+    if (this.tip.textContent !== S.characterLabel(this.character)) this.tip.textContent = S.characterLabel(this.character);
     const cursor = this.tipCursor;
     if (cursor) {
       const winX = this.pos.x - this.margin.l;
@@ -1152,7 +1152,7 @@ class PetSprite {
       if (window.__jonsboDebug?.source === 'chatgpt')
         tools.push({ label: '关闭桌宠', action: 'jonsbo-shutdown' });
     }
-    const tree = [S.characterMenu(this.character)].concat(tools,S.buildMenuTree(this.animations));
+    const tree = [S.characterMenu(this.character)].concat(tools,S.characterActionMenu(this.character,this.animations));
     if (!tree.length) return;
     this.menuOpen = true;
     this.setInteractive(true); // 菜单是窗口内 DOM：悬停期间整窗保持可交互，关闭后恢复命中区穿透
@@ -1175,15 +1175,18 @@ class PetSprite {
     this.menuClose = m.close;
   }
 
+  applyCharacter(character) {
+    if(!S.CHARACTERS.some(c=>c.id===character)||character===this.character)return;
+    this.chatClose?.();this.chatClose=null;this.character=character;this.gen++;this.pending=null;this.whisperOn=false;this.whisperImage=undefined;this.workOn=false;this.workText=null;
+    try{window.localStorage.setItem('dsh-pet:character:'+this.pet.id,character);}catch{}
+    this.hit.setAttribute('aria-label',S.characterLabel(character));if(this.workState){this.workText=this.workTask||S.characterWorkTexts(character)[S.WORK_STATUS_INDEX[this.workState]]?.[0];this.workOn=!!this.workText;}this.renderBubble();this.switchTo(this.anim||this.animations.idle[0],this.once);
+  }
   onMenuAction(leaf) {
     this.closeMenu();
     if (!leaf || typeof leaf !== 'object') return;
     const character=S.characterAction(leaf.action);
     if(character) {
-      try { window.localStorage.setItem('dsh-pet:character:'+this.pet.id,character); } catch { return; }
-      this.character=character;this.gen++;this.pending=null;
-      this.hit.setAttribute('aria-label',character==='fish'?this.pet.name:S.characterLabel(character));
-      this.switchTo(this.anim||this.animations.idle[0],this.once);
+      S.saveCharacter(BASE,this.pet.id,character).then(()=>this.applyCharacter(character)).catch(error=>this.showWhisper(error.message));
       return;
     }
     if (leaf.action?.startsWith('jonsbo-') && window.jonsboBridge) {
@@ -1287,7 +1290,7 @@ class PetSprite {
       return; // 已开着：先关旧的
     }
     const m = S.mountChatDialog({
-      petId: this.pet.id,
+      petId: this.pet.id,petName:S.characterLabel(this.character),
       baseUrl: BASE + '/chat',
       x: Math.max(4, this.hit.getBoundingClientRect().right + 6),
       y: Math.max(4, this.hit.getBoundingClientRect().top + 6),
@@ -1348,7 +1351,7 @@ class PetSprite {
     const workTerminal = this.workState === 'success' || this.workState === 'error';
     const slot =
       workTerminal && workOn ? 'work' : whisperOn ? 'whisper' : balanceOn ? 'balance' : workOn ? 'work' : 'none';
-    const whisperImg = slot === 'whisper' ? S.createMemeImage(this.whisperImage, BASE, this.assetRoot) : null;
+    const whisperImg = slot === 'whisper' ? S.createMemeImage(S.characterMemeName(this.character,this.whisperImage||''), BASE, S.characterMemeRoot(this.character,this.pet.assetRoot || this.pet.id)) : null;
     this.bubble.classList.toggle(
       'is-whisper',
       // 余额「文字说明」（不可用状态）同样要换行变体：默认 nowrap 会把长文案顶出宠物宽度
