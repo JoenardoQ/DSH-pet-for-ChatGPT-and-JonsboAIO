@@ -12,7 +12,9 @@ export class CharacterStore {
         const saved = JSON.parse(readFileSync(file, 'utf8'));
         for (const [key, id] of Object.entries(saved))
           if (CHARACTERS.some((c) => c.id === id)) this.values[key] = id as CharacterId;
-      } catch {}
+      } catch {
+        // A damaged preference file must not prevent plugin startup; retain the default role.
+      }
     }
   }
   get(petId: string): CharacterId {

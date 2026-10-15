@@ -226,13 +226,15 @@ export function makePetUI(rt: {
       setMargin({ x: cfg.position.marginX, y: cfg.position.marginY });
     }, [cfg.size, cfg.position.corner, cfg.position.marginX, cfg.position.marginY]);
     const [seq, setSeq] = useState(0);
+    const characterRef = useRef(character);
 
     useEffect(() => {
-      if (cfg.character && cfg.character !== character) {
+      if (cfg.character && cfg.character !== characterRef.current) {
         chatRef.current?.close();
         chatRef.current = null;
         pendingRef.current = null;
         genRef.current++;
+        characterRef.current = cfg.character;
         setCharacter(cfg.character);
         setSeq((s) => s + 1);
         setWhisperBubbleOn(false);
@@ -1397,6 +1399,7 @@ export function makePetUI(rt: {
             chatRef.current = null;
             pendingRef.current = null;
             genRef.current++;
+            characterRef.current = selected;
             setCharacter(selected);
             setSeq((s) => s + 1);
             setWhisperBubbleOn(false);
