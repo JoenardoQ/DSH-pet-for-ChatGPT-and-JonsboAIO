@@ -2,7 +2,7 @@ openapi: 3.1.0
 
 info:
   title: dsh-pet HTTP API
-  version: 0.3.6
+  version: 1.0.0
   summary: DSH 桌宠插件的宿主 HTTP 接口
   description: |
     dsh-pet 的宿主（host）半侧通过 DSH 的 `webServer` 服务注册**一条前缀路由** `/dsh-pet-7340`，
@@ -59,7 +59,7 @@ info:
 
 externalDocs:
   description: 项目仓库与使用说明
-  url: https://github.com/PC2005-cloud/dsh-pet
+  url: https://github.com/JoenardoQ/Deepseek-and-ChatGPT-Pet-and-JonsboAIO
 
 servers:
   - url: http://127.0.0.1:{port}
@@ -82,6 +82,36 @@ tags:
     description: 字体、通知图标、表情包、动画素材
 
 paths:
+  /dsh-pet-7340/character:
+    post:
+      tags: [Config]
+      operationId: setCharacter
+      summary: 切换并保存桌宠角色
+      description: 保存指定桌宠的角色偏好，并发布角色变化、清除旧角色气泡；不修改用户任务文本。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [petId, character]
+              properties:
+                petId: {type: string, example: main}
+                character: {type: string, enum: [fish, whale, chatgpt]}
+      responses:
+        "200":
+          description: 角色已保存
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: {type: boolean, const: true}
+                  character: {type: string, enum: [fish, whale, chatgpt]}
+        "400":
+          description: 桌宠不存在、角色无效或请求无法解析
+        "405":
+          description: 仅支持 POST
   /dsh-pet-7340/state:
     get:
       tags: [State]
@@ -720,7 +750,8 @@ paths:
       operationId: getAnimation
       summary: 获取宠物动画素材
       description: |-
-        按「是否存在该宠物的独立素材目录 `pet/<petId>-animation/`」决定素材归属：
+        `@chatgpt` / `@duo` 为角色独占 GIF 资源，`@whale` 为鲸鱼娘资源；只查自身目录，缺失返回404。
+        常规大肥鱼动画按「是否存在该宠物的独立素材目录 `pet/<petId>-animation/`」决定素材归属：
 
         - **存在**（pet pack 宠物）：只查该目录，查不到即 `404` 显式报错——**绝不混用**别的素材。
         - **不存在**（所有主配置宠物，包括用户添加的任意多只）：走主素材链——
@@ -746,6 +777,10 @@ paths:
         "200":
           description: 动画文件
           content:
+            image/gif:
+              schema:
+                type: string
+                format: binary
             video/webm:
               schema:
                 type: string
@@ -756,7 +791,7 @@ paths:
                 format: binary
         "400":
           description: |
-            `petId` 含非法字符；或扩展名不是 `.webm`/`.mov`
+            `petId` 含非法字符；或常规资源扩展名不是 `.webm`/`.mov`（角色命名空间另支持 `.gif`）
             （`unsupported animation format`）；或路径段数不对。
           content:
             text/plain:
