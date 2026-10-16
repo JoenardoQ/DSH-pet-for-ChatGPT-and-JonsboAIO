@@ -6,7 +6,7 @@ test('all three characters retain menu actions, invalid saved IDs recover, and s
  for(const id of ['whale','fish','chatgpt']){
   assert.equal(S.characterAction('skin-'+id),id);
   for(const name of ['待机呼吸休闲','工作状态-思考冒泡','写代码','工作状态-雀跃庆祝','工作状态-垂头叹气冒汗','原地小憩沉眠','点击回应-元气挥手']){
-   const media=S.characterMedia(id,name);const parts=media.path.split('/');
+   const media=S.characterMedia(id,name);const parts=new URL(media.path,'http://127.0.0.1').pathname.split('/');
    const role=parts[2].startsWith('@')?parts[2].slice(1):'fish';
    const folder=media.kind==='gif'?'gif':'webm';
    assert.ok(fs.existsSync(new URL('../assets/pets/'+role+'/'+folder+'/'+decodeURIComponent(parts[3]),import.meta.url)),media.path);

@@ -1,0 +1,80 @@
+{
+  "id": "gaming",
+  "file": "dsh-pet/assets/pets/duo/gif/gaming.gif",
+  "frames": 216,
+  "uniqueFrames": 216,
+  "durationMs": 9000,
+  "bytes": 11665328,
+  "sha256": "15eb8431f1f5b8e6ea5326cb2d41a52a274bd06ab2f5c09508c0bb10f3dedadc",
+  "prompt": "Use case: illustration-story. Production GIF ANIMATION SPRITE SHEET. EXACTLY 4 columns x 4 rows of equal square cells containing 16 consecutive sequential different frames of ONE natural loop in row-major order. Fully transparent background, no grid, NO TEXT/no labels/no watermark. Every cell contains the same TWO FULL BODY HUMAN girls together with fixed camera scale and baseline; safe margins. Ref1: adult elegant silver-white long-haired dragon girl, ivory horns, purple eyes, lavender wings and long tail, white/lilac rose dress. Ref2: ROUND CHIBI HUMAN BLUE-HAIRED MAID, big round face, short cute chubby body, blue eyes, frilly white headband, navy maid dress white apron whale emblem, human hands feet. 'Fat fish' is ONLY her nickname, never an animal! Preserve both appearances in all frames, anime cel-shaded detailed consistent. True articulated animation, progressive joint poses, anticipation/action/follow-through, NOT static copies with whole-body translation or wobble. Scene: Fighting video game tournament: BOTH human girls sit on little stools holding game controllers, facing a small central screen with abstract purple/blue game shapes only (no text/logos). Blue chibi maid enthusiastically leans forward tapping buttons, silver girl tilts controller with intense proud face, brief triumphant fist pump then both reset.",
+  "source": "art-source/duo/keyframes/gaming.png",
+  "mode": "built-in image_gen; mechanical sprite-sheet to GIF export",
+  "role": "duo",
+  "keyframeGrid": [
+    4,
+    4
+  ],
+  "rowBounds": [
+    [
+      0,
+      312
+    ],
+    [
+      312,
+      623
+    ],
+    [
+      623,
+      946
+    ],
+    [
+      946,
+      1245
+    ]
+  ],
+  "componentBarriers": [
+    [
+      312,
+      0,
+      1263
+    ],
+    [
+      623,
+      0,
+      1263
+    ],
+    [
+      946,
+      0,
+      1263
+    ]
+  ],
+  "columnBarriers": [
+    [
+      316,
+      0,
+      1245
+    ],
+    [
+      632,
+      0,
+      1245
+    ],
+    [
+      947,
+      0,
+      1245
+    ]
+  ],
+  "interpolationInput": "original full-body key drawings; measured row gutters; no slicing of legacy GIF fragments",
+  "matteColorRGB": [
+    0,
+    255,
+    0
+  ],
+  "matteMargin": 45,
+  "paletteSource": "opaque pixels of the original key drawings; excludes matte spill",
+  "status": "exported",
+  "keyDrawings": 16,
+  "method": "imagegen articulated key drawings; FFmpeg motion-compensated interpolation to 24fps; transparent GIF encoding"
+}

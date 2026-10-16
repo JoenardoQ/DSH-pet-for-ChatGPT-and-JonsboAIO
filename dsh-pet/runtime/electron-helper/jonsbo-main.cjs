@@ -35,32 +35,39 @@ ipcMain.handle('jonsbo:frame', async (event, payload) => {
       signal: AbortSignal.timeout(1800),
     });
     if (!r.ok) throw new Error('Frame HTTP ' + r.status);
-    if (Date.now() - checkedAt > 3000) {
-      checkedAt = Date.now();
-      const status = await client.status();
-      const usb = status.output.usb;
-      if (['missing-sdk', 'missing-driver', 'busy', 'permission-required', 'error'].includes(usb) && usb !== lastNotice) {
-        lastNotice = usb;
-        const notice = new Notification({
-          title: ({fish:'大肥鱼',whale:'鲸鱼娘',chatgpt:'ChatGPT 娘'}[payload.character]||'桌宠')+' · 乔斯伯屏幕',
-          body: status.output.error || '屏幕需要设置；点击查看连接状态。',
-        });
-        notice.on('click', () => shell.openExternal(runtime.base + '/?source=' + source));
-        notice.show();
-      } else if (usb === 'streaming') lastNotice = '';
-    }
-    const { duet } = await r.json();
-    let control;
-    if (source === 'chatgpt') control = await (await fetch(runtime.base + '/control', { signal: AbortSignal.timeout(1500) })).json();
-    if ((source === 'chatgpt' && control?.desktop === false) || (duet?.active && duet.owner !== source)) win.hide();
-    else if (!win.isVisible()) win.showInactive();
-    return { source, control, duet };
+    return { source };
   } catch (e) {
     retryAt = Date.now() + 3000;
     runtime = undefined;
     console.error('[JONSBO]', e.message);
     return { source, error: e.message };
   }
+});
+
+ipcMain.handle('jonsbo:presence', async (event, payload) => {
+  if (!validSender(event) || !['fish','whale','chatgpt'].includes(payload?.character)) return {error:'Invalid presence'};
+  const win = BrowserWindow.fromWebContents(event.sender);
+  try {
+    if (!runtime) await connect();
+    const response = await fetch(runtime.base + '/presence', {
+      method:'POST',headers:{'Content-Type':'application/json','X-Pet-Client':'1'},
+      body:JSON.stringify({source,character:payload.character,desktop:true,instanceId:process.pid+':'+String(payload.petId||'main'),build:require('../../package.json').version,error:payload.error?String(payload.error).slice(0,300):null}),
+      signal:AbortSignal.timeout(3000),
+    });
+    const status = await response.json();if(!response.ok)throw Error(status.error||'Presence failed');
+    const {duet,control,output}=status;
+    if ((source === 'chatgpt' && control?.desktop === false) || (duet?.active && duet.owner !== source)) win.hide();
+    else if(!win.isVisible())win.showInactive();
+    if(Date.now()-checkedAt>3000){
+      checkedAt=Date.now();
+      if(['missing-sdk','busy','permission-required','error'].includes(output.usb) && lastNotice!==output.usb){
+        lastNotice=output.usb;
+        const notice=new Notification({title:({fish:'大肥鱼',whale:'鲸鱼娘',chatgpt:'ChatGPT 娘'}[payload.character])+' · 乔思伯屏幕',body:output.error||'点击查看连接状态'});
+        notice.on('click',()=>shell.openExternal(runtime.base+'/'));notice.show();
+      }else if(output.usb==='streaming')lastNotice='';
+    }
+    return {...status,source,appearance:{...status.appearance,backgroundUrl:status.appearance?.background && status.appearance.background!=='none'?runtime.base+'/backgrounds/'+status.appearance.background+'.png':null},control:source==='chatgpt'?control:undefined};
+  }catch(error){runtime=undefined;return {source,error:error.message};}
 });
 
 function validSender(event) {
@@ -87,14 +94,17 @@ ipcMain.handle('jonsbo:screen', async (event, enabled) => {
 });
 ipcMain.handle('jonsbo:status', async (event) => {
   if (!validSender(event)) return { error: 'Invalid sender' };
-  try { await connect(); await shell.openExternal(runtime.base + '/?source=' + source); return { ok: true }; }
+  try { await connect(); await shell.openExternal(runtime.base + '/?build=' + require('../../package.json').version); return { ok: true }; }
   catch (error) { return { error: error.message }; }
 });
 ipcMain.handle('jonsbo:shutdown', async (event) => {
   if (!validSender(event) || source !== 'chatgpt') return { error: 'Please close the pet in DSH settings.' };
   try {
     client ||= await import(pathToFileURL(path.join(root, 'bridge/client.mjs')).href);
-    return await client.shutdownBridge();
+    await connect();
+    const response=await fetch(runtime.base+'/pet/close',{method:'POST',headers:{'Content-Type':'application/json','X-Pet-Client':'1'},body:'{}',signal:AbortSignal.timeout(5000)});
+    if(!response.ok)throw Error('关闭桌宠失败');
+    return {ok:true};
   } catch (error) { return { error: error.message }; }
 });
 
@@ -109,3 +119,15 @@ ipcMain.handle('jonsbo:duet', async (event, mode) => {
     return await response.json();
   } catch (error) { return { error: error.message }; }
 });
+
+for(const [channel,route] of [['jonsbo:takeover','/device/takeover'],['jonsbo:source','/device/source'],['jonsbo:background','/appearance']]){
+  ipcMain.handle(channel,async(event,selected)=>{
+    if(!validSender(event)||channel==='jonsbo:source'&&!['dsh','chatgpt'].includes(selected))return {error:'Invalid request'};
+    try{
+      await connect();
+      const response=await fetch(runtime.base+route,{method:'POST',headers:{'Content-Type':'application/json','X-Pet-Client':'1'},body:JSON.stringify(channel==='jonsbo:source'?{source:selected}:channel==='jonsbo:background'?{background:selected}:{}),signal:AbortSignal.timeout(5000)});
+      const value=await response.json();if(!response.ok)throw Error(value.error||'操作失败');
+      return {message:value.message||(channel==='jonsbo:background'?'屏幕背景已更新':selected==='dsh'?'已切到 DSH 桌宠':'已切到 GPT 桌宠')};
+    }catch(error){return {error:error.message};}
+  });
+}

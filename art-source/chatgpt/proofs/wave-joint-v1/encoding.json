@@ -1,0 +1,12 @@
+{
+  "status": "proof-not-approved",
+  "frames": 216,
+  "distinctPixelFrames": 216,
+  "durationMs": 9000,
+  "bytes": 12469648,
+  "method": "fixed imagegen parts atlas, continuous shoulder/elbow/wrist rotations; no optical-flow, crossfade or pose replacement",
+  "limitations": [
+    "rig attachment quality and motion must be judged in playback",
+    "fixed facial expression; this is not the complete expressive animation set"
+  ]
+}

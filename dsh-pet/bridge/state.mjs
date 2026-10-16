@@ -24,7 +24,21 @@ export class Sources {
   constructor(now = Date.now) {
     this.now = now;
     this.frames = new Map();
+    this.presence = new Map();
     this.preferred = null;
+  }
+  touch(source, info) {
+    if (!['chatgpt', 'dsh'].includes(source)) throw new Error('Invalid presence source');
+    this.presence.set(source, { ...info, source, at: this.now() });
+  }
+  connected() {
+    this.current();
+    const result = new Map([...this.frames].map(([key, frame]) => [key, { desktop: true, ...frame }]));
+    for (const [key, info] of this.presence) {
+      if (this.now() - info.at > 6000) this.presence.delete(key);
+      else {const frame=result.get(key);result.set(key,{...frame,...info,character:frame?.at>info.at?frame.character:info.character});}
+    }
+    return result;
   }
   put(source, frame) {
     if (!['chatgpt', 'dsh'].includes(source)) throw new Error('Invalid frame source');

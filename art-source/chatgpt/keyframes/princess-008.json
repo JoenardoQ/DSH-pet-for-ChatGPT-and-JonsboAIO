@@ -1,0 +1,35 @@
+{
+  "id": "princess-008",
+  "sourceAnimation": "余额-袋空如洗",
+  "label": "空空的钱袋也要收好",
+  "category": "小金库",
+  "beats": "拉开钱袋查看，摇摇钱袋确认，轻轻鼓脸，把空袋折好",
+  "durationMs": 9000,
+  "fps": 24,
+  "frames": 216,
+  "size": [
+    640,
+    360
+  ],
+  "status": "exported",
+  "source": "art-source/chatgpt/keyframes/princess-008.png",
+  "prompt": "Use case: illustration-story. Production animation atlas, EXACT 4x4 equal cells, 16 chronological articulated drawings of ONE seamless 9-second action. Reference locks SAME ADULT dragon princess: silver-white long hair, ivory horns, purple eyes, lavender wings and long tail, SAME ornate white and lilac rose long dress, sleeves, corset, accessories and shoes. Proud, caring tsundere princess. Do not change outfit, add apron/crown or redesign. Clean detailed anime cel art. CRITICAL: each FULL BODY figure must be SMALL, occupy only 60% cell height and 75% cell width; generous transparent gutters and padding so COMPLETE horn tips wings tail shoes dress never touch other figures or image edges. Fixed camera and scale. Truly transparent alpha background, no ground/shadows, no opaque backdrop, no text/grid/watermark. Sixteen DIFFERENT progressive poses with small natural changes, preparation/main action/follow-through/recovery and compatible first/last poses. Actual articulated fingers arms face wings tail hair and skirt, not shifted copies or unrelated poses. Action: 空空的钱袋也要收好。拉开钱袋查看，摇摇钱袋确认，轻轻鼓脸，把空袋折好。Do only this action, consistent character and clothing throughout.",
+  "file": "dsh-pet/assets/pets/chatgpt/gif/princess-008.gif",
+  "keyDrawings": 16,
+  "uniqueFrames": 216,
+  "bytes": 8569428,
+  "sha256": "18dc428a210b8518f450811cb80f230d9417e32b14f8e778a9065991d8fc2501",
+  "method": "imagegen articulated key drawings; FFmpeg motion-compensated interpolation to 24fps; transparent GIF encoding",
+  "keyframeGrid": [
+    4,
+    4
+  ],
+  "componentBarriers": [],
+  "matteColorRGB": [
+    0,
+    255,
+    0
+  ],
+  "matteMargin": 45,
+  "paletteSource": "opaque pixels of the original key drawings; excludes matte spill"
+}

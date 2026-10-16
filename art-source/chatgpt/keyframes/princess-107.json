@@ -1,0 +1,36 @@
+{
+  "id": "princess-107",
+  "sourceAnimation": "blink",
+  "label": "悄悄眨眼看向你",
+  "category": "回应",
+  "beats": "缓缓转头，双眼自然闭合再睁开，害羞单眼轻眨，抬手拢好耳侧头发，收手回到原位",
+  "durationMs": 9000,
+  "fps": 24,
+  "frames": 216,
+  "size": [
+    640,
+    360
+  ],
+  "status": "exported",
+  "priority": "core",
+  "source": "art-source/chatgpt/keyframes/princess-107.png",
+  "prompt": "Use case: illustration-story. A production sprite atlas of EXACTLY 4 columns by 4 rows, 16 sequential key drawings of one continuous 9-second animation, row-major. Transparent background. SAME adult dragon princess as reference: silver-white long hair, ivory horns, purple eyes, lavender wings and long tail, ornate white/lilac rose full-length dress, SAME costume accessories sleeves corset hem and shoes in every frame. Proud but caring tsundere personality. Absolutely no outfit or proportion changes, no apron/crown, no labels/grid/watermark. Full body wings tail horn tips shoes entirely visible in EVERY drawing. Leave clear TRANSPARENT SPACE between all 16 figures; fixed camera scale, no zoom, no whole-body bobbing. Detailed clean anime cel art. Generate 16 DIFFERENT progressive articulated drawings of ONLY this action, SMALL natural changes between adjacent frames, preparation/main movement/follow-through/recovery, first and last compatible for looping: 悄悄眨眼看向你。动作设计：缓缓转头，双眼自然闭合再睁开，害羞单眼轻眨，抬手拢好耳侧头发，收手回到原位。Hair, sleeves, skirt, wings and tail have independent delayed motion; hands/arms/face must actually move. Keep costumes fully visible and complete with empty padding around each figure.",
+  "file": "dsh-pet/assets/pets/chatgpt/gif/princess-107.gif",
+  "uniqueFrames": 216,
+  "bytes": 9568453,
+  "sha256": "f112f02bdbbcab1c20854a30205331fc1517d8ae4c42e08858ac2e7a6eae8e8b",
+  "method": "imagegen articulated key drawings; FFmpeg motion-compensated interpolation to 24fps; transparent GIF encoding",
+  "keyframeGrid": [
+    4,
+    4
+  ],
+  "componentBarriers": [],
+  "matteColorRGB": [
+    0,
+    255,
+    0
+  ],
+  "matteMargin": 45,
+  "keyDrawings": 16,
+  "paletteSource": "opaque pixels of the original key drawings; excludes matte spill"
+}

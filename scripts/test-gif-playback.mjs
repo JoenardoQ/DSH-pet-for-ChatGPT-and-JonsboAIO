@@ -36,7 +36,7 @@ try{
  }
  // Exercise the actual JONSBO compositor with the same decoded GIF canvas.
  await page.evaluate(async()=>{
-   await window.player.play('/dsh-pet/assets/pets/chatgpt/gif/working.gif',false,()=>{});
+   await window.player.play('/dsh-pet/assets/pets/chatgpt/gif/princess-013.gif',false,()=>{});
    window.S=PetShared;window.frames=[];
    window.sprites=[{gifPlayer:window.player,videoA:{readyState:0},videoB:{readyState:0},anim:'working',character:'chatgpt',workText:'哼，才没有担心你',applyDuet(){},bubble:null}];
    window.jonsboBridge={async frame(value){window.frames.push(value);return {source:'chatgpt'};}};
@@ -47,12 +47,12 @@ try{
  assert.ok(screen.count>=3);assert.ok(screen.distinct>=3,'USB compositor froze at GIF frame zero');assert.equal(screen.character,'chatgpt');
  const once=await page.evaluate(async()=>{
    let ended=0;await window.player.play('/dsh-pet/assets/pets/duo/gif/boxing.gif',true,()=>ended++);
-   await new Promise(r=>setTimeout(r,5400));window.player.dispose();return ended;
+   await new Promise(r=>setTimeout(r,9800));window.player.dispose();return ended;
  });assert.equal(once,1);assert.deepEqual(errors,[]);
  // A same-GIF work update must retain the current frame rather than jump to zero.
  const continuing=await page.evaluate(async()=>{
   window.player=new PetShared.GifPlayer(document.querySelector('#stage'));
-  const url='/dsh-pet/assets/pets/chatgpt/gif/working.gif';
+  const url='/dsh-pet/assets/pets/chatgpt/gif/princess-013.gif';
   await window.player.play(url,false,()=>{});await new Promise(r=>setTimeout(r,650));
   const before=window.player.canvas.toDataURL();await window.player.play(url,false,()=>{});
   const same=before===window.player.canvas.toDataURL();window.player.stop();return same;

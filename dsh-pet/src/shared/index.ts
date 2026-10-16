@@ -25,5 +25,6 @@ export * from './state'; // 轮询统一状态 S 的客户端侧纯逻辑（拉�
 export * from './tooltip'; // 悬浮提示（替代原生 title 属性：class + 样式 + 翻转判据，两端共用同一份）
 
 export * from './characters';
+export * from './size';
 export * from './gif-player';
 export * from './duets';

@@ -34,7 +34,7 @@ export interface MenuLeaf {
    * 全部桌面宠物窗口按最新配置重建——浏览器端刷新页面即可，不注入此项）。
    * 手动触发均不受 whisperEnabled 影响（该字段只关自动周期轮询） */
   action?:
-    'open-site' | 'show-balance' | 'whisper' | 'chat' | 'home' | 'reload' | 'skin-whale' | 'skin-fish' | 'skin-chatgpt';
+    'open-site' | 'show-balance' | 'whisper' | 'chat' | 'home' | 'reload' | 'skin-whale' | 'skin-fish' | 'skin-chatgpt' | 'size-up' | 'size-down' | 'size-reset';
 }
 
 /** 分支：带子菜单的项 */

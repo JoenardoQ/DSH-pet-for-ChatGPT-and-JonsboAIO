@@ -1,6 +1,6 @@
 {
   "name": "dsh-pet",
-  "version": "1.0.1",
+  "version": "1.1.1",
   "type": "module",
   "license": "MIT",
   "engines": {
@@ -101,7 +101,8 @@
     ".mcp.json",
     ".codex-plugin",
     ".agents/plugins/marketplace.json",
-    "docs/installation.md",
-    "THIRD_PARTY_NOTICES.md"
+    "THIRD_PARTY_NOTICES.md",
+    "docs",
+    "dsh-pet/assets/screen-backgrounds"
   ]
 }

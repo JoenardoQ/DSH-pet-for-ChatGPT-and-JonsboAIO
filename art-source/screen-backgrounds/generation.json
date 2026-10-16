@@ -1,0 +1,38 @@
+[
+  {
+    "id": "starlit-terrace",
+    "label": "星空露台",
+    "prompt": "Use case: illustration-story. Create a polished square anime desktop-pet display BACKGROUND ONLY, no people, no pets, no silhouettes of characters, no text, no logo, no border. 1:1 square composition. Rich hand-painted environment, clean detailed anime visual novel background with soft cel-painterly lighting. Intended for a small 480x480 JONSBO screen behind white/lilac dragon princess and blue-haired maid: keep middle and lower-middle quiet, readable, moderately dark with low visual clutter; concentrate detailed elements at sides and corners; complete scene to all four edges. Calm elegant warm feeling, no strong bloom or blur. A moonlit palace garden terrace under a deep indigo star-filled sky. Slim pale-stone balustrades along far left and right, delicate violet roses in bottom corners, distant silver mountain silhouettes and soft lavender moonlight, calm empty central stone terrace. No huge bright moon in center.",
+    "file": "dsh-pet/assets/screen-backgrounds/starlit-terrace.png",
+    "bytes": 2729238,
+    "sha256": "d1f271c68312b2bb3a738279cafee9359b776d9cd0d4262843294771a5d74f2a",
+    "method": "built-in image_gen; opaque square background, original pixels preserved"
+  },
+  {
+    "id": "afternoon-garden",
+    "label": "午后花园",
+    "prompt": "Use case: illustration-story. Create a polished square anime desktop-pet display BACKGROUND ONLY, no people, no pets, no silhouettes of characters, no text, no logo, no border. 1:1 square composition. Rich hand-painted environment, clean detailed anime visual novel background with soft cel-painterly lighting. Intended for a small 480x480 JONSBO screen behind white/lilac dragon princess and blue-haired maid: keep middle and lower-middle quiet, readable, moderately dark with low visual clutter; concentrate detailed elements at sides and corners; complete scene to all four edges. Calm elegant warm feeling, no strong bloom or blur. A tranquil leafy rose garden in late afternoon, soft sage-green foliage, lilac and pale ivory flowers clustered at left and right edges, a shaded open stone path in center foreground, dappled warm sunlight behind a distant garden arch. Natural depth, central foreground in cool shade for pale character readability.",
+    "file": "dsh-pet/assets/screen-backgrounds/afternoon-garden.png",
+    "bytes": 2888585,
+    "sha256": "b5b5f5ffafed2769a1a8288c1ddbc244bda8614f5ebd0d0da443835dfa00b83b",
+    "method": "built-in image_gen; opaque square background, original pixels preserved"
+  },
+  {
+    "id": "warm-library",
+    "label": "暖光书房",
+    "prompt": "Use case: illustration-story. Create a polished square anime desktop-pet display BACKGROUND ONLY, no people, no pets, no silhouettes of characters, no text, no logo, no border. 1:1 square composition. Rich hand-painted environment, clean detailed anime visual novel background with soft cel-painterly lighting. Intended for a small 480x480 JONSBO screen behind white/lilac dragon princess and blue-haired maid: keep middle and lower-middle quiet, readable, moderately dark with low visual clutter; concentrate detailed elements at sides and corners; complete scene to all four edges. Calm elegant warm feeling, no strong bloom or blur. A cozy elegant study with walnut bookshelves on both sides, warm brass lamp near upper right, softly lit window on upper left, small potted plants at corners and a quiet open central carpet area. Subtle burgundy, warm wood and muted plum tones; no writing or legible book titles.",
+    "file": "dsh-pet/assets/screen-backgrounds/warm-library.png",
+    "bytes": 2200195,
+    "sha256": "37266690f7a9c403a2def3c402f93e9de08f0440304cfbb29ceff7be1a204c7a",
+    "method": "built-in image_gen; opaque square background, original pixels preserved"
+  },
+  {
+    "id": "sunset-coast",
+    "label": "日落海岸",
+    "prompt": "Use case: illustration-story. Create a polished square anime desktop-pet display BACKGROUND ONLY, no people, no pets, no silhouettes of characters, no text, no logo, no border. 1:1 square composition. Rich hand-painted environment, clean detailed anime visual novel background with soft cel-painterly lighting. Intended for a small 480x480 JONSBO screen behind white/lilac dragon princess and blue-haired maid: keep middle and lower-middle quiet, readable, moderately dark with low visual clutter; concentrate detailed elements at sides and corners; complete scene to all four edges. Calm elegant warm feeling, no strong bloom or blur. A peaceful seaside overlook at sunset, pastel peach and mauve sky, small sun near upper-left horizon, calm blue-purple ocean, distant coastal cliffs at edges and a wide shaded sandy-stone foreground with sparse seaside flowers at corners. Uncluttered center, purple dusk tones rather than harsh orange glare.",
+    "file": "dsh-pet/assets/screen-backgrounds/sunset-coast.png",
+    "bytes": 2544805,
+    "sha256": "7fc11a6c5fae844f84cf16662f66ec40979db7102c168c7915ce14de8af55e26",
+    "method": "built-in image_gen; opaque square background, original pixels preserved"
+  }
+]

@@ -1,0 +1,35 @@
+{
+  "id": "princess-077",
+  "sourceAnimation": "点击回应-傲娇生气",
+  "label": "哼，才没有生气",
+  "category": "回应",
+  "beats": "抱臂鼓起脸颊，轻跺脚，侧过脸又悄悄看回用户，终于软下眉眼",
+  "durationMs": 9000,
+  "fps": 24,
+  "frames": 216,
+  "size": [
+    640,
+    360
+  ],
+  "status": "exported",
+  "source": "art-source/chatgpt/keyframes/princess-077.png",
+  "prompt": "Use case: illustration-story. EXACT 4 columns x 4 rows, 16 progressive articulated key drawings of ONE continuous 9-second action, row-major. Reference locks SAME ADULT dragon princess: silver-white long hair, ivory horns, purple eyes, lavender wings/long tail, SAME ornate white and lilac rose long dress and accessories, sleeves corset hem shoes. Proud but caring tsundere personality. No outfit/proportion changes, apron, crown, text, labels, grid, watermark. Clean detailed anime cel art. TRUE TRANSPARENT ALPHA BACKGROUND, no opaque backdrop or ground shadows. Full character must be SMALL in EVERY cell, no more than 65% cell height/75% width, huge transparent gutters so horn tips wing tips tail shoes hem NEVER touch neighbours or edges. Fixed camera/scale. 16 DIFFERENT sequential natural poses, small changes between adjacent frames, anticipation/main movement/follow-through/recovery, matching first/last for seamless looping. No repeated shifted/static images or whole-body bob. Action: 哼，才没有生气。抱臂鼓起脸颊，轻跺脚，侧过脸又悄悄看回用户，终于软下眉眼。Hands, arms, expression, wings, tail, hair and skirt articulate independently. Always remain the SAME human-shaped dragon princess in the SAME dress.",
+  "keyframeGrid": [
+    4,
+    4
+  ],
+  "componentBarriers": [],
+  "matteColorRGB": [
+    0,
+    255,
+    0
+  ],
+  "matteMargin": 45,
+  "file": "dsh-pet/assets/pets/chatgpt/gif/princess-077.gif",
+  "keyDrawings": 16,
+  "uniqueFrames": 216,
+  "bytes": 7249386,
+  "sha256": "047ad47f4269112231ade9da22d85e5775a4ad82222d9020a383865cd89a853d",
+  "method": "imagegen articulated key drawings; FFmpeg motion-compensated interpolation to 24fps; transparent GIF encoding",
+  "paletteSource": "opaque pixels of the original key drawings; excludes matte spill"
+}

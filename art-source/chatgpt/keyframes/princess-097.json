@@ -1,0 +1,35 @@
+{
+  "id": "princess-097",
+  "sourceAnimation": "被落叶淹没",
+  "label": "被落叶淹没",
+  "category": "日常",
+  "beats": "先为“被落叶淹没”做好自然准备，以完整连贯的小动作完成这件事，露出符合傲娇龙公主的微表情，缓缓恢复起始姿势；手臂、手指、龙翼、龙尾、长发和裙摆有独立的跟随动作",
+  "durationMs": 9000,
+  "fps": 24,
+  "frames": 216,
+  "size": [
+    640,
+    360
+  ],
+  "status": "exported",
+  "source": "art-source/chatgpt/keyframes/princess-097.png",
+  "prompt": "Use case: illustration-story. EXACT 4 columns x 4 rows, 16 progressive articulated key drawings of ONE continuous 9-second action, row-major. Reference locks SAME ADULT dragon princess: silver-white long hair, ivory horns, purple eyes, lavender wings/long tail, SAME ornate white and lilac rose long dress and accessories, sleeves corset hem shoes. Proud but caring tsundere personality. No outfit/proportion changes, apron, crown, text, labels, grid, watermark. Clean detailed anime cel art. TRUE TRANSPARENT ALPHA BACKGROUND, no opaque backdrop or ground shadows. Full character must be SMALL in EVERY cell, no more than 65% cell height/75% width, huge transparent gutters so horn tips wing tips tail shoes hem NEVER touch neighbours or edges. Fixed camera/scale. 16 DIFFERENT sequential natural poses, small changes between adjacent frames, anticipation/main movement/follow-through/recovery, matching first/last for seamless looping. No repeated shifted/static images or whole-body bob. Action: 被落叶淹没。先为“被落叶淹没”做好自然准备，以完整连贯的小动作完成这件事，露出符合傲娇龙公主的微表情，缓缓恢复起始姿势；手臂、手指、龙翼、龙尾、长发和裙摆有独立的跟随动作。Hands, arms, expression, wings, tail, hair and skirt articulate independently. Always remain the SAME human-shaped dragon princess in the SAME dress.",
+  "keyframeGrid": [
+    4,
+    4
+  ],
+  "componentBarriers": [],
+  "matteColorRGB": [
+    0,
+    255,
+    0
+  ],
+  "matteMargin": 45,
+  "file": "dsh-pet/assets/pets/chatgpt/gif/princess-097.gif",
+  "keyDrawings": 16,
+  "uniqueFrames": 216,
+  "bytes": 5498735,
+  "sha256": "eeb77edcaffa404b4abea7a0b78cf95322dfcda61b47405454e31a909f1c47bd",
+  "method": "imagegen articulated key drawings; FFmpeg motion-compensated interpolation to 24fps; transparent GIF encoding",
+  "paletteSource": "opaque pixels of the original key drawings; excludes matte spill"
+}

@@ -32,8 +32,8 @@ test('all eight scenes rotate, manual selection/off persists and reconnect resta
   const sources=new Sources(()=>now), duets=new Duets({now:()=>now,persist:v=>persisted.push(v)});
   const state=()=>{sources.put('dsh',{character:'fish'});sources.put('chatgpt',{character:'chatgpt'});return duets.snapshot(sources,{visible:true,desktop:true});};
   assert.equal(state().action,ACTIONS[0]);
-  for(let i=1;i<8;i++){now=i*16000;assert.equal(state().action,ACTIONS[i]);}
-  duets.set('cafe'); now+=16000; assert.equal(state().action,'cafe');
+  for(let i=1;i<8;i++){now=i*9000;assert.equal(state().action,ACTIONS[i]);}
+  duets.set('cafe'); now+=9000; assert.equal(state().action,'cafe');
   duets.set('off'); assert.equal(state().active,false);
   duets.set('auto'); assert.equal(state().action,'boxing');
   assert.deepEqual(persisted,['cafe','off','auto']);

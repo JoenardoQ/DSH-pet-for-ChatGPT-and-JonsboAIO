@@ -121,36 +121,55 @@ def elevated_close_vendor(pid, result_file):
     """One explicit UI request, one UAC prompt; only the verified vendor PID."""
     quote = lambda value: "'" + str(value).replace("'", "''") + "'"
     script = (
-        "$ErrorActionPreference='Stop';"
+        "$ErrorActionPreference='Stop';try{"
         f"$p=Get-Process -Id {int(pid)};"
         "if([IO.Path]::GetFileName($p.Path) -ine 'JONSBO-AIO.exe'){throw 'Unexpected process'};"
         "$exe=$p.Path;Stop-Process -InputObject $p -Force -ErrorAction Stop;"
         f"[IO.File]::WriteAllText({quote(result_file)},($exe|ConvertTo-Json),[Text.UTF8Encoding]::new($false))"
+        "}catch{"
+        f"[IO.File]::WriteAllText({quote(result_file)},(@{{ok=$false;error=$_.Exception.Message}}|ConvertTo-Json),[Text.UTF8Encoding]::new($false));exit 1}}"
     )
     encoded = base64.b64encode(script.encode('utf-16le')).decode('ascii')
-    launcher = (
-        "$ErrorActionPreference='Stop';try{"
-        f"$p=Start-Process powershell.exe -Verb RunAs -WindowStyle Hidden -PassThru -Wait -ArgumentList '-NoProfile -NonInteractive -EncodedCommand {encoded}';"
-        "exit $p.ExitCode}catch{exit 1}"
-    )
+    class ShellInfo(C.Structure):
+        _fields_=[('cbSize',W.DWORD),('fMask',C.c_ulong),('hwnd',W.HWND),('lpVerb',W.LPCWSTR),('lpFile',W.LPCWSTR),('lpParameters',W.LPCWSTR),('lpDirectory',W.LPCWSTR),('nShow',C.c_int),('hInstApp',W.HINSTANCE),('lpIDList',C.c_void_p),('lpClass',W.LPCWSTR),('hkeyClass',W.HKEY),('dwHotKey',W.DWORD),('hIcon',W.HANDLE),('hProcess',W.HANDLE)]
+    shell=C.WinDLL('shell32',use_last_error=True);kernel=C.WinDLL('kernel32',use_last_error=True)
+    shell.ShellExecuteExW.argtypes=[C.POINTER(ShellInfo)];shell.ShellExecuteExW.restype=W.BOOL
+    kernel.WaitForSingleObject.argtypes=[W.HANDLE,W.DWORD];kernel.CloseHandle.argtypes=[W.HANDLE]
+    info=ShellInfo();info.cbSize=C.sizeof(info);info.fMask=0x40;info.lpVerb='runas'
+    info.lpFile=str(Path(os.environ.get('SystemRoot',r'C:\Windows'))/'System32/WindowsPowerShell/v1.0/powershell.exe')
+    info.lpParameters='-NoProfile -NonInteractive -EncodedCommand '+encoded;info.nShow=0
+    if not shell.ShellExecuteExW(C.byref(info)):
+        code=C.get_last_error()
+        if code==1223:raise PermissionError('Windows 权限确认已取消；再次点击接管才会重试。')
+        raise OSError(code,'Windows 无法打开权限确认：'+C.FormatError(code))
     try:
-        result = subprocess.run(['powershell.exe','-NoProfile','-NonInteractive','-EncodedCommand',
-            base64.b64encode(launcher.encode('utf-16le')).decode('ascii')],
-            capture_output=True,creationflags=0x08000000,timeout=60)
-        if result.returncode == 0 and result_file.is_file():
-            return json.loads(result_file.read_text(encoding='utf-8-sig'))
-    except (OSError, ValueError, subprocess.TimeoutExpired):
-        pass
-    return None
+        if kernel.WaitForSingleObject(info.hProcess,60000)==258:
+            raise TimeoutError('Windows 权限确认等待超时；请确认系统窗口后重试连接。')
+        if result_file.is_file():
+            result=json.loads(result_file.read_text(encoding='utf-8-sig'))
+            if isinstance(result,dict):raise PermissionError('管理员接管失败：'+str(result.get('error','未知原因')))
+            return result
+        raise PermissionError('管理员命令未能结束官方程序；可从 JONSBO-AIO 托盘退出后重连。')
+    finally:kernel.CloseHandle(info.hProcess)
 
 
 class DeviceSession:
-    def __init__(self,config,data_dir):
+    def __init__(self,config,data_dir,progress=None):
         self.config=config
+        self.progress=progress or (lambda **value:None)
+        self.takeover_error = None
+        self.restore_attempted = False
         self.marker=Path(data_dir)/'display-owner.json'
         self.request_file = Path(data_dir)/'takeover-request.txt'
         self.takeover_request = self.request_file.read_text(encoding='utf8') if self.request_file.exists() else None
         self.owned={}
+        result_file=Path(data_dir)/'takeover-result.json'
+        if result_file.exists():
+            try:
+                result=json.loads(result_file.read_text(encoding='utf-8-sig'))
+                if isinstance(result,dict) and result.get('request')==self.takeover_request:
+                    self.takeover_error=result.get('error')
+            except (ValueError,OSError):pass
         if self.marker.exists():
             try:self.owned=json.loads(self.marker.read_text(encoding='utf-8'))
             except (ValueError,OSError):pass
@@ -188,6 +207,7 @@ class DeviceSession:
             request = self.config.get('takeoverRequest')
             elevate = bool(request and request != self.takeover_request)
             if elevate:
+                self.takeover_error = None
                 self.request_file.parent.mkdir(parents=True,exist_ok=True)
                 self.request_file.write_text(str(request),encoding='utf8')
                 self.takeover_request = request
@@ -198,14 +218,21 @@ class DeviceSession:
                 if not stopped and elevate:
                     result_file = self.marker.parent/'takeover-result.json'
                     result_file.unlink(missing_ok=True)
-                    executable = elevated_close_vendor(process['pid'],result_file)
+                    self.progress(usb='requesting-permission',error='请在 Windows 权限窗口中允许退出官方程序；取消后不会反复弹窗。')
+                    try:executable = elevated_close_vendor(process['pid'],result_file)
+                    except (OSError,TimeoutError,ValueError) as error:
+                        self.takeover_error = str(error)
+                        result_file.write_text(json.dumps({'ok':False,'error':self.takeover_error,'request':request}),encoding='utf8')
+                        return {'usb':'permission-required','error':self.takeover_error}
                     stopped = bool(executable and Path(executable).name.lower()==VENDOR_IMAGE
                         and not any(p['pid']==process['pid'] for p in vendor_processes()))
                 if not stopped:
                     return {'usb':'permission-required' if self.config.get('forceTakeover') else 'busy',
-                        'error':'官方程序仍在占用屏幕。点击“以管理员权限接管屏幕”，并在 Windows 权限窗口中允许；取消后不会反复弹窗。' if self.config.get('forceTakeover') else '官方程序正在占用屏幕；点击“接管屏幕”或从托盘退出。'}
+                        'error':self.takeover_error or '官方程序仍在占用屏幕。点击“以管理员权限接管屏幕”，并在 Windows 权限窗口中允许；取消后不会反复弹窗。' if self.config.get('forceTakeover') else '官方程序正在占用屏幕；点击“接管屏幕”或从托盘退出。'}
                 self.owned['vendor']=executable;self.save()
         elif processes:return {'usb':'busy','error':'官方程序正在占用屏幕；自动接管已关闭。'}
+        self.restore_attempted=False
+        if self.owned.pop('restoreError',None):self.save()
         return {'usb':'ready','devices':devices,'sdkDll':str(sdk)}
 
     def _restore(self):
@@ -213,8 +240,17 @@ class DeviceSession:
         if self.config.get('restoreOnExit',True):
             executable=self.owned.get('vendor')
             if executable and Path(executable).is_file() and Path(executable).name.lower()==VENDOR_IMAGE and not vendor_processes():
+                if self.restore_attempted and self.owned.get('restoreError'):return
                 startup=subprocess.STARTUPINFO();startup.dwFlags|=subprocess.STARTF_USESHOWWINDOW;startup.wShowWindow=0
-                subprocess.Popen([executable],cwd=str(Path(executable).parent),startupinfo=startup,creationflags=0x00000008,stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+                try:
+                    subprocess.Popen([executable],cwd=str(Path(executable).parent),startupinfo=startup,creationflags=0x00000008,stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+                except OSError as error:
+                    if getattr(error,'winerror',None)!=740:raise
+                    if self.restore_attempted:return
+                    self.restore_attempted=True
+                    try:os.startfile(executable,operation='runas',cwd=str(Path(executable).parent),show_cmd=0)
+                    except OSError as denied:
+                        self.owned['restoreError']=str(denied);self.save();return
             # Older legacy markers must not re-enable another pet's output.
         self.owned={}
         self.marker.unlink(missing_ok=True)

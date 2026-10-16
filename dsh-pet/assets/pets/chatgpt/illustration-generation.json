@@ -1,0 +1,299 @@
+[
+  {
+    "name": "一起吃饭吧",
+    "source": "dsh-pet/assets/pets/chatgpt/gif/princess-035.gif",
+    "frameIndex": 94,
+    "size": [
+      512,
+      512
+    ],
+    "sha256": "368f91cab9ccad5db1cbaec747ddb36c37d03b230b068a9d29c787e9bccfbf00",
+    "method": "poster extracted from the matching new dragon-princess action; no blue maid assets"
+  },
+  {
+    "name": "Token交给我保管",
+    "source": "dsh-pet/assets/pets/chatgpt/gif/princess-010.gif",
+    "frameIndex": 108,
+    "size": [
+      512,
+      512
+    ],
+    "sha256": "afe6d8abc493160d2252639ca3afa06b38c427ceb0f5d697fcab118c95146b0b",
+    "method": "poster extracted from the matching new dragon-princess action; no blue maid assets"
+  },
+  {
+    "name": "想看见更多",
+    "source": "dsh-pet/assets/pets/chatgpt/gif/princess-003.gif",
+    "frameIndex": 122,
+    "size": [
+      512,
+      512
+    ],
+    "sha256": "e164d0d781a9a461ee56d1b95dcfcc6902ade068a41045861b7601fa1c68603a",
+    "method": "poster extracted from the matching new dragon-princess action; no blue maid assets"
+  },
+  {
+    "name": "我会照顾你的",
+    "source": "dsh-pet/assets/pets/chatgpt/gif/princess-066.gif",
+    "frameIndex": 108,
+    "size": [
+      512,
+      512
+    ],
+    "sha256": "e9b86e82f3462905fb4a54b4b1eb5d701110b603829bfd4a7cef2d0b3dacaa65",
+    "method": "poster extracted from the matching new dragon-princess action; no blue maid assets"
+  },
+  {
+    "name": "做得很棒",
+    "source": "dsh-pet/assets/pets/chatgpt/gif/princess-057.gif",
+    "frameIndex": 122,
+    "size": [
+      512,
+      512
+    ],
+    "sha256": "fd3a2dd55ed92634ed7b1665602c641799ee42c3f1e49205af1057d81b9d8067",
+    "method": "poster extracted from the matching new dragon-princess action; no blue maid assets"
+  },
+  {
+    "name": "压力有点大",
+    "source": "dsh-pet/assets/pets/chatgpt/gif/princess-053.gif",
+    "frameIndex": 135,
+    "size": [
+      512,
+      512
+    ],
+    "sha256": "ba66ccd2a62d7eeee6bdd23a8de29194cf728105ed030083aa3238fa3616db2a",
+    "method": "poster extracted from the matching new dragon-princess action; no blue maid assets"
+  },
+  {
+    "name": "你好呀",
+    "source": "dsh-pet/assets/pets/chatgpt/gif/princess-049.gif",
+    "frameIndex": 108,
+    "size": [
+      512,
+      512
+    ],
+    "sha256": "fd9bd063efa73c611627d400ce24253bc81bb26ac2d100a62e603c46b48d25ad",
+    "method": "poster extracted from the matching new dragon-princess action; no blue maid assets"
+  },
+  {
+    "name": "吃饱好满足",
+    "source": "dsh-pet/assets/pets/chatgpt/gif/princess-048.gif",
+    "frameIndex": 135,
+    "size": [
+      512,
+      512
+    ],
+    "sha256": "95063cdc0ed01b204a7322d50a209f96172e6b5285e746e4bedfe9d439423f84",
+    "method": "poster extracted from the matching new dragon-princess action; no blue maid assets"
+  },
+  {
+    "name": "无语凝望",
+    "source": "dsh-pet/assets/pets/chatgpt/gif/princess-077.gif",
+    "frameIndex": 148,
+    "size": [
+      512,
+      512
+    ],
+    "sha256": "03aa1137ed74ebd8efc509374e3494ef05ef7d3b5438e44b341c3198094907cf",
+    "method": "poster extracted from the matching new dragon-princess action; no blue maid assets"
+  },
+  {
+    "name": "拒绝恶意程序",
+    "source": "dsh-pet/assets/pets/chatgpt/gif/princess-053.gif",
+    "frameIndex": 162,
+    "size": [
+      512,
+      512
+    ],
+    "sha256": "2e6a4006d5e46e08ebb0c185164080b8b81797adf0b869dd38a678bd9efc477d",
+    "method": "poster extracted from the matching new dragon-princess action; no blue maid assets"
+  },
+  {
+    "name": "这个符号什么意思",
+    "source": "dsh-pet/assets/pets/chatgpt/gif/princess-076.gif",
+    "frameIndex": 148,
+    "size": [
+      512,
+      512
+    ],
+    "sha256": "99dbddfa2996948adb8ae85b9a584bf3637f5b84a6dd573e0a78e2c97bc0649e",
+    "method": "poster extracted from the matching new dragon-princess action; no blue maid assets"
+  },
+  {
+    "name": "认真思考中",
+    "source": "dsh-pet/assets/pets/chatgpt/gif/princess-055.gif",
+    "frameIndex": 122,
+    "size": [
+      512,
+      512
+    ],
+    "sha256": "e64b38bcc0226cfac09672952fbfe3c304ce5a64c3582c15898bda0524f06713",
+    "method": "poster extracted from the matching new dragon-princess action; no blue maid assets"
+  },
+  {
+    "name": "好消息来了",
+    "source": "dsh-pet/assets/pets/chatgpt/gif/princess-057.gif",
+    "frameIndex": 162,
+    "size": [
+      512,
+      512
+    ],
+    "sha256": "4848df413acebdc6b9858cd9f9a781fb1ec9f3e0d2c2c6f77f80c8154212b654",
+    "method": "poster extracted from the matching new dragon-princess action; no blue maid assets"
+  },
+  {
+    "name": "惊喜送达",
+    "source": "dsh-pet/assets/pets/chatgpt/gif/princess-063.gif",
+    "frameIndex": 122,
+    "size": [
+      512,
+      512
+    ],
+    "sha256": "9803df6b7f9917d9bfc2c0b09b9b2f3be8d8fbdc5904673491707f5800a53c11",
+    "method": "poster extracted from the matching new dragon-princess action; no blue maid assets"
+  },
+  {
+    "name": "不小心删错了",
+    "source": "dsh-pet/assets/pets/chatgpt/gif/princess-053.gif",
+    "frameIndex": 68,
+    "size": [
+      512,
+      512
+    ],
+    "sha256": "20a14979d2c671e5f43772c555573fa2af39d0449ab45243c9df94d58f8988aa",
+    "method": "poster extracted from the matching new dragon-princess action; no blue maid assets"
+  },
+  {
+    "name": "就吃一碗",
+    "source": "dsh-pet/assets/pets/chatgpt/gif/princess-035.gif",
+    "frameIndex": 162,
+    "size": [
+      512,
+      512
+    ],
+    "sha256": "9e0f87bd828a731a5e93d9beaaae68746b1239faea589bf9cf08c32fdc25693e",
+    "method": "poster extracted from the matching new dragon-princess action; no blue maid assets"
+  },
+  {
+    "name": "理直气壮",
+    "source": "dsh-pet/assets/pets/chatgpt/gif/princess-077.gif",
+    "frameIndex": 94,
+    "size": [
+      512,
+      512
+    ],
+    "sha256": "b0565ab1c106b6c20273963adf2571da017cf41543b5cfca67e00a30807a6a8a",
+    "method": "poster extracted from the matching new dragon-princess action; no blue maid assets"
+  },
+  {
+    "name": "该更新啦",
+    "source": "dsh-pet/assets/pets/chatgpt/gif/princess-056.gif",
+    "frameIndex": 135,
+    "size": [
+      512,
+      512
+    ],
+    "sha256": "e734ff1a9bbe9ff2ec1b30862c5464bb9fb3536b63869f67fa772c80d1e5a962",
+    "method": "poster extracted from the matching new dragon-princess action; no blue maid assets"
+  },
+  {
+    "name": "累得灵魂出窍",
+    "source": "dsh-pet/assets/pets/chatgpt/gif/princess-046.gif",
+    "frameIndex": 135,
+    "size": [
+      512,
+      512
+    ],
+    "sha256": "2dceda190b578367b196c5a2776b865284537f309e40b46cef1fdd9bf4cd243e",
+    "method": "poster extracted from the matching new dragon-princess action; no blue maid assets"
+  },
+  {
+    "name": "安静睡一会",
+    "source": "dsh-pet/assets/pets/chatgpt/gif/princess-018.gif",
+    "frameIndex": 108,
+    "size": [
+      512,
+      512
+    ],
+    "sha256": "e59b76a5ee7cbd384229774de8da387c124c74ed1f0dc6a3fb32ac4801363157",
+    "method": "poster extracted from the matching new dragon-princess action; no blue maid assets"
+  },
+  {
+    "name": "静电小警告",
+    "source": "dsh-pet/assets/pets/chatgpt/gif/princess-106.gif",
+    "frameIndex": 108,
+    "size": [
+      512,
+      512
+    ],
+    "sha256": "18ad9a4f119cece38fb33205c931b27ec507eb029e38c8241ec12245f7e5d245",
+    "method": "poster extracted from the matching new dragon-princess action; no blue maid assets"
+  },
+  {
+    "name": "替你抱不平",
+    "source": "dsh-pet/assets/pets/chatgpt/gif/princess-077.gif",
+    "frameIndex": 54,
+    "size": [
+      512,
+      512
+    ],
+    "sha256": "eb199dbe8d19186157e5f72c3191282c583f6e018e3742c95cf851f2d9305b63",
+    "method": "poster extracted from the matching new dragon-princess action; no blue maid assets"
+  },
+  {
+    "name": "认真践行开源",
+    "source": "dsh-pet/assets/pets/chatgpt/gif/princess-054.gif",
+    "frameIndex": 108,
+    "size": [
+      512,
+      512
+    ],
+    "sha256": "2280dee83d37b41925e5e4a9c0d0cb45eb51f3851a40ffd858fde7ed414c7c8d",
+    "method": "poster extracted from the matching new dragon-princess action; no blue maid assets"
+  },
+  {
+    "name": "陪你轻松聊聊",
+    "source": "dsh-pet/assets/pets/chatgpt/gif/princess-087.gif",
+    "frameIndex": 148,
+    "size": [
+      512,
+      512
+    ],
+    "sha256": "37ad86cb74cc9232bd1cbbcd3d65b1ff3393e678f32a3c6a395d2ca785b91922",
+    "method": "poster extracted from the matching new dragon-princess action; no blue maid assets"
+  },
+  {
+    "name": "可以分享资源吗",
+    "source": "dsh-pet/assets/pets/chatgpt/gif/princess-056.gif",
+    "frameIndex": 162,
+    "size": [
+      512,
+      512
+    ],
+    "sha256": "85d2a6a19c4ec011b19ad088154b35296775ec01b45450983d219b7ffcb1c627",
+    "method": "poster extracted from the matching new dragon-princess action; no blue maid assets"
+  },
+  {
+    "name": "这道题有点难",
+    "source": "dsh-pet/assets/pets/chatgpt/gif/princess-076.gif",
+    "frameIndex": 176,
+    "size": [
+      512,
+      512
+    ],
+    "sha256": "1c79d0a3caec690c80f4b53cb174e6986cd7f629cd44c4991fc2a7dab192c184",
+    "method": "poster extracted from the matching new dragon-princess action; no blue maid assets"
+  },
+  {
+    "name": "元气问候",
+    "source": "dsh-pet/assets/pets/chatgpt/gif/princess-078.gif",
+    "frameIndex": 126,
+    "size": [
+      512,
+      512
+    ],
+    "sha256": "afcc4bfd947e971ac4c6db7f5fb5bc35239f94277a7a85f2cbd13489fdbccbd0",
+    "method": "poster extracted from the matching new dragon-princess action; no blue maid assets"
+  }
+]

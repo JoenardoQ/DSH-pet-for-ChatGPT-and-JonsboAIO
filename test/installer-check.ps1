@@ -26,15 +26,20 @@ try{
  $broken=Join-Path $temp 'broken';New-Item -ItemType Directory -Path $broken | Out-Null;Copy-Item -LiteralPath (Join-Path $Root 'package.json') -Destination $broken
  Reject {Read-Package $broken} 'incomplete archive accepted'
  $script:commands=New-Object Collections.ArrayList
- function Run-Command([string]$Exe,[string[]]$Arguments){[void]$script:commands.Add(@{exe=$Exe;arguments=$Arguments})}
+ function Run-Command([string]$Exe,[string[]]$Arguments,[switch]$Capture){[void]$script:commands.Add(@{exe=$Exe;arguments=$Arguments});if($Capture){return '{"marketplaces":[]}'}}
  function Get-Command {param([string]$Name) return @{Source='C:\fixture host\codex.exe'}}
  $script:DshDesktop=Join-Path $temp 'DSH program';New-Item -ItemType Directory -Path $script:DshDesktop | Out-Null;[IO.File]::WriteAllText((Join-Path $script:DshDesktop 'DeepSeek Harness.exe'),'fixture')
  Install-Package 'DSH' $resolved
  Install-Package 'Codex' $resolved
- Check ($commands.Count -eq 2) 'unexpected host commands'
- Check (($commands[0].arguments -join '|') -eq ('--expose-internals|'+(Join-Path $DshDesktop 'resources\app.asar\dsh\node_modules\@deepseek-ai\dsh-desktop-host\lib\cli.js')+'|plugin|--profile|desktop|add|'+$resolved)) 'wrong DSH installation command'
- Check (($commands[1].arguments -join '|') -eq ('plugin|marketplace|add|'+$resolved)) 'wrong Codex registration command'
- Check ($commands[1].arguments -notcontains 'add-plugin') 'installer should only register source'
+ Check ($commands.Count -eq 4) 'unexpected host commands'
+ Check (($commands[0].arguments -join '|') -eq ('--expose-internals|'+(Join-Path $DshDesktop 'resources\app.asar\dsh\node_modules\@deepseek-ai\dsh-desktop-host\lib\cli.js')+'|plugin|--profile|desktop|add|file:'+$resolved)) 'wrong DSH installation command'
+ Check (($commands[1].arguments -join '|') -eq 'plugin|marketplace|list|--json') 'missing installed version discovery'
+ $installed=Join-Path $env:LOCALAPPDATA ('DesktopPetPackages\installed-'+$pkg.version)
+ Check (($commands[2].arguments -join '|') -eq ('plugin|marketplace|add|'+$installed)) 'wrong Codex registration source'
+ $market=Get-Content -LiteralPath (Join-Path $resolved '.agents/plugins/marketplace.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+ Check (($commands[3].arguments -join '|') -eq ('plugin|add|'+$market.plugins[0].name+'@'+$market.name)) 'plugin was registered but not installed'
+ Check (Test-Path -LiteralPath (Join-Path $installed $pkg.main)) 'declared runtime missing from staged source'
+ Check (!(Test-Path -LiteralPath (Join-Path $installed 'implementation'))) 'authoring material copied into installed runtime'
  $script:attempts=0
  function Pause-DownloadRetry([int]$Attempt){}
  function Download-Once([string]$Url,[string]$File){$script:attempts++;[IO.File]::WriteAllText($File,'partial');if($script:attempts -lt 3){throw 'UND_ERR_SOCKET'};[IO.File]::WriteAllText($File,'complete')}

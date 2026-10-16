@@ -33,6 +33,27 @@ def emit(**data):
     print(json.dumps(data, ensure_ascii=True), flush=True)
 
 
+class FrameInput:
+    """Keep a frame during live capture gaps, release on disconnect or bridge failure."""
+    def __init__(self):
+        self.frame = None
+        self.enabled = False
+        self.updated_at = 0
+
+    def update(self, value, width, height, rotation, now):
+        if 'enabled' in value and not isinstance(value['enabled'], bool):
+            raise ValueError('Expected boolean screen intent')
+        if 'png' in value:
+            self.frame = decode_frame(value['png'], width, height, rotation)
+        self.enabled = value.get('enabled', 'png' in value)
+        if not self.enabled:
+            self.frame = None
+        self.updated_at = now
+
+    def active(self, now):
+        return self.enabled and self.frame is not None and now-self.updated_at <= 8
+
+
 def run(config, data_dir):
     updates = queue.Queue(maxsize=1)
     stop = threading.Event()
@@ -55,13 +76,12 @@ def run(config, data_dir):
     if not (64 <= width <= 2048 and 64 <= height <= 2048) or rotation not in (0,90,180,270):
         raise ValueError('Invalid dimensions or rotation')
     display = None
-    frame = None
-    last_input = 0
+    feed = FrameInput()
     retry_at = 0
     last_status = None
     frames = 0
     waiting_since = 0
-    session = DeviceSession(config, data_dir)
+    session = DeviceSession(config, data_dir, progress=lambda **value: report(**value))
     def report(**value):
         nonlocal last_status
         if value != last_status:
@@ -82,11 +102,10 @@ def run(config, data_dir):
             try:
                 try:
                     value = updates.get_nowait()
-                    frame = decode_frame(value['png'],width,height,rotation)
-                    last_input = time.monotonic()
+                    feed.update(value,width,height,rotation,time.monotonic())
                 except queue.Empty:
                     pass
-                if frame is None or time.monotonic()-last_input > 3 or not config.get('usb',True):
+                if not feed.active(time.monotonic()) or not config.get('usb',True):
                     release()
                     session.restore()
                     report(usb='inactive')
@@ -104,7 +123,7 @@ def run(config, data_dir):
                             display.start()
                             waiting_since=time.monotonic()
                     if display:
-                        sent=display.send(frame)
+                        sent=display.send(feed.frame)
                         frames += int(bool(sent))
                         with display.lock:
                             modes=list(display.devices.values())
@@ -124,7 +143,7 @@ def run(config, data_dir):
                 except Exception:
                     pass
                 retry_at=time.monotonic()+5
-            stop.wait(1/max(1,min(15,int(config.get('fps',10)))))
+            stop.wait(1/max(1,min(30,int(config.get('fps',24)))))
     finally:
         try:
             release()

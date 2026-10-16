@@ -1,0 +1,35 @@
+{
+  "id": "princess-005",
+  "sourceAnimation": "优雅女仆舞",
+  "label": "银紫玫瑰宫廷舞",
+  "category": "舞蹈",
+  "beats": "轻提裙边踏出宫廷舞步，双臂舒展，龙翼轻开，转半圈后屈膝收势",
+  "durationMs": 9000,
+  "fps": 24,
+  "frames": 216,
+  "size": [
+    640,
+    360
+  ],
+  "status": "exported",
+  "source": "art-source/chatgpt/keyframes/princess-005.png",
+  "prompt": "Use case: illustration-story. Production animation atlas, EXACT 4x4 equal cells, 16 chronological articulated drawings of ONE seamless 9-second action. Reference locks SAME ADULT dragon princess: silver-white long hair, ivory horns, purple eyes, lavender wings and long tail, SAME ornate white and lilac rose long dress, sleeves, corset, accessories and shoes. Proud, caring tsundere princess. Do not change outfit, add apron/crown or redesign. Clean detailed anime cel art. CRITICAL: each FULL BODY figure must be SMALL, occupy only 60% cell height and 75% cell width; generous transparent gutters and padding so COMPLETE horn tips wings tail shoes dress never touch other figures or image edges. Fixed camera and scale. Truly transparent alpha background, no ground/shadows, no opaque backdrop, no text/grid/watermark. Sixteen DIFFERENT progressive poses with small natural changes, preparation/main action/follow-through/recovery and compatible first/last poses. Actual articulated fingers arms face wings tail hair and skirt, not shifted copies or unrelated poses. Action: 银紫玫瑰宫廷舞。轻提裙边踏出宫廷舞步，双臂舒展，龙翼轻开，转半圈后屈膝收势。Do only this action, consistent character and clothing throughout.",
+  "file": "dsh-pet/assets/pets/chatgpt/gif/princess-005.gif",
+  "keyDrawings": 16,
+  "uniqueFrames": 216,
+  "bytes": 7343340,
+  "sha256": "f04d0b117d1070ec5c9d3e7c691d35bc3390ca0ae86f87d6d15b2f8526fc2ac2",
+  "method": "imagegen articulated key drawings; FFmpeg motion-compensated interpolation to 24fps; transparent GIF encoding",
+  "keyframeGrid": [
+    4,
+    4
+  ],
+  "componentBarriers": [],
+  "matteColorRGB": [
+    0,
+    255,
+    0
+  ],
+  "matteMargin": 45,
+  "paletteSource": "opaque pixels of the original key drawings; excludes matte spill"
+}

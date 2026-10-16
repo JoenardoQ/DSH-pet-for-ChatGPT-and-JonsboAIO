@@ -5,6 +5,7 @@ import { mkdirSync, existsSync, writeFileSync, readFileSync, renameSync } from '
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { Duets } from './duets.mjs';
+import { Appearance, BACKGROUNDS } from './appearance.mjs';
 import { Sources, validateEvent, Controls } from './state.mjs';
 import { HostLeases } from './plugin-lifetime.mjs';
 import { root, port, dataDir, config, pythonCommand, nodeCommand, dshHome, electronPath } from './runtime.mjs';
@@ -16,11 +17,12 @@ export function createBridge({ launch = true } = {}) {
   let worker,
     standalone,
     workerPending = '',
-    lastFrame;
+    lastFrame, lastWorkerEnabled, lastWorkerUpdate = 0;
   let output = { worker: 'stopped', usb: 'not-started' };
   const controls=new Controls();
   let control=controls.snapshot();
   const cfg = config();
+  const appearance = new Appearance(path.join(dataDir,'appearance.json'));
   const duetFile = path.join(dataDir, 'duet.json');
   let duetMode = 'auto';
   try { duetMode = JSON.parse(readFileSync(duetFile, 'utf8')).mode; } catch {}
@@ -45,9 +47,11 @@ export function createBridge({ launch = true } = {}) {
     currentControl();
     return {
       service: 'dsh-pet-jonsbo',
+      appearance: appearance.snapshot(),
+      backgrounds: BACKGROUNDS,
       shuttingDown:shuttingDown || lifecycleClosing,
-      version: 3,
-      build: '1.0.1',
+      version: 4,
+      build: '1.1.1',
       pid: process.pid,
       visible: control.visible || !!f,
       control: currentControl(),
@@ -58,7 +62,8 @@ export function createBridge({ launch = true } = {}) {
       output,
       activeSources: [...sources.frames.keys()],
       selectedSource: sources.preferred,
-      characters: Object.fromEntries([...sources.frames].map(([key, frame]) => [key, frame.character])),
+      connectedSources: [...sources.connected().keys()],
+      characters: Object.fromEntries([...sources.connected()].map(([key, frame]) => [key, frame.character])),
       duet: duets.snapshot(sources, currentControl()),
       connections: control.connections,
       screens: { chatgpt: control.screen, dsh: screenEnabled.dsh },
@@ -79,6 +84,7 @@ export function createBridge({ launch = true } = {}) {
       ],
       { cwd: root, windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] },
     );
+    lastFrame=undefined;lastWorkerEnabled=undefined;lastWorkerUpdate=0;
     output = { worker: 'starting', usb: 'not-started' };
     worker.stdout.on('data', (b) => {
       workerPending += b;
@@ -120,8 +126,8 @@ export function createBridge({ launch = true } = {}) {
                 name: 'ChatGPT 娘',
                 size: 380,
                 display: 'desktop',
-                balanceEnabled: false,
-                whisperEnabled: false,
+                balanceEnabled: true,
+                whisperEnabled: true,
                 workStatusEnabled: true,
                 fixedEnabled: false,
                 position: { corner: 'bottom-right', marginX: 24, marginY: 36 },
@@ -177,15 +183,16 @@ export function createBridge({ launch = true } = {}) {
   }
   const timer = setInterval(
     () => {
-      const f = sources.current(excludedSources());
-      if (f && cfg.usb !== false) {
-        if (worker?.stdin.writable && !worker.stdin.writableNeedDrain && f !== lastFrame) {
-          worker.stdin.write(JSON.stringify({ png: f.png }) + '\n');
-          lastFrame = f;
-        }
+      const excluded=excludedSources();
+      const f = sources.current(excluded);
+      const enabled = cfg.usb !== false && (!!f || [...sources.connected().values()].some(info=>info.desktop && !excluded.includes(info.source)));
+      // Presence keeps the last frame on screen across helper restarts; explicit disconnect releases USB.
+      if (worker?.stdin.writable && !worker.stdin.writableNeedDrain && (f !== lastFrame || enabled !== lastWorkerEnabled || Date.now()-lastWorkerUpdate>=1000)) {
+        worker.stdin.write(JSON.stringify({enabled,...(enabled && f && f!==lastFrame?{png:f.png}:{})})+'\n');
+        lastFrame=f;lastWorkerEnabled=enabled;lastWorkerUpdate=Date.now();
       }
     },
-    1000 / Math.max(1, Math.min(15, Number(cfg.fps) || 10)),
+    1000 / Math.max(1, Math.min(30, Number(cfg.fps) || 24)),
   ).unref();
   const server = http.createServer(async (req, res) => {
     const send = (code, v) => {
@@ -194,6 +201,14 @@ export function createBridge({ launch = true } = {}) {
     };
     if (!/^(127\.0\.0\.1|localhost)(:\d+)?$/.test(req.headers.host || ''))
       return send(403, { error: 'Local Host required' });
+    const assetUrl = new URL(req.url,'http://127.0.0.1');
+    const background = BACKGROUNDS.find(b=>b.id!=='none' && assetUrl.pathname==='/backgrounds/'+b.id+'.png');
+    if(req.method==='GET' && background){
+      const file=path.join(root,'assets/screen-backgrounds',background.id+'.png');
+      if(!existsSync(file))return send(404,{error:'Background not installed'});
+      res.writeHead(200,{'Content-Type':'image/png','Cache-Control':'public, max-age=3600','Access-Control-Allow-Origin':'*'});
+      return res.end(readFileSync(file));
+    }
     if (req.headers.origin && req.headers.origin !== `http://${req.headers.host}`)
       return send(403, { error: 'Cross-origin denied' });
     try {
@@ -209,7 +224,7 @@ export function createBridge({ launch = true } = {}) {
         return res.end(Buffer.from(f.png, 'base64'));
       }
       if (req.method === 'GET' && url.pathname === '/') {
-        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control':'no-store' });
         return res.end(readFileSync(path.join(root, 'bridge/preview.html')));
       }
       if (req.method !== 'POST') return send(404, { error: 'Not found' });
@@ -273,9 +288,29 @@ export function createBridge({ launch = true } = {}) {
         }
         return send(200, snapshot());
       }
+      if (url.pathname === '/appearance') {
+        appearance.set(value);
+        return send(200,snapshot());
+      }
       if (url.pathname === '/duet') {
         if (!value || Object.keys(value).some(k => k !== 'mode')) throw Error('Expected duet mode');
         duets.set(value.mode);
+        return send(200, snapshot());
+      }
+      if (url.pathname === '/pet/close') {
+        if (!value || Object.keys(value).length) throw Error('Invalid close request');
+        controls.sessions.clear();controls.revision++;currentControl();
+        sources.frames.delete('chatgpt');sources.presence.delete('chatgpt');await stopPet();
+        return send(200,snapshot());
+      }
+      if (url.pathname === '/presence') {
+        if (!value || !['dsh','chatgpt'].includes(value.source) || !['fish','whale','chatgpt'].includes(value.character)
+          || typeof value.desktop !== 'boolean' || typeof value.instanceId !== 'string' || value.instanceId.length > 120
+          || typeof value.build !== 'string' || value.build.length > 40
+          || (value.error !== null && typeof value.error !== 'string') || (value.error?.length || 0) > 300
+          || Object.keys(value).some(k => !['source','character','desktop','instanceId','build','error'].includes(k))) throw Error('Invalid pet presence');
+        sources.touch(value.source, value);
+        if (value.source === 'dsh') dshSeen = true;
         return send(200, snapshot());
       }
       if (url.pathname === '/frame') {
@@ -311,7 +346,7 @@ export function createBridge({ launch = true } = {}) {
     if (lifecycleClosing) return;
     const active = hosts.active();
     sources.current(); // Drop expired DSH frames before checking its lifetime.
-    const dshActive = sources.frames.has('dsh');
+    const dshActive = sources.connected().has('dsh');
     if(hosts.hadHost && !active)controls.clearSessions();
     currentControl();
     if(!control.visible && standalone){

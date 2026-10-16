@@ -18,6 +18,7 @@
  *   - `on(...)` → 不订阅任何事件：独立模式没有 DSH 会话，工作状态因此保持空闲
  */
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { PetHost } from './codex-host';
 
 /** 独立模式下余额路由报出的服务商 id（未登记 → `unsupported`，气泡里能看到它） */
 export const STANDALONE_PROVIDER = 'standalone';
@@ -41,6 +42,7 @@ export interface RegisteredRoute {
 }
 
 export interface StandaloneContextOptions {
+  host?: PetHost;
   /** 插件用它拼桌面 Helper 的 `DSH_PET_CONFIG_URL`；传函数可拿到"监听后才确定"的端口 */
   port: number | (() => number);
   logger: StandaloneLogger;
@@ -180,6 +182,18 @@ export function createStandaloneContext(options: StandaloneContextOptions): Stan
     },
   };
 
+  if (options.host) {
+    const host = options.host;
+    context.get = (name: string) => name === 'petHost' ? host : undefined;
+    context.agentDefaultModel = { currentSelection: () => ({ provider: host.provider, model: 'host-default' }) };
+    context.llm = {
+      listProviders: () => [{ id: host.provider, name: 'ChatGPT / Codex 已登录宿主' }],
+      listModels: async () => [{ id: 'host-default', name: '宿主默认模型' }],
+      resolveModelInfo: async () => ({ reasoningEfforts: false }),
+      stream: (options: unknown) => host.stream(options),
+    };
+    disposers.push(() => host.dispose());
+  }
   return {
     ctx: context,
     routes,

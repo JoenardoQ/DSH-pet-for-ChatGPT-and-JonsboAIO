@@ -1,0 +1,35 @@
+{
+  "id": "princess-013",
+  "sourceAnimation": "写代码",
+  "label": "编织星光代码",
+  "category": "工作",
+  "beats": "双手交替敲击悬浮紫晶键盘，眼神跟随代码，点头得意，收回手势",
+  "durationMs": 9000,
+  "fps": 24,
+  "frames": 216,
+  "size": [
+    640,
+    360
+  ],
+  "status": "exported",
+  "priority": "core",
+  "source": "art-source/chatgpt/keyframes/princess-013.png",
+  "file": "dsh-pet/assets/pets/chatgpt/gif/princess-013.gif",
+  "uniqueFrames": 216,
+  "bytes": 8986686,
+  "sha256": "8f6a5c4f841cb353863305db163ef22a5581c0e81fb4546b472308f50caa8ae7",
+  "method": "imagegen articulated key drawings; FFmpeg motion-compensated interpolation to 24fps; transparent GIF encoding",
+  "keyframeGrid": [
+    4,
+    4
+  ],
+  "componentBarriers": [],
+  "matteColorRGB": [
+    0,
+    255,
+    0
+  ],
+  "matteMargin": 45,
+  "keyDrawings": 16,
+  "paletteSource": "opaque pixels of the original key drawings; excludes matte spill"
+}

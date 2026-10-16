@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "pet-trio-jonsbo",
-  "version": "1.0.1",
+  "version": "1.1.1",
   "description": "哼，三位桌宠都替你准备好了：鲸鱼娘、大肥鱼与 ChatGPT 娘，支持双宿主和乔思伯投屏。",
   "extensions": {
     "com.openai": {

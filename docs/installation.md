@@ -4,7 +4,7 @@
 
 支持本地 ZIP、已解压的项目目录、本仓库 GitHub 链接、Release 页面与 Release ZIP 直链。安装器检查包清单、防止 ZIP 路径越界，并校验 Release ZIP 的 SHA256。已有本地文件时直接读取。
 
-选择 DSH 时，首次定位 `DeepSeek Harness.exe`，由宿主自己的 `plugin --profile desktop add` 登记插件。选择 GPT / Codex 时，通过官方 `codex plugin marketplace add` 注册本地来源，之后在宿主插件列表中安装并启用。缺少对应宿主时会提示，不替你另装宿主，也不直接修改宿主插件缓存。
+选择 DSH 时，首次定位 `DeepSeek Harness.exe`，由宿主自己的 `plugin --profile desktop add file:目录` 安装本地包及其依赖。选择 GPT / Codex 时，通过官方 `codex plugin marketplace add` 注册只包含分发文件的本地来源，再用 `codex plugin add` 实际安装；之后在宿主插件列表启用。缺少对应宿主时会提示，不替你另装宿主，也不直接修改宿主插件缓存。
 
 仓库：[Deepseek-and-ChatGPT-Pet-and-JonsboAIO](https://github.com/JoenardoQ/Deepseek-and-ChatGPT-Pet-and-JonsboAIO)；[最新 Release](https://github.com/JoenardoQ/Deepseek-and-ChatGPT-Pet-and-JonsboAIO/releases/latest)。
 

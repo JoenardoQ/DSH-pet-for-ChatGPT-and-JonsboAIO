@@ -13,10 +13,13 @@ export interface RawBalanceResult {
   ok: boolean;
   provider?: string;
   /** 展示形态（host 写叶子时带上）：windows = 三窗口用量，money = 账户金额 */
-  shape?: 'windows' | 'money';
+  shape?: 'windows' | 'money' | 'quota';
   reason?: string;
   message?: string;
   data?: {
+    windows?: unknown;
+    plan?: unknown;
+    updatedAt?: unknown;
     rolling?: unknown;
     weekly?: unknown;
     monthly?: unknown;
@@ -40,9 +43,13 @@ export interface RawBalanceResult {
 export type PricingTier = 'peak' | 'idle';
 
 /** 已解析的余额视图（展示 + 档位计算用） */
+export interface QuotaWindow { label: string; usedPercent: number; windowMinutes: number; resetsAt?: string; }
 export interface BalanceView {
+  quotaWindows?: QuotaWindow[];
+  plan?: string;
+  updatedAt?: string;
   provider: string;
-  shape: 'windows' | 'money';
+  shape: 'windows' | 'money' | 'quota';
   ok: true;
   /**
    * 三窗口已用百分比（0-100 数字）+ 各自的重置时间。
@@ -118,6 +125,17 @@ export function toBalanceState(raw: unknown): BalanceState | null {
   const d = r.data;
   if (!d || typeof d !== 'object') return null;
 
+  if (r.shape === 'quota') {
+    if (!Array.isArray(d.windows) || !d.windows.length || d.windows.length > 64) return null;
+    const windows: QuotaWindow[] = [];
+    for (const item of d.windows) {
+      if (!item || typeof item !== 'object') return null;
+      const w = item as Record<string, unknown>;
+      if (typeof w.label !== 'string' || typeof w.usedPercent !== 'number' || !Number.isFinite(w.usedPercent) || w.usedPercent < 0 || w.usedPercent > 100 || typeof w.windowMinutes !== 'number' || !Number.isFinite(w.windowMinutes) || w.windowMinutes <= 0) return null;
+      windows.push({ label: w.label, usedPercent: w.usedPercent, windowMinutes: w.windowMinutes, resetsAt: typeof w.resetsAt === 'string' ? w.resetsAt : undefined });
+    }
+    return { provider, shape: 'quota', ok: true, quotaWindows: windows, plan: typeof d.plan === 'string' ? d.plan : undefined, updatedAt: typeof d.updatedAt === 'string' ? d.updatedAt : undefined };
+  }
   if (r.shape === 'windows') {
     const monthly = optNum(d.monthly);
     const rolling = optNum(d.rolling);
@@ -176,6 +194,7 @@ export function toBalanceState(raw: unknown): BalanceState | null {
  *   0 元 → 100%）。没有基准 → undefined（不播档位动画，不替服务商猜一个）
  */
 export function balancePercent(v: BalanceView): number | undefined {
+  if (v.shape === 'quota') return v.quotaWindows?.length ? Math.max(...v.quotaWindows.map(w => w.usedPercent)) : undefined;
   if (v.shape === 'money') {
     const total = Number(v.total);
     const full = Number(v.fullBalance);
@@ -249,6 +268,10 @@ function windowQuotas(v: BalanceView): Record<WindowKey, number | undefined> {
  * 绝对口径的副作用（刻意保留）：滚动窗额度最小，通常先报它；两端一致，完整读数见 tools/api-tester.html。
  */
 export function urgentWindow(v: BalanceView): WindowUsage | undefined {
+  if (v.shape === 'quota') {
+    const w = v.quotaWindows?.reduce((a,b) => a.usedPercent >= b.usedPercent ? a : b);
+    return w ? { label: w.label, percent: w.usedPercent, resetsAt: w.resetsAt } : undefined;
+  }
   if (v.shape === 'money') return undefined;
   const quotas = windowQuotas(v);
   const resets: Record<WindowKey, string | undefined> = {
@@ -345,6 +368,15 @@ function unavailableRows(state: BalanceUnavailable): BalanceBubbleRow[] {
  */
 export function balanceBubbleView(state: BalanceState): BalanceBubbleRow[] {
   if (state.ok) {
+    if (state.shape === 'quota') {
+      const rows: BalanceBubbleRow[] = [{ role: 'label', text: 'ChatGPT / Codex 套餐用量' }];
+      for (const w of state.quotaWindows || []) {
+        rows.push({ role: 'label', text: w.label + '剩余 ' + Math.round(100 - w.usedPercent) + '%' });
+        const reset = resetInText(w.resetsAt);
+        rows.push({ role: 'sub', text: reset ? reset + (reset === '已重置' ? '' : '后重置') : '重置时间未知' });
+      }
+      return rows;
+    }
     if (state.shape !== 'money') {
       // windows：三窗口中先告急的一个
       const w = urgentWindow(state);

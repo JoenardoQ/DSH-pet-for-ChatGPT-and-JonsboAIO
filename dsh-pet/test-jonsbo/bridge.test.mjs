@@ -59,7 +59,7 @@ test('bridge request protections and control lifecycle', async (t) => {
     })
   ).json();
   assert.equal(wake.control.state, 'thinking');
-  assert.equal(wake.version, 3);
+  assert.equal(wake.version, 4);
   const implicit = await fetch(base + '/event', {method:'POST',headers,body:JSON.stringify({action:'wake'})});
   assert.equal(implicit.status, 400, 'stale preview must not wake ChatGPT');
   const connection = async (value, authorized = true) => fetch(base + '/device/connection', {

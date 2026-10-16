@@ -1,4 +1,4 @@
-// One arbiter per bridge. Presence comes from live frames + a live GPT control
+// One arbiter per bridge. Presence comes from independent heartbeats and a live GPT control
 // lease, never from installed plugin folders or the number of MCP sessions.
 import scenes from '../assets/pets/duo/actions.json' with { type: 'json' };
 export const ACTIONS = scenes.map(scene => scene.id);
@@ -13,13 +13,14 @@ export class Duets {
   }
   snapshot(sources, control) {
     sources.current();
-    const dsh = sources.frames.get('dsh'), gpt = sources.frames.get('chatgpt');
-    const eligible = !!(dsh && gpt && control.visible && control.desktop && dsh.character === 'fish' && gpt.character === 'chatgpt');
+    const online = sources.connected();
+    const dsh = online.get('dsh'), gpt = online.get('chatgpt');
+    const eligible = !!(dsh && gpt && control.visible && control.desktop && dsh.desktop !== false && gpt.desktop !== false && dsh.character === 'fish' && gpt.character === 'chatgpt');
     const active = eligible && this.mode !== 'off';
     if (!active) this.startedAt = null;
     else if (this.startedAt === null) this.startedAt = this.now();
-    const action = this.mode === 'auto' ? ACTIONS[Math.floor((this.now() - (this.startedAt ?? this.now())) / 16000) % ACTIONS.length] : this.mode;
-    return { active, eligible, mode: this.mode, action: active ? action : null, owner: 'chatgpt', startedAt: this.startedAt,
-      reason: eligible ? null : !dsh ? '尚未收到 DSH 桌宠画面，请在 DSH 的桌宠菜单中检查屏幕同步。' : !gpt ? '尚未收到 GPT 桌宠画面，请在 ChatGPT / Codex 中开启桌宠。' : dsh.character !== 'fish' ? '请将 DSH 桌宠切换为大肥鱼。' : gpt.character !== 'chatgpt' ? '请将 GPT 桌宠切换为 ChatGPT 娘。' : '请在 GPT 宿主中开启桌面显示。' };
+    const action = this.mode === 'auto' ? ACTIONS[Math.floor((this.now() - (this.startedAt ?? this.now())) / 9000) % ACTIONS.length] : this.mode;
+    return { participants: {dsh: dsh ? {character:dsh.character,build:dsh.build||null,desktop:dsh.desktop!==false,error:dsh.error||null}:null,chatgpt:gpt?{character:gpt.character,build:gpt.build||null,desktop:gpt.desktop!==false,error:gpt.error||null}:null}, active, eligible, mode: this.mode, action: active ? action : null, owner: 'chatgpt', startedAt: this.startedAt,
+      reason: eligible ? null : !dsh ? 'DSH 桌宠尚未连接。请在 DSH 插件列表安装同版插件，并开启桌面显示。' : !gpt ? 'GPT 桌宠尚未连接，请在 ChatGPT / Codex 中开启桌宠。' : dsh.character !== 'fish' ? '请将 DSH 桌宠切换为大肥鱼。' : gpt.character !== 'chatgpt' ? '请将 GPT 桌宠切换为 ChatGPT 娘。' : dsh.desktop === false ? '请在 DSH 中开启桌面显示。' : '请在 GPT 宿主中开启桌面显示。' };
   }
 }

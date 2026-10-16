@@ -1,0 +1,34 @@
+{
+  "id": "princess-006",
+  "sourceAnimation": "余额-分文不剩",
+  "label": "公主的小金库见底",
+  "category": "小金库",
+  "beats": "倒过空钱袋，惊讶眨眼，抱臂轻叹，随后把钱袋仔细收好",
+  "durationMs": 9000,
+  "fps": 24,
+  "frames": 216,
+  "size": [
+    640,
+    360
+  ],
+  "status": "exported",
+  "source": "art-source/chatgpt/keyframes/princess-006.png",
+  "keyframeGrid": [
+    6,
+    3
+  ],
+  "componentBarriers": [],
+  "matteColorRGB": [
+    0,
+    255,
+    0
+  ],
+  "matteMargin": 45,
+  "file": "dsh-pet/assets/pets/chatgpt/gif/princess-006.gif",
+  "keyDrawings": 18,
+  "uniqueFrames": 216,
+  "bytes": 7267530,
+  "sha256": "1d06e2fbc20d3756922aba6ac8bf1c61a1dae94034fd730dc34dcfa1605e7912",
+  "method": "imagegen articulated key drawings; FFmpeg motion-compensated interpolation to 24fps; transparent GIF encoding",
+  "paletteSource": "opaque pixels of the original key drawings; excludes matte spill"
+}

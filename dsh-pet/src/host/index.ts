@@ -74,6 +74,8 @@ import { generateChat, type ChatMemoryMessage } from './chat';
 import { configuredModel } from './model-selection';
 import { limitPool, pickMeme, readMemePool, matchMeme } from './memes';
 import { CharacterStore } from './characters';
+import { PetSizeStore } from './sizes';
+import { isSizeAction } from '../shared/size';
 import {
   characterLabel,
   characterPrompt,
@@ -260,6 +262,7 @@ export function apply(ctx: any): void {
   const dshHome = resolveDshHome();
   const userRoot = join(dshHome, 'dsh-pet');
   const characters = new CharacterStore(join(userRoot, 'characters.json'));
+  const sizes = new PetSizeStore(join(userRoot, 'sizes.json'));
   // 用户主配置（可编辑层）与文件宠物目录；配置读取/合并统一走 readAllConfig（./config）。
   // 主配置是 **JSONC**（main-config.jsonc）——与包内默认 config.jsonc 同名同格式：
   // 「同步」写进去的就是带注释的原文，扩展名如实反映内容（旧版 main-config.json 只读回落 + 启动迁移）
@@ -280,7 +283,7 @@ export function apply(ctx: any): void {
   const thumbUserRoot = join(userRoot, 'main-animation');
   // 用户表情包目录（碎碎念/对话配图的图片：优先于包内 assets/pets/fish/memes，加图不必改包）
   const memesUserRoot = join(userRoot, 'memes');
-  const readPetConfig = () => characters.decorate(readAllConfig(configPaths));
+  const readPetConfig = () => sizes.decorate(characters.decorate(readAllConfig(configPaths)));
   /**
    * 表情包目录链 —— 与动画素材（/thumb）**同一套素材归属语义**：
    *   - `pet/<素材根>-memes/` 存在（种类自带表情包）：**只查它**，池与路由都不回落——
@@ -590,7 +593,8 @@ export function apply(ctx: any): void {
     const mark = <T>(v: T): T | (T & { manual: true }) => (manual ? { ...v, manual: true } : v);
     try {
       const sel = ctx.agentDefaultModel.currentSelection();
-      const result = await queryBalance(
+      const hostAccount = typeof ctx.get === 'function' ? ctx.get('petHost', false) : undefined;
+      const result = hostAccount ? await hostAccount.balance(manual) : await queryBalance(
         sel.provider,
         async (ref) => {
           const rc = await ctx.credentials.resolve(credentialRef(ref));
@@ -836,6 +840,24 @@ export function apply(ctx: any): void {
     const rest = decodeURIComponent(url.pathname.slice(ROUTE_PREFIX.length + 1));
 
     // 成品配置：/dsh-pet-7340/config（GET 读取合并成品 / PUT 保存用户层 / POST 同步内置默认）
+    if (rest === 'host') {
+      if (method !== 'GET') return { kind: 'json', status: 405, obj: { error: 'method not allowed' } };
+      const selection = ctx.agentDefaultModel.currentSelection();
+      return { kind: 'json', status: 200, obj: { source: process.env.DSH_PET_JONSBO_SOURCE === 'chatgpt' ? 'chatgpt' : 'dsh', provider: selection.provider, model: selection.model, chat: !!selection.model, whisper: !!selection.model, quota: selection.provider === 'codex-chatgpt' } };
+    }
+    if (rest === 'size') {
+      if (method !== 'POST') return { kind: 'json', status: 405, obj: { error: 'method not allowed' } };
+      try {
+        const value = JSON.parse(body || '{}');
+        if (!value || typeof value.petId !== 'string' || !isSizeAction(value.action) || Object.keys(value).some(k => !['petId','action'].includes(k))) throw Error('无效缩放请求');
+        if (!findPetInstance(readPetConfig(), value.petId)) throw Error('未知桌宠');
+        sizes.set(value.petId, value.action);
+        const pet = findPetInstance(readPetConfig(), value.petId)!.pet;
+        state.writePet(value.petId, 'size', { size: pet.size, sizePercent: pet.sizePercent });
+        void syncDesktop();
+        return { kind: 'json', status: 200, obj: { ok: true, size: pet.size, sizePercent: pet.sizePercent } };
+      } catch (error) { return { kind: 'json', status: 400, obj: { error: error instanceof Error ? error.message : String(error) } }; }
+    }
     if (rest === 'character') {
       if (method !== 'POST') return { kind: 'json', status: 405, obj: { error: 'method not allowed' } };
       try {

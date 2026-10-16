@@ -15,7 +15,18 @@ const S = ctx.PetShared;
 test('all persona action labels, work copy and 54 illustrations belong to their selected character', () => {
   for (const id of ['chatgpt', 'whale']) {
     const menu = S.characterActionMenu(id, {});
-    assert.equal(menu[0].children.length, 8);
+    if (id === 'chatgpt') {
+      const leaves = menu[0].children.flatMap(group => group.children);
+      assert.equal(leaves.length, S.PRINCESS_ACTIONS.length);
+      assert.ok(leaves.length >= 8);
+      for (const action of S.PRINCESS_ACTIONS) {
+        assert.ok(leaves.some(leaf => leaf.anim === '__' + action.id && leaf.label === action.label));
+        const media = S.characterMedia(id, '__' + action.id);
+        assert.equal(new URL(media.path,'http://127.0.0.1').pathname, '/thumb/@chatgpt/' + action.id + '.gif');
+        assert.equal(new URL(media.path,'http://127.0.0.1').searchParams.get('v'),'1.1.1');
+        assert.ok(fs.statSync(path.join(root, 'assets/pets/chatgpt/gif', action.id + '.gif')).size > 1000);
+      }
+    } else assert.equal(menu[0].children.length, 8);
     assert.equal(S.characterWorkTexts(id).length, 6);
     assert.match(S.characterPrompt(id), new RegExp(id === 'chatgpt' ? '银白长发' : '海洋'));
     for (const item of S.DIALOGUE_IMAGES) {

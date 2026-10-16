@@ -33,7 +33,7 @@ async function fixture(t, state) {
     old.close();old.closeAllConnections();
     try {
       const s=await(await fetch(`http://127.0.0.1:${port}/state`)).json();
-      if(s.service==='dsh-pet-jonsbo' && s.version===3)
+      if(s.service==='dsh-pet-jonsbo' && s.version===4)
         await fetch(`http://127.0.0.1:${port}/shutdown`,{method:'POST',headers:{'X-Pet-Client':'1'}});
     } catch {}
     // The fixture owns this exact temporary directory only.
@@ -48,7 +48,7 @@ test('three simultaneous installations retire an old bridge once and share one n
   const states=results.map(r=>JSON.parse(r.out));
   assert.equal(f.shutdowns(),1);
   assert.equal(new Set(states.map(s=>s.pid)).size,1);
-  assert.ok(states.every(s=>s.version===3 && s.control.visible===false && s.standalone===null));
+  assert.ok(states.every(s=>s.version===4 && s.control.visible===false && s.standalone===null));
   const connected=await(await fetch(`http://127.0.0.1:${f.port}/device/connection`,{
     method:'POST',headers:{'X-Pet-Client':'1','Content-Type':'application/json'},body:JSON.stringify({source:'dsh',enabled:false})
   })).json();
@@ -67,5 +67,12 @@ test('another service and a newer protocol are never shut down', async t=>{
 test('a repaired build retires protocol-compatible 1.0.0 rather than keeping its bugs', async t=>{
   const f=await fixture(t,{service:'dsh-pet-jonsbo',version:3,build:'1.0.0'});
   const result=await client(f.port,f.data);assert.equal(result.code,0,result.err);
-  assert.equal(f.shutdowns(),1);assert.equal(JSON.parse(result.out).build,'1.0.1');
+  assert.equal(f.shutdowns(),1);assert.equal(JSON.parse(result.out).build,'1.1.1');
+});
+
+test('a newer plugin build replaces an older compatible bridge; a newer running build is preserved',async t=>{
+  const old=await fixture(t,{service:'dsh-pet-jonsbo',version:4,build:'1.0.1'});
+  const result=await client(old.port,old.data);assert.equal(result.code,0,result.err);assert.equal(old.shutdowns(),1);assert.equal(JSON.parse(result.out).build,'1.1.1');
+  const newer=await fixture(t,{service:'dsh-pet-jonsbo',version:4,build:'99.0.0'});
+  const unchanged=await client(newer.port,newer.data);assert.equal(unchanged.code,0,unchanged.err);assert.equal(newer.shutdowns(),0);
 });

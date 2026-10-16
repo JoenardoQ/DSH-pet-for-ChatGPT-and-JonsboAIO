@@ -1,0 +1,40 @@
+{
+  "id": "princess-010",
+  "sourceAnimation": "余额-钱袋如常",
+  "label": "金库账目核对完毕",
+  "category": "小金库",
+  "beats": "打开钱袋清点，翻看小账本，轻点头，再系好袋口",
+  "durationMs": 9000,
+  "fps": 24,
+  "frames": 216,
+  "size": [
+    640,
+    360
+  ],
+  "status": "exported",
+  "source": "art-source/chatgpt/keyframes/princess-010.png",
+  "keyframeGrid": [
+    4,
+    4
+  ],
+  "componentBarriers": [
+    [
+      946,
+      992,
+      1229
+    ]
+  ],
+  "matteColorRGB": [
+    0,
+    255,
+    0
+  ],
+  "matteMargin": 45,
+  "file": "dsh-pet/assets/pets/chatgpt/gif/princess-010.gif",
+  "keyDrawings": 16,
+  "uniqueFrames": 216,
+  "bytes": 6720618,
+  "sha256": "8247f95d68472953cdd7ee156ae617138f839ef912ee093b342b8da97c1a8c28",
+  "method": "imagegen articulated key drawings; FFmpeg motion-compensated interpolation to 24fps; transparent GIF encoding",
+  "paletteSource": "opaque pixels of the original key drawings; excludes matte spill"
+}

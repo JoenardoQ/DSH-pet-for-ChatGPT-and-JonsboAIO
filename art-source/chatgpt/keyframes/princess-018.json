@@ -1,0 +1,42 @@
+{
+  "id": "princess-018",
+  "sourceAnimation": "原地小憩沉眠",
+  "label": "龙尾围住的小憩",
+  "category": "休息",
+  "beats": "侧坐紫色软垫，双手叠放膝上，头轻轻低垂，龙翼放松，尾巴围住软垫后苏醒",
+  "durationMs": 9000,
+  "fps": 24,
+  "frames": 216,
+  "size": [
+    640,
+    360
+  ],
+  "status": "exported",
+  "priority": "core",
+  "source": "art-source/chatgpt/keyframes/princess-018.png",
+  "prompt": "Use case: illustration-story. A production sprite atlas of EXACTLY 4 columns by 4 rows, 16 sequential key drawings of one continuous 9-second animation, row-major. Transparent background. SAME adult dragon princess as reference: silver-white long hair, ivory horns, purple eyes, lavender wings and long tail, ornate white/lilac rose full-length dress, SAME costume accessories sleeves corset hem and shoes in every frame. Proud but caring tsundere personality. Absolutely no outfit or proportion changes, no apron/crown, no labels/grid/watermark. Full body wings tail horn tips shoes entirely visible in EVERY drawing. Leave clear TRANSPARENT SPACE between all 16 figures; fixed camera scale, no zoom, no whole-body bobbing. Detailed clean anime cel art. Generate 16 DIFFERENT progressive articulated drawings of ONLY this action, SMALL natural changes between adjacent frames, preparation/main movement/follow-through/recovery, first and last compatible for looping: 龙尾围住的小憩。动作设计：侧坐紫色软垫，双手叠放膝上，头轻轻低垂，龙翼放松，尾巴围住软垫后苏醒。Hair, sleeves, skirt, wings and tail have independent delayed motion; hands/arms/face must actually move. Keep costumes fully visible and complete with empty padding around each figure.",
+  "componentBarriers": [
+    [
+      512,
+      1152,
+      1536
+    ]
+  ],
+  "file": "dsh-pet/assets/pets/chatgpt/gif/princess-018.gif",
+  "keyDrawings": 16,
+  "uniqueFrames": 216,
+  "bytes": 11910231,
+  "sha256": "961f79067585a2c89d9ddb7315078c2d5d8550ba43fec6094c82ed152e1d49cf",
+  "method": "imagegen articulated key drawings; FFmpeg motion-compensated interpolation to 24fps; transparent GIF encoding",
+  "keyframeGrid": [
+    4,
+    4
+  ],
+  "matteColorRGB": [
+    0,
+    255,
+    0
+  ],
+  "matteMargin": 45,
+  "paletteSource": "opaque pixels of the original key drawings; excludes matte spill"
+}

@@ -5,5 +5,5 @@ test('ZIP, GitHub and Release sources use valid host commands without installati
 });
 test('published package declares independent host and plugin identities with portable entry points',()=>{
  const pkg=JSON.parse(fs.readFileSync(path.join(root,'package.json'))),market=JSON.parse(fs.readFileSync(path.join(root,'.agents/plugins/marketplace.json'))),plugin=JSON.parse(fs.readFileSync(path.join(root,'.codex-plugin/plugin.json')));
- assert.equal(market.plugins.length,1);assert.equal(market.plugins[0].name,plugin.name);assert.equal(market.plugins[0].source.path,'./');assert.equal(plugin.requires_local_executor,true);assert.ok(fs.existsSync(path.join(root,pkg.main)));assert.ok(fs.existsSync(path.join(root,pkg.dsh.bundle.patch)));for(const name of ['scripts/install-plugins.ps1','install-plugins.cmd','docs/installation.md'])assert.ok(pkg.files.includes(name));
+ assert.equal(market.plugins.length,1);assert.equal(market.plugins[0].name,plugin.name);assert.equal(market.plugins[0].source.path,'./');assert.equal(plugin.requires_local_executor,true);assert.ok(fs.existsSync(path.join(root,pkg.main)));assert.ok(fs.existsSync(path.join(root,pkg.dsh.bundle.patch)));for(const name of ['scripts/install-plugins.ps1','install-plugins.cmd','docs/installation.md'])assert.ok(pkg.files.some(entry=>name===entry||name.startsWith(entry+'/')),name);
 });

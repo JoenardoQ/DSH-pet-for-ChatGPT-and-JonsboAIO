@@ -1,3 +1,4 @@
+import { versionedAsset } from './asset-version';
 // 碎碎念的展示视图（src/shared 纯逻辑，浏览器 bundle 与桌面 shared-core 共用）：
 // 文本 → 气泡行数据。**取数不在本模块**：改造后碎碎念由 host 定时器生成并写进 /state 的
 // pets.<id>.say（与命令气泡、对话回复同一个叶子），两端只从 S 读——原先的
@@ -45,7 +46,8 @@ export function whisperBubbleView(state: WhisperState): WhisperBubbleRow[] {
 export function memeImageUrl(name: string, base = '/dsh-pet-7340', assetRoot = ''): string {
   const root = String(assetRoot ?? '').trim();
   const prefix = root ? '/pic/memes/' + encodeURIComponent(root) : '/pic/memes';
-  return base + prefix + '/' + encodeURIComponent(name) + '.png';
+  const url = base + prefix + '/' + encodeURIComponent(name) + '.png';
+  return ['@chatgpt','@whale'].includes(root) ? versionedAsset(url) : url;
 }
 
 /** 气泡配图 class（两端共用，样式见 MEME_BUBBLE_CSS） */

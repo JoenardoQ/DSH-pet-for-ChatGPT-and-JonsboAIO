@@ -19,8 +19,12 @@
 //       onPetHit：订阅「你被撞了」→ 用新初速 startThrow 抛出去（与浏览器 onHit 同语义）。
 const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('jonsboBridge', {
+  presence: (value) => ipcRenderer.invoke('jonsbo:presence', value),
   frame: (value) => ipcRenderer.invoke('jonsbo:frame', value),
   setDuet: (mode) => ipcRenderer.invoke('jonsbo:duet', mode),
+  takeOver: () => ipcRenderer.invoke('jonsbo:takeover'),
+  setBackground: (id) => ipcRenderer.invoke('jonsbo:background', id),
+  selectSource: (source) => ipcRenderer.invoke('jonsbo:source', source),
   setScreen: (enabled) => ipcRenderer.invoke('jonsbo:screen', enabled),
   openStatus: () => ipcRenderer.invoke('jonsbo:status'),
   shutdown: () => ipcRenderer.invoke('jonsbo:shutdown'),

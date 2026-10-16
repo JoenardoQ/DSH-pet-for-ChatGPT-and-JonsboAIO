@@ -1,0 +1,18 @@
+{
+  "status": "rejected",
+  "date": "2026-10-16",
+  "scope": [
+    "chatgpt/princess-001..107",
+    "duo/all-8"
+  ],
+  "reason": "User rejected discontinuous poses, deformed limbs, blurred edges and unreasonable choreography. 24fps encoding and distinct pixel hashes do not establish motion quality.",
+  "releaseBlocked": true,
+  "next": "One continuous articulated motion proof; inspect playback before expanding.",
+  "publicationAuthorization": {
+    "version": "1.1.1",
+    "channel": "prerelease",
+    "date": "2026-10-16",
+    "basis": "User explicitly requested git commit, push and release after receiving the outstanding animation-quality notice.",
+    "animationQualityApproved": false
+  }
+}

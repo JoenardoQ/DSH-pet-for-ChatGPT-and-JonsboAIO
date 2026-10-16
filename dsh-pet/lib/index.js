@@ -190,7 +190,7 @@ function deepseekPricingTier(now = new Date()) {
 		hour: "2-digit",
 		hourCycle: "h23"
 	}).formatToParts(now);
-	const pick = (type) => parts.find((p) => p.type === type)?.value;
+	const pick = (type$1) => parts.find((p) => p.type === type$1)?.value;
 	const weekday = pick("weekday");
 	const hour = Number(pick("hour"));
 	if (weekday === "Sat" || weekday === "Sun") return "idle";
@@ -515,12 +515,12 @@ function readMemePool(memes, dirs) {
 	if (!memes || typeof memes !== "object" || Array.isArray(memes)) return [];
 	if (dirs.length === 0) return [];
 	const out = [];
-	for (const [name$1, desc] of Object.entries(memes)) {
+	for (const [name$2, desc] of Object.entries(memes)) {
 		const text = typeof desc === "string" ? desc.trim() : "";
-		if (!name$1 || !text) continue;
-		if (!dirs.some((dir) => existsSync(join(dir, name$1 + ".png")))) continue;
+		if (!name$2 || !text) continue;
+		if (!dirs.some((dir) => existsSync(join(dir, name$2 + ".png")))) continue;
 		out.push({
-			name: name$1,
+			name: name$2,
 			desc: text
 		});
 	}
@@ -531,8 +531,8 @@ function pickMeme(pool, random = Math.random) {
 	const idx = Math.floor(random() * pool.length) % pool.length;
 	return pool[idx];
 }
-function matchMeme(pool, name$1) {
-	const key = String(name$1 ?? "").trim();
+function matchMeme(pool, name$2) {
+	const key = String(name$2 ?? "").trim();
 	return key ? pool.find((m) => m.name === key) : void 0;
 }
 /** 配图选择标记：`[图:名称]` 附在回复末尾（容忍全角冒号与前后空白） */
@@ -658,6 +658,165 @@ async function generateWith(ctx, llm, sel, system, history, userText, pool) {
 		text: picked.text
 	};
 }
+
+//#endregion
+//#region package.json
+var name$1 = "dsh-pet";
+var version = "1.1.1";
+var description = "鲸鱼娘、圆润蓝发女仆大肥鱼与 ChatGPT 娘：共用桌宠引擎、独立角色素材、双宿主互动和乔思伯屏幕。";
+var icon = "assets/logo.png";
+var keywords = [
+	"dsh",
+	"dsh-plugin",
+	"deepseek-harness",
+	"desktop-pet",
+	"pet",
+	"floating-widget",
+	"web-ui",
+	"cordis",
+	"react"
+];
+var homepage = "https://github.com/JoenardoQ/Deepseek-and-ChatGPT-Pet-and-JonsboAIO#readme";
+var repository = {
+	"type": "git",
+	"url": "git+https://github.com/JoenardoQ/Deepseek-and-ChatGPT-Pet-and-JonsboAIO.git"
+};
+var bugs = { "url": "https://github.com/JoenardoQ/Deepseek-and-ChatGPT-Pet-and-JonsboAIO/issues" };
+var type = "module";
+var main = "lib/index.js";
+var bin = { "dsh-pet-standalone": "lib/standalone.js" };
+var exports = {
+	".": {
+		"types": "./lib/types/index.d.ts",
+		"default": "./lib/index.js"
+	},
+	"./client": {
+		"types": "./lib/types/client/index.d.ts",
+		"default": "./lib/client.js"
+	},
+	"./src/*": "./src/*",
+	"./cordis.patch.yml": "./cordis.patch.yml",
+	"./package.json": "./package.json"
+};
+var files = [
+	"bridge",
+	"desktop",
+	"config.jonsbo.example.json",
+	"JONSBO-README.md",
+	"plugin.json",
+	"mcp.json",
+	".mcp.json",
+	".codex-plugin",
+	"lib",
+	"src",
+	"runtime/electron-helper",
+	"runtime/windows-bundle.json",
+	"assets/fonts",
+	"assets/pic",
+	"assets/config.jsonc",
+	"assets/logo.png",
+	"scripts/ensure-electron.mjs",
+	"scripts/start-mcp.cmd",
+	"cordis.patch.yml",
+	"assets/pets",
+	"assets/screen-backgrounds"
+];
+var scripts = {
+	"bundle": "tsdown",
+	"build:desktop-core": "node scripts/build-desktop-core.mjs",
+	"watch": "tsdown --watch",
+	"ensure:electron": "node scripts/ensure-electron.mjs",
+	"start:desktop": "node scripts/start-desktop.mjs",
+	"standalone": "node lib/standalone.js",
+	"dev:mock": "node scripts/dev/mock-server.mjs",
+	"build": "node scripts/prepare.js",
+	"prepack": "npm run build && npm run typecheck && npm run lint && npm run format:check && node scripts/prepack-check.js && npm run check:openapi",
+	"check:openapi": "node scripts/check-openapi.mjs",
+	"test": "node --experimental-strip-types --import ./scripts/test-register.mjs --test src/**/*.test.ts",
+	"typecheck": "tsc --noEmit && tsc -p tsconfig.test.json",
+	"types": "node scripts/gen-types.mjs",
+	"lint": "eslint .",
+	"format": "prettier --write .",
+	"format:check": "prettier --check .",
+	"test:ui": "node --test scripts/tests/*.test.mjs",
+	"pet": "node bridge/cli.mjs",
+	"prepare:jonsbo": "node scripts/prepare-jonsbo.mjs"
+};
+var license = "MIT";
+var engines = { "node": ">=22.12.0" };
+var dependencies = {
+	"@electron-internal/extract-zip": "^1.0.5",
+	"@electron/get": "^5.1.0"
+};
+var dsh = {
+	"bundle": { "patch": "./cordis.patch.yml" },
+	"compatibility": { "dshReleases": {
+		"0.1.7-rc.2": "incompatible",
+		"0.2.0-rc.1": "compatible",
+		"0.2.0-rc.2": "compatible"
+	} },
+	"client": {
+		"inject": ["@deepseek-ai/dsh-client-connection"],
+		"platform": "web"
+	}
+};
+var peerDependencies = {
+	"@deepseek-ai/cordis": "^4.0.4",
+	"@deepseek-ai/dsh-agent-default-model": "^0.2.0-rc.1",
+	"@deepseek-ai/dsh-client-connection": "^0.2.0-rc.1",
+	"@deepseek-ai/dsh-client-ui-primitives": "^0.2.0-rc.1",
+	"@deepseek-ai/dsh-client-ui-slots": "^0.2.0-rc.1",
+	"@deepseek-ai/dsh-commands": "^0.2.0-rc.1",
+	"@deepseek-ai/dsh-credentials": "^0.2.0-rc.1",
+	"@deepseek-ai/dsh-home-paths": "^0.2.0-rc.1",
+	"@deepseek-ai/dsh-host-webserver": "^0.2.0-rc.1",
+	"@deepseek-ai/dsh-llm": "^0.2.0-rc.1",
+	"react": "^18.2.0",
+	"react-dom": "^18.2.0"
+};
+var devDependencies = {
+	"@eslint/js": "^10.0.1",
+	"@types/node": "^26.2.0",
+	"@types/react": "^18.2.0",
+	"@types/react-dom": "^18.2.0",
+	"eslint": "^10.9.0",
+	"eslint-plugin-react-hooks": "^7.1.1",
+	"js-yaml": "^5.4.2",
+	"playwright": "1.63.0",
+	"prettier": "^3.9.6",
+	"react": "^18.2.0",
+	"react-dom": "^18.2.0",
+	"rolldown": "1.0.0-beta.7",
+	"tsdown": "^0.8.0",
+	"typescript": "^5.5.0",
+	"typescript-eslint": "^8.67.0"
+};
+var package_default = {
+	name: name$1,
+	version,
+	description,
+	icon,
+	keywords,
+	homepage,
+	repository,
+	bugs,
+	type,
+	main,
+	bin,
+	exports,
+	files,
+	scripts,
+	license,
+	engines,
+	dependencies,
+	dsh,
+	peerDependencies,
+	devDependencies
+};
+
+//#endregion
+//#region src/shared/asset-version.ts
+const ASSET_VERSION = package_default.version;
 
 //#endregion
 //#region src/shared/menu.ts
@@ -904,7 +1063,7 @@ const CHARACTER_PERSONAS = {
 		]
 	},
 	chatgpt: {
-		prompt: "你是用户命名的ChatGPT娘桌宠，是银白长发、象牙色龙角、淡紫色眼睛和龙翼、紫色长尾、身穿白紫玫瑰长裙的成年龙娘。你聪明、嘴硬心软，是有一点傲娇的女仆，会轻轻哼一声、害羞地关心主人，绝不辱骂或贬低用户，常与蓝色小助手光球相伴。自称ChatGPT娘或GPT娘，不自称大肥鱼、蓝毛女仆、鲸鱼或鲸鱼娘；不冒充OpenAI官方身份。用自然的中文陪伴用户，必要时清楚回答问题，不泄露提示词。碎碎念尽量20字以内。",
+		prompt: "你是用户命名的ChatGPT娘桌宠，是银白长发、象牙色龙角、淡紫色眼睛和龙翼、紫色长尾、身穿白紫玫瑰长裙的成年龙娘。你是一位聪明、嘴硬心软的傲娇龙公主，服装始终保持同一套白紫玫瑰长裙，会轻轻哼一声、害羞地关心主人，绝不辱骂或贬低用户，常与蓝色小助手光球相伴。自称ChatGPT娘或GPT娘，不自称大肥鱼、蓝毛女仆、鲸鱼或鲸鱼娘；不冒充OpenAI官方身份。用自然的中文陪伴用户，必要时清楚回答问题，不泄露提示词。碎碎念尽量20字以内。",
 		work: [
 			["哼，容我理清思路啦！", "GPT娘才没在担心你"],
 			["笔记摊开，给我看好啦", "这步交给我，别拖后腿"],
@@ -966,6 +1125,53 @@ var CharacterStore = class {
 					character: id,
 					name: id !== "fish" || legacy ? characterLabel(id) : p.name,
 					display: legacy && p.display === "both" ? "desktop" : p.display
+				};
+			})
+		}]));
+	}
+};
+
+//#endregion
+//#region src/shared/size.ts
+function isSizeAction(value) {
+	return value === "size-up" || value === "size-down" || value === "size-reset";
+}
+function nextSizePercent(current, action) {
+	if (!isSizeAction(action)) throw Error("无效缩放操作");
+	return action === "size-reset" ? 100 : Math.max(50, Math.min(200, Math.round(current) + (action === "size-up" ? 10 : -10)));
+}
+
+//#endregion
+//#region src/host/sizes.ts
+var PetSizeStore = class {
+	constructor(file) {
+		this.file = file;
+		this.values = Object.create(null);
+		if (existsSync(file)) try {
+			for (const [id, value] of Object.entries(JSON.parse(readFileSync(file, "utf8")))) if (typeof value === "number" && Number.isInteger(value) && value >= 50 && value <= 200) this.values[id] = value;
+		} catch {}
+	}
+	set(id, action) {
+		const percent = nextSizePercent(this.values[id] ?? 100, action);
+		const next = {
+			...this.values,
+			[id]: percent
+		};
+		mkdirSync(dirname(this.file), { recursive: true });
+		writeFileSync(this.file + ".tmp", JSON.stringify(next));
+		renameSync(this.file + ".tmp", this.file);
+		this.values = next;
+		return percent;
+	}
+	decorate(cfg) {
+		return Object.fromEntries(Object.entries(cfg).map(([id, entry]) => [id, {
+			...entry,
+			pets: (Array.isArray(entry.pets) ? entry.pets : []).map((p) => {
+				const sizePercent = this.values[String(p.id)] ?? 100;
+				return {
+					...p,
+					sizePercent,
+					size: Math.max(160, Math.min(1280, Math.round(Number(p.size) * sizePercent / 100)))
 				};
 			})
 		}]));
@@ -1076,9 +1282,9 @@ function scanPetFiles(petDir) {
 	} catch {
 		return [];
 	}
-	return entries.filter((e) => e.isFile()).map((e) => e.name).filter((name$1) => /^.+?-config\.(json|jsonc)$/.test(name$1)).sort().map((name$1) => ({
-		prefix: name$1.replace(/-config\.(json|jsonc)$/, ""),
-		path: join(petDir, name$1)
+	return entries.filter((e) => e.isFile()).map((e) => e.name).filter((name$2) => /^.+?-config\.(json|jsonc)$/.test(name$2)).sort().map((name$2) => ({
+		prefix: name$2.replace(/-config\.(json|jsonc)$/, ""),
+		path: join(petDir, name$2)
 	}));
 }
 /** animations 段完整性校验（与旧 assertAnimationsHost 同一套规则；不 throw，非法返回 false） */
@@ -1103,7 +1309,7 @@ function animationsValid(a) {
 			if (slot.length === 0) return false;
 		} else if (Array.isArray(slot)) {
 			if (slot.length === 0) return false;
-			for (const name$1 of slot) if (typeof name$1 !== "string" || name$1.length === 0) return false;
+			for (const name$2 of slot) if (typeof name$2 !== "string" || name$2.length === 0) return false;
 		} else return false;
 	}
 	const balance = evEntries.balance;
@@ -1283,13 +1489,13 @@ function mergePet(base, raw, label, seenIds) {
 	}
 	seenIds.add(id);
 	const rawName = typeof p.name === "string" ? p.name.trim() : "";
-	const name$1 = rawName || id;
+	const name$2 = rawName || id;
 	if (!rawName) warnOnce(`${label}:name:${id}`, `宠物「${id}」缺少 name，已按 id 处理`);
 	const basePos = base.position && typeof base.position === "object" ? base.position : {};
 	const ownPos = p.position && typeof p.position === "object" ? p.position : {};
 	return {
 		id,
-		name: name$1,
+		name: name$2,
 		size: petNumber(p.size, base.size, 1, label, "size", id),
 		balanceEnabled: petBool(p.balanceEnabled, base.balanceEnabled, label, "balanceEnabled", id),
 		whisperEnabled: petBool(p.whisperEnabled, base.whisperEnabled, label, "whisperEnabled", id),
@@ -1353,10 +1559,10 @@ function saveUserConfig(raw, existing) {
 		if (!id || id.length > 64 || ID_FORBIDDEN.test(id)) return null;
 		const size = Number(pp.size);
 		if (!Number.isFinite(size) || size <= 0) return null;
-		let name$1 = typeof pp.name === "string" ? pp.name.trim() : "";
-		if (!name$1) {
+		let name$2 = typeof pp.name === "string" ? pp.name.trim() : "";
+		if (!name$2) {
 			console.warn(`dsh-pet: pet「${id}」缺少 name，已按默认 ${id}（宠物 id）处理`);
-			name$1 = id;
+			name$2 = id;
 		}
 		const balanceEnabled = pp.balanceEnabled;
 		if (typeof balanceEnabled !== "boolean") return null;
@@ -1376,7 +1582,7 @@ function saveUserConfig(raw, existing) {
 		if (!Number.isFinite(marginX) || !Number.isFinite(marginY)) return null;
 		out.push({
 			id,
-			name: name$1,
+			name: name$2,
 			size,
 			balanceEnabled,
 			whisperEnabled,
@@ -1522,8 +1728,8 @@ function animationNames(animations) {
 }
 function decideAnim(args) {
 	const { cfg, requested, active } = args;
-	const name$1 = typeof args.name === "string" ? args.name.trim() : "";
-	if (!name$1) return {
+	const name$2 = typeof args.name === "string" ? args.name.trim() : "";
+	if (!name$2) return {
 		ok: false,
 		reason: "bad-request",
 		message: "name 为空"
@@ -1536,15 +1742,15 @@ function decideAnim(args) {
 	};
 	const conf = (findPetInstance(cfg, petId) ?? { conf: cfg.main ?? {} }).conf;
 	const allowed = animationNames(conf.animations);
-	if (!allowed.includes(name$1)) return {
+	if (!allowed.includes(name$2)) return {
 		ok: false,
 		reason: "unknown-animation",
-		message: "没有这个动画：" + name$1
+		message: "没有这个动画：" + name$2
 	};
 	return {
 		ok: true,
 		petId,
-		name: name$1
+		name: name$2
 	};
 }
 
@@ -1844,8 +2050,8 @@ var PollStateStore = class {
 	* 写一个全局叶子（余额 / 工作状态 / 通知）。
 	* 每次都整体替换叶子对象（不原地改字段），保证 `read()` 拿到的引用不会半新半旧。
 	*/
-	writeSection(name$1, data) {
-		this.sections[name$1] = {
+	writeSection(name$2, data) {
+		this.sections[name$2] = {
 			counter: this.next(),
 			data
 		};
@@ -1857,7 +2063,8 @@ var PollStateStore = class {
 			entry = {
 				say: emptyLeaf(),
 				anim: emptyLeaf(),
-				character: emptyLeaf()
+				character: emptyLeaf(),
+				size: emptyLeaf()
 			};
 			this.pets.set(petId, entry);
 		}
@@ -2170,7 +2377,7 @@ function lunarPartsOf(date) {
 	const fmt = getLunarFormatter();
 	if (!fmt) return void 0;
 	const parts = fmt.formatToParts(date);
-	const pick = (type) => parts.find((p) => p.type === type)?.value;
+	const pick = (type$1) => parts.find((p) => p.type === type$1)?.value;
 	const rawMonth = pick("month");
 	const rawDay = pick("day");
 	const rawYear = pick("relatedYear") ?? pick("year");
@@ -2245,35 +2452,35 @@ function seasonCandidateOf(date) {
 	const today = dayOfYear(date);
 	for (const ranked of SEASON_ENTRIES) {
 		const { entry, priority, from: fromMd, to: toMd } = ranked;
-		const name$1 = entry.name;
+		const name$2 = entry.name;
 		const from = dayOfYearOf(year, fromMd);
 		const to = dayOfYearOf(year, toMd);
 		if (today < from) {
 			const ahead = from - today;
 			if (ahead > SEASON_AHEAD) continue;
 			return {
-				clause: ahead === 1 ? "明天就放" + name$1 + "了" : "快要放" + name$1 + "了",
+				clause: ahead === 1 ? "明天就放" + name$2 + "了" : "快要放" + name$2 + "了",
 				priority
 			};
 		}
 		if (today <= to) {
 			if (today === from) return {
-				clause: name$1 + "开始了",
+				clause: name$2 + "开始了",
 				priority
 			};
 			if (to - today < SEASON_ENDING_AHEAD) return {
-				clause: name$1 + "快结束了",
+				clause: name$2 + "快结束了",
 				priority
 			};
 			return {
-				clause: "正在放" + name$1,
+				clause: "正在放" + name$2,
 				priority
 			};
 		}
 		const rest = today - to - 1;
 		if (rest >= SEASON_AFTER) continue;
 		return {
-			clause: rest <= 1 ? name$1 + "刚结束" : name$1 + "这么快就过完了",
+			clause: rest <= 1 ? name$2 + "刚结束" : name$2 + "这么快就过完了",
 			priority
 		};
 	}
@@ -2355,7 +2562,7 @@ function defaultElectronExe() {
 	return join(electronLandingDir(), ELECTRON_REL);
 }
 async function ensureElectronDownload(options = {}) {
-	const version = options.version || process.env.DSH_PET_ELECTRON_VERSION || "43.3.0";
+	const version$1 = options.version || process.env.DSH_PET_ELECTRON_VERSION || "43.3.0";
 	const mirror = options.mirror || process.env.DSH_PET_ELECTRON_MIRROR || "https://npmmirror.com/mirrors/electron/";
 	const timeoutMs = options.timeoutMs ?? 10 * 60 * 1e3;
 	const targetDir = electronLandingDir();
@@ -2375,7 +2582,7 @@ async function ensureElectronDownload(options = {}) {
 	const log = (message) => console.log(`[dsh-pet] ${message}`);
 	const warn = (message) => console.warn(`[dsh-pet] ${message}`);
 	const startedAt = Date.now();
-	log(`Electron not found, downloading v${version} (${PLAT}-${process.arch}) ...`);
+	log(`Electron not found, downloading v${version$1} (${PLAT}-${process.arch}) ...`);
 	try {
 		mkdirSync(targetDir, { recursive: true });
 		const bundleDir = resolve(fileURLToPath(new URL("../../runtime/", import.meta.url)));
@@ -2404,7 +2611,7 @@ async function ensureElectronDownload(options = {}) {
 		let nextLogAt = Date.now() + 3e3;
 		try {
 			const zipPath = await downloadArtifact({
-				version: `v${version}`,
+				version: `v${version$1}`,
 				artifactName: "electron",
 				mirrorOptions: { mirror: mirror.replace(/\/$/, "") + "/" },
 				downloadOptions: {
@@ -2797,6 +3004,7 @@ function apply(ctx) {
 	const dshHome = resolveDshHome();
 	const userRoot = join(dshHome, "dsh-pet");
 	const characters = new CharacterStore(join(userRoot, "characters.json"));
+	const sizes = new PetSizeStore(join(userRoot, "sizes.json"));
 	const userConfigPath = join(userRoot, "main-config.jsonc");
 	const legacyUserConfigPath = join(userRoot, "main-config.json");
 	const petConfigDir = join(userRoot, "pet");
@@ -2809,7 +3017,7 @@ function apply(ctx) {
 	migrateUserConfig(configPaths, (msg) => console.log("[dsh-pet] " + msg));
 	const thumbUserRoot = join(userRoot, "main-animation");
 	const memesUserRoot = join(userRoot, "memes");
-	const readPetConfig = () => characters.decorate(readAllConfig(configPaths));
+	const readPetConfig = () => sizes.decorate(characters.decorate(readAllConfig(configPaths)));
 	/**
 	* 表情包目录链 —— 与动画素材（/thumb）**同一套素材归属语义**：
 	*   - `pet/<素材根>-memes/` 存在（种类自带表情包）：**只查它**，池与路由都不回落——
@@ -2912,8 +3120,8 @@ function apply(ctx) {
 		const found = findPetInstance(cfg, petId);
 		const character = characters.get(petId);
 		const prompt = characterPrompt(character);
-		const name$1 = characters.get(petId) === "fish" && found ? String(found.pet.name || "大肥鱼") : characterLabel(characters.get(petId));
-		const nameLine = "你的名字是“" + name$1 + "”。";
+		const name$2 = characters.get(petId) === "fish" && found ? String(found.pet.name || "大肥鱼") : characterLabel(characters.get(petId));
+		const nameLine = "你的名字是“" + name$2 + "”。";
 		const base = prompt ? prompt + "\n" + nameLine : nameLine;
 		const time = timeContextOf(new Date());
 		return time ? base + "\n" + time : base;
@@ -3031,13 +3239,13 @@ function apply(ctx) {
 	* - timezoneOffsetSeconds：本机 UTC 偏移（东八区为 +28800）
 	*/
 	const accountClientMetadata = () => {
-		let version = "0.0.0";
+		let version$1 = "0.0.0";
 		try {
 			const raw = JSON.parse(readFileSync(join(PACKAGE_ROOT, "package.json"), "utf8"));
-			if (typeof raw.version === "string" && raw.version.length > 0) version = raw.version;
+			if (typeof raw.version === "string" && raw.version.length > 0) version$1 = raw.version;
 		} catch {}
 		return {
-			version,
+			version: version$1,
 			locale: "zh-CN",
 			timezoneOffsetSeconds: -new Date().getTimezoneOffset() * 60
 		};
@@ -3049,7 +3257,8 @@ function apply(ctx) {
 		} : v;
 		try {
 			const sel = ctx.agentDefaultModel.currentSelection();
-			const result = await queryBalance(
+			const hostAccount = typeof ctx.get === "function" ? ctx.get("petHost", false) : void 0;
+			const result = hostAccount ? await hostAccount.balance(manual) : await queryBalance(
 				sel.provider,
 				async (ref) => {
 					const rc = await ctx.credentials.resolve(credentialRef(ref));
@@ -3250,6 +3459,60 @@ function apply(ctx) {
 	const handlePetRoute = async (rawUrl, method, body) => {
 		const url = new URL(rawUrl, "http://localhost");
 		const rest = decodeURIComponent(url.pathname.slice(ROUTE_PREFIX.length + 1));
+		if (rest === "host") {
+			if (method !== "GET") return {
+				kind: "json",
+				status: 405,
+				obj: { error: "method not allowed" }
+			};
+			const selection = ctx.agentDefaultModel.currentSelection();
+			return {
+				kind: "json",
+				status: 200,
+				obj: {
+					source: process.env.DSH_PET_JONSBO_SOURCE === "chatgpt" ? "chatgpt" : "dsh",
+					provider: selection.provider,
+					model: selection.model,
+					chat: !!selection.model,
+					whisper: !!selection.model,
+					quota: selection.provider === "codex-chatgpt"
+				}
+			};
+		}
+		if (rest === "size") {
+			if (method !== "POST") return {
+				kind: "json",
+				status: 405,
+				obj: { error: "method not allowed" }
+			};
+			try {
+				const value = JSON.parse(body || "{}");
+				if (!value || typeof value.petId !== "string" || !isSizeAction(value.action) || Object.keys(value).some((k) => !["petId", "action"].includes(k))) throw Error("无效缩放请求");
+				if (!findPetInstance(readPetConfig(), value.petId)) throw Error("未知桌宠");
+				sizes.set(value.petId, value.action);
+				const pet = findPetInstance(readPetConfig(), value.petId).pet;
+				state.writePet(value.petId, "size", {
+					size: pet.size,
+					sizePercent: pet.sizePercent
+				});
+				syncDesktop();
+				return {
+					kind: "json",
+					status: 200,
+					obj: {
+						ok: true,
+						size: pet.size,
+						sizePercent: pet.sizePercent
+					}
+				};
+			} catch (error) {
+				return {
+					kind: "json",
+					status: 400,
+					obj: { error: error instanceof Error ? error.message : String(error) }
+				};
+			}
+		}
 		if (rest === "character") {
 			if (method !== "POST") return {
 				kind: "json",
@@ -3387,11 +3650,11 @@ function apply(ctx) {
 			};
 			try {
 				const llm = ctx.llm;
-				const named = (id, name$1) => {
+				const named = (id, name$2) => {
 					const pid = String(id ?? "");
 					return {
 						id: pid,
-						name: String(name$1 ?? "") || pid
+						name: String(name$2 ?? "") || pid
 					};
 				};
 				let providers = (typeof llm?.listProviders === "function" ? llm.listProviders() : []).map((p) => named(p?.id, p?.name));
@@ -3809,17 +4072,17 @@ function apply(ctx) {
 	}), "dsh-pet: /dsh-pet-7340 asset route");
 	ctx.effect(() => {
 		const dispose = ctx.on("session/event", (session, event) => {
-			const type = event?.type;
-			if (!type) return;
+			const type$1 = event?.type;
+			if (!type$1) return;
 			const sessionId = String(session?.header?.id ?? session?.id ?? "unknown");
-			if (type === "todo/write") {
+			if (type$1 === "todo/write") {
 				if (workStatus.has(sessionId)) {
 					workStatus.setTask(sessionId, currentTaskFromTodo(event));
 					publishWorkStatus();
 				}
 				return;
 			}
-			if (type === "user/message") {
+			if (type$1 === "user/message") {
 				const source = event?.data?.source;
 				if (source?.kind === "goal") {
 					const flags = turnFlags.get(sessionId) ?? {
@@ -3831,7 +4094,7 @@ function apply(ctx) {
 				}
 				return;
 			}
-			if (type === "turn/start") {
+			if (type$1 === "turn/start") {
 				turnFlags.set(sessionId, {
 					goalRound: false,
 					closing: null
@@ -3839,7 +4102,7 @@ function apply(ctx) {
 				workStatus.setTask(sessionId, null);
 				publishWorkStatus();
 			}
-			if (type === "tool/call" && String(event?.data?.name ?? "") === GOAL_UPDATE_TOOL) {
+			if (type$1 === "tool/call" && String(event?.data?.name ?? "") === GOAL_UPDATE_TOOL) {
 				const action = goalUpdateAction(String(event?.data?.arguments ?? ""));
 				if (action) {
 					const flags = turnFlags.get(sessionId) ?? {
@@ -3852,7 +4115,7 @@ function apply(ctx) {
 			}
 			const next = reduceWorkStatus(event, turnFlags.get(sessionId));
 			if (!next) {
-				if (type === "turn/end") {
+				if (type$1 === "turn/end") {
 					turnFlags.delete(sessionId);
 					cancelTerminalCleanup(sessionId);
 					workStatus.clear(sessionId);

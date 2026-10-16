@@ -1,12 +1,19 @@
 import { spawn } from 'node:child_process';
-import { mkdirSync, openSync, closeSync } from 'node:fs';
+import { mkdirSync, openSync, closeSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { base, root, dataDir, nodeCommand, port } from './runtime.mjs';
 import { validateEvent } from './state.mjs';
 import { ensureDependencies } from './dependencies.mjs';
 import { withStartupLock } from './startup-lock.mjs';
 import {prepareWindows} from './bootstrap.mjs';
-const protocol = 3;
+const protocol = 4;
+const localBuild = JSON.parse(readFileSync(path.join(root,'package.json'),'utf8')).version;
+function olderBuild(value) {
+  const a=/^(\d+)\.(\d+)\.(\d+)$/.exec(value||''), b=/^(\d+)\.(\d+)\.(\d+)$/.exec(localBuild);
+  if(!a||!b)return false;
+  for(let i=1;i<=3;i++){if(+a[i]!==+b[i])return +a[i]<+b[i];}
+  return false;
+}
 async function inspect() {
   const r = await fetch(base + '/state', { headers: { Connection: 'close' }, signal: AbortSignal.timeout(1500) });
   const value = await r.json();
@@ -16,13 +23,14 @@ async function inspect() {
 }
 export async function status() {
   const value = await inspect();
-  if (value.version !== protocol || value.build === '1.0.0') throw new Error('桌宠桥接版本不兼容，请重新启用新版插件。');
+  if (value.version !== protocol) throw new Error('桌宠桥接版本不兼容，请重新启用新版插件。');
   return value;
 }
 let starting;
 export async function ensureBridge() {
   try {
     let current=await status();
+    if(olderBuild(current.build))throw Error('需要加载当前插件的修复版桥接');
     for(let i=0;current.shuttingDown && i<80;i++){await new Promise(resolve=>setTimeout(resolve,100));current=await status();}
     if(current.shuttingDown)throw Error('桌宠尚未完成退出，请稍后重试。');
     return current;
@@ -36,10 +44,10 @@ async function startBridge() {
   try { existing = await inspect(); }
   catch (error) { if (error.cause?.code !== 'ECONNREFUSED') throw error; }
   if(existing?.shuttingDown)throw Error('桌宠尚未完成退出，请稍后重试。');
-  if (existing?.version === protocol && existing.build !== '1.0.0') return existing;
+  if (existing?.version === protocol && !olderBuild(existing.build)) return existing;
   if (existing) {
     // Only our known old protocol may be retired. Never shut down an unknown service/version.
-    if (![1, 2].includes(existing.version) && !(existing.version === protocol && existing.build === '1.0.0')) throw new Error('桌宠桥接版本不兼容，请更新插件。');
+    if (![1, 2, 3].includes(existing.version) && !(existing.version === protocol && olderBuild(existing.build))) throw new Error('桌宠桥接版本不兼容，请更新插件。');
     const stopped = await fetch(base + '/shutdown', {
       method: 'POST', headers: { 'X-Pet-Client': '1', Connection: 'close' }, signal: AbortSignal.timeout(6000),
     });

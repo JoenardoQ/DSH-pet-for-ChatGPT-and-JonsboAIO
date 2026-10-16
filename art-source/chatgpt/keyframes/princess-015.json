@@ -1,0 +1,35 @@
+{
+  "id": "princess-015",
+  "sourceAnimation": "凭空生花",
+  "label": "凭空生花",
+  "category": "日常",
+  "beats": "先为“凭空生花”做好自然准备，以完整连贯的小动作完成这件事，露出符合傲娇龙公主的微表情，缓缓恢复起始姿势；手臂、手指、龙翼、龙尾、长发和裙摆有独立的跟随动作",
+  "durationMs": 9000,
+  "fps": 24,
+  "frames": 216,
+  "size": [
+    640,
+    360
+  ],
+  "status": "exported",
+  "source": "art-source/chatgpt/keyframes/princess-015.png",
+  "prompt": "Use case: illustration-story. Production animation atlas, EXACT 4x4 equal cells, 16 chronological articulated drawings of ONE seamless 9-second action. Reference locks SAME ADULT dragon princess: silver-white long hair, ivory horns, purple eyes, lavender wings and long tail, SAME ornate white and lilac rose long dress, sleeves, corset, accessories and shoes. Proud, caring tsundere princess. Do not change outfit, add apron/crown or redesign. Clean detailed anime cel art. CRITICAL: each FULL BODY figure must be SMALL, occupy only 60% cell height and 75% cell width; generous transparent gutters and padding so COMPLETE horn tips wings tail shoes dress never touch other figures or image edges. Fixed camera and scale. Truly transparent alpha background, no ground/shadows, no opaque backdrop, no text/grid/watermark. Sixteen DIFFERENT progressive poses with small natural changes, preparation/main action/follow-through/recovery and compatible first/last poses. Actual articulated fingers arms face wings tail hair and skirt, not shifted copies or unrelated poses. Action: 凭空生花。先为“凭空生花”做好自然准备，以完整连贯的小动作完成这件事，露出符合傲娇龙公主的微表情，缓缓恢复起始姿势；手臂、手指、龙翼、龙尾、长发和裙摆有独立的跟随动作。Do only this action, consistent character and clothing throughout.",
+  "file": "dsh-pet/assets/pets/chatgpt/gif/princess-015.gif",
+  "keyDrawings": 16,
+  "uniqueFrames": 216,
+  "bytes": 8980622,
+  "sha256": "3a7be7b6b26dcd8182c8c2e638220d7f089d488c83b05da0dd2e383ed8258c96",
+  "method": "imagegen articulated key drawings; FFmpeg motion-compensated interpolation to 24fps; transparent GIF encoding",
+  "keyframeGrid": [
+    4,
+    4
+  ],
+  "componentBarriers": [],
+  "matteColorRGB": [
+    0,
+    255,
+    0
+  ],
+  "matteMargin": 45,
+  "paletteSource": "opaque pixels of the original key drawings; excludes matte spill"
+}

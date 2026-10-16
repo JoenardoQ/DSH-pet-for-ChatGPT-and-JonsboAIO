@@ -1,0 +1,64 @@
+{
+  "id": "princess-025",
+  "sourceAnimation": "变鸽子",
+  "label": "公主的幻鸽魔术",
+  "category": "日常",
+  "beats": "先为“变鸽子”做好自然准备，以完整连贯的小动作完成这件事，露出符合傲娇龙公主的微表情，缓缓恢复起始姿势；手臂、手指、龙翼、龙尾、长发和裙摆有独立的跟随动作",
+  "durationMs": 9000,
+  "fps": 24,
+  "frames": 216,
+  "size": [
+    640,
+    360
+  ],
+  "status": "exported",
+  "source": "art-source/chatgpt/keyframes/princess-025.png",
+  "keyframeGrid": [
+    6,
+    3
+  ],
+  "rowColumns": [
+    5,
+    5,
+    6
+  ],
+  "rowBounds": [
+    [
+      0,
+      420
+    ],
+    [
+      420,
+      800
+    ],
+    [
+      800,
+      1214
+    ]
+  ],
+  "componentBarriers": [
+    [
+      420,
+      0,
+      1295
+    ],
+    [
+      800,
+      0,
+      1295
+    ]
+  ],
+  "matteColorRGB": [
+    0,
+    255,
+    0
+  ],
+  "matteMargin": 45,
+  "file": "dsh-pet/assets/pets/chatgpt/gif/princess-025.gif",
+  "keyDrawings": 16,
+  "uniqueFrames": 216,
+  "bytes": 3567989,
+  "sha256": "b100f2f488314f9a355624ade43930595698feb3fcb89fa184444a6e702bbdba",
+  "method": "imagegen articulated key drawings; FFmpeg motion-compensated interpolation to 24fps; transparent GIF encoding",
+  "paletteSource": "opaque pixels of the original key drawings; excludes matte spill"
+}

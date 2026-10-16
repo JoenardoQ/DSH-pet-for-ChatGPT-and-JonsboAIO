@@ -1152,26 +1152,29 @@ class PetSprite {
     // 桌面专属工具根项（打开网站 / 查看余额 / 碎碎念 / 对话 / 回到初始位置 / 重载配置）+ 共享菜单树（动作→分类→具体动画）
     // 碎碎念/对话项无条件显示：手动触发不受 whisperEnabled 限制（该字段只影响自动周期轮询）
     // 首项文案随宿主形态变（OPEN_TARGET）：宿主是 DSH 桌面应用时点是"唤起桌面应用窗口"，仍叫「打开网站」会误导
-    const tools = [{ label: OPEN_TARGET === 'desktop' ? '打开 DeepSeek Harness' : '打开网站', action: 'open-site' }];
-    if (this.pet.balanceEnabled) tools.push({ label: '查看余额', action: 'show-balance' });
+    const tools = window.__jonsboDebug?.source === 'chatgpt' ? [] : [{ label: OPEN_TARGET === 'desktop' ? '打开 DeepSeek Harness' : '打开网站', action: 'open-site' }];
+    if (this.pet.balanceEnabled || window.__jonsboDebug?.source === 'chatgpt') tools.push({ label: window.__jonsboDebug?.source === 'chatgpt' ? '查看套餐用量' : '查看余额', action: 'show-balance' });
+    tools.push({label:'碎碎念',action:'whisper'},{label:'对话',action:'chat'});
     tools.push(
-      { label: '碎碎念', action: 'whisper' },
-      { label: '对话', action: 'chat' },
       { label: '回到初始位置', action: 'home' },
       // 改配置文件后免去回设置页点保存：请宿主重启桌面 Helper（全部桌面宠物窗口按最新配置重建）。
       // 放在最后：它是"重新加载"这类维护动作，与上面几个宠物互动项语义不同。
       { label: '重载配置', action: 'reload' },
     );
     if (window.jonsboBridge) {
-      tools.unshift(
-        { label: '连接乔思伯屏幕', action: 'jonsbo-connect' },
-        { label: '断开乔思伯屏幕', action: 'jonsbo-disconnect' },
-        { label: '屏幕连接状态', action: 'jonsbo-status' },
-      );
+      tools.unshift({ label: '乔思伯屏幕', children: [
+        { label: '打开投屏控制台', action: 'jonsbo-status' },
+        { label: '连接屏幕', action: 'jonsbo-connect' },
+        { label: '断开当前投屏', action: 'jonsbo-disconnect' },
+        { label: '接管屏幕（退出官方程序）', action: 'jonsbo-takeover' },
+        { label: '切到 DSH 桌宠', action: 'jonsbo-source-dsh' },
+        { label: '切到 GPT 桌宠', action: 'jonsbo-source-chatgpt' },
+        { label:'屏幕背景', children:(window.__jonsboDebug?.backgrounds||[]).map(b=>({label:(window.__jonsboDebug?.appearance?.background===b.id?'✓ ':'')+b.label,action:'jonsbo-background-'+b.id})) },
+      ] });
       if (window.__jonsboDebug?.source === 'chatgpt')
         tools.push({ label: '关闭桌宠', action: 'jonsbo-shutdown' });
     }
-    const tree = [S.characterMenu(this.character), S.duetMenu()].concat(tools,S.characterActionMenu(this.character,this.animations));
+    const tree = [S.characterMenu(this.character), S.sizeMenu(this.pet.sizePercent), S.duetMenu()].concat(tools,S.characterActionMenu(this.character,this.animations));
     if (!tree.length) return;
     this.menuOpen = true;
     this.setInteractive(true); // 菜单是窗口内 DOM：悬停期间整窗保持可交互，关闭后恢复命中区穿透
@@ -1197,11 +1200,10 @@ class PetSprite {
   applyDuet(status) {
     const action = status?.active && status.owner === window.__jonsboDebug?.source ? status.action : null;
     if (action === this.duetAction) return;
-    if (action && !this.duetAction) this.duetSolo = { anim: this.anim, once: this.once };
     this.duetAction = action;
     this.stopMove(); this.stopThrow(); this.pending = null; this.gen++;
     if (action) this.switchTo('__duet-' + action, false);
-    else this.switchTo(this.duetSolo?.anim || this.animations.idle[0], this.duetSolo?.once ?? true);
+    else if(!this.resumeWorkStatusAnim())this.playIdle();
   }
   applyCharacter(character) {
     if(!S.CHARACTERS.some(c=>c.id===character)||character===this.character)return;
@@ -1219,6 +1221,10 @@ class PetSprite {
       }).catch(error => this.showWhisper(error.message));
       return;
     }
+    if (S.isSizeAction(leaf.action)) {
+      S.resizePet(BASE,this.pet.id,leaf.action).catch(error=>this.showWhisper(error.message));
+      return;
+    }
     const character=S.characterAction(leaf.action);
     if(character) {
       S.saveCharacter(BASE,this.pet.id,character).then(()=>this.applyCharacter(character)).catch(error=>this.showWhisper(error.message));
@@ -1227,6 +1233,9 @@ class PetSprite {
     if (leaf.action?.startsWith('jonsbo-') && window.jonsboBridge) {
       const bridge = window.jonsboBridge;
       const request = leaf.action === 'jonsbo-status' ? bridge.openStatus()
+        : leaf.action === 'jonsbo-takeover' ? bridge.takeOver()
+        : leaf.action.startsWith('jonsbo-source-') ? bridge.selectSource(leaf.action.slice(14))
+        : leaf.action.startsWith('jonsbo-background-') ? bridge.setBackground(leaf.action.slice(18))
         : leaf.action === 'jonsbo-shutdown' ? bridge.shutdown()
         : bridge.setScreen(leaf.action === 'jonsbo-connect');
       request.then((result) => {
@@ -1287,6 +1296,15 @@ class PetSprite {
   // （0 延迟，不用等下一个 1s；展示走 showBalanceNow/showBalanceNotice 同一路径）。
   // 注意这里不再直接拉余额：数据只有一个出口（S），菜单只负责"让它刷新"。
   showBalanceFromMenu() {
+    if (window.__jonsboDebug?.source === 'chatgpt') {
+      S.postAction(BALANCE_URL).then(async ok => {
+        if(!ok)throw Error('套餐用量刷新失败');
+        const response=await fetch(BASE+'/state'),state=await response.json();
+        const balance=S.toBalanceState(state.sections.balance.data);
+        this.showWhisper(balance?S.balanceBubbleView(balance).map(row=>row.text).join('\n'):'宿主尚未返回套餐用量');
+      }).catch(error=>this.showWhisper(error.message));
+      return;
+    }
     if (!this.pet.balanceEnabled) return;
     S.postAction(BALANCE_URL)
       .then((ok) => {

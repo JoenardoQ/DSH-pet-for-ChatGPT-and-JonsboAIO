@@ -157,7 +157,7 @@ function Resolve-Package($Spec){
   }finally{$archive.Dispose()}
   [void](Read-Package $unpack);return $unpack
 }
-function Run-Command([string]$Exe,[string[]]$Arguments){
+function Run-Command([string]$Exe,[string[]]$Arguments,[switch]$Capture){
   # ArgumentList is available in PowerShell 7; this Windows PowerShell entry uses proper Win32 quoting.
   $quoted=@($Arguments | ForEach-Object {'"'+([regex]::Replace([regex]::Replace($_,'(\\*)"','$1$1\"'),'(\\+)$','$1$1'))+'"'}) -join ' '
   $info=New-Object Diagnostics.ProcessStartInfo
@@ -168,8 +168,9 @@ function Run-Command([string]$Exe,[string[]]$Arguments){
     [void]$proc.Start();$out=$proc.StandardOutput.ReadToEndAsync();$err=$proc.StandardError.ReadToEndAsync()
     while(!$proc.WaitForExit(100)){if($script:form){[Windows.Forms.Application]::DoEvents()}}
     $stdout=$out.GetAwaiter().GetResult();$stderr=$err.GetAwaiter().GetResult()
-    if($stdout){Report $stdout.Trim()};if($stderr){Report $stderr.Trim()}
+    if($stdout -and !$Capture){Report $stdout.Trim()};if($stderr){Report $stderr.Trim()}
     if($proc.ExitCode -ne 0){throw "宿主安装命令失败（$($proc.ExitCode)）。上方日志可用于重试。"}
+    if($Capture){return $stdout}
   }finally{$proc.Dispose()}
 }
 function Install-Package([string]$ChosenTarget,[string]$Value){
@@ -178,6 +179,7 @@ function Install-Package([string]$ChosenTarget,[string]$Value){
   if($ChosenTarget -eq 'Codex'){
     $cli=Get-Command codex.exe -ErrorAction SilentlyContinue
     if(!$cli){$cli=Get-Command codex -ErrorAction SilentlyContinue}
+    if(!$cli){$bundled=Join-Path $env:USERPROFILE '.codex\plugins\.plugin-appserver\codex.exe';if(Test-Path -LiteralPath $bundled){$cli=Get-Item -LiteralPath $bundled | Select-Object @{n='Source';e={$_.FullName}}}}
     if(!$cli -or $cli.Source -match '\.(cmd|ps1)$'){throw '未找到 Codex 可执行 CLI。请在宿主插件目录中添加本仓库源，或将 codex.exe 所在目录加入 PATH 后重试。'}
   }else{
     if(!$DshDesktop){foreach($folder in @((Join-Path $env:LOCALAPPDATA 'Programs\DeepSeek Harness'),(Join-Path $env:LOCALAPPDATA 'DeepSeek Harness'))){if(Test-Path -LiteralPath (Join-Path $folder 'DeepSeek Harness.exe')){$DshDesktop=$folder;break}}}
@@ -187,16 +189,35 @@ function Install-Package([string]$ChosenTarget,[string]$Value){
   if($ChosenTarget -eq 'Codex'){
     $market=Get-Content -LiteralPath (Join-Path $root '.agents/plugins/marketplace.json') -Raw -Encoding UTF8 | ConvertFrom-Json
     Report '正在注册到 GPT / Codex 本地插件列表…'
-    Run-Command $cli.Source @('plugin','marketplace','add',$root)
+    # Source folders may contain authoring archives/node_modules; publish only declared package files.
+    $installRoot=Join-Path $env:LOCALAPPDATA ('DesktopPetPackages\installed-'+$pkg.version)
+    if([IO.Path]::GetFullPath($root) -ne [IO.Path]::GetFullPath($installRoot)){
+      New-Item -ItemType Directory -Path $installRoot -Force | Out-Null
+      foreach($entry in @('package.json')+@($pkg.files)){
+        foreach($file in @(Get-Item -Path (Join-Path $root $entry) -Force -ErrorAction SilentlyContinue)){
+          $relative=$file.FullName.Substring($root.TrimEnd('\','/').Length).TrimStart('\','/')
+          $dest=[IO.Path]::GetFullPath((Join-Path $installRoot $relative))
+          if(!$dest.StartsWith([IO.Path]::GetFullPath($installRoot)+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){throw '安装文件越界。'}
+          [IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($dest))|Out-Null
+          if($file.PSIsContainer){Copy-Item -LiteralPath $file.FullName -Destination ([IO.Path]::GetDirectoryName($dest)) -Recurse -Force}else{Copy-Item -LiteralPath $file.FullName -Destination $dest -Force}
+        }
+      }
+    }
+    $configured=(Run-Command $cli.Source @('plugin','marketplace','list','--json') -Capture | ConvertFrom-Json).marketplaces | Where-Object name -eq $market.name
+    if($configured -and [IO.Path]::GetFullPath($configured.root) -ne [IO.Path]::GetFullPath($installRoot)){
+      Run-Command $cli.Source @('plugin','marketplace','remove',$market.name)
+    }
+    Run-Command $cli.Source @('plugin','marketplace','add',$installRoot)
+    Run-Command $cli.Source @('plugin','add',($market.plugins[0].name+'@'+$market.name))
     # Discovery only. Enabling in the host is the user's explicit next action, and never spawns a pet here.
-    Report ('已添加插件源 '+$market.name+'。在宿主插件列表安装并启用后显示桌宠。')
+    Report ('已更新插件 '+$pkg.version+'。宿主重新加载后使用新版；旧缓存不再作为入口。')
   }else{
     Report '正在安装到 DSH 插件列表…'
     $previous=$env:ELECTRON_RUN_AS_NODE
     try{
       $env:ELECTRON_RUN_AS_NODE='1'
       $hostCli=Join-Path $DshDesktop 'resources\app.asar\dsh\node_modules\@deepseek-ai\dsh-desktop-host\lib\cli.js'
-      Run-Command (Join-Path $DshDesktop 'DeepSeek Harness.exe') @('--expose-internals',$hostCli,'plugin','--profile',$Profile,'add',$root)
+      Run-Command (Join-Path $DshDesktop 'DeepSeek Harness.exe') @('--expose-internals',$hostCli,'plugin','--profile',$Profile,'add',('file:'+$root))
     }finally{$env:ELECTRON_RUN_AS_NODE=$previous}
     Report '已加入 DSH 插件列表；在 DSH 中启用插件。默认仅显示一只桌面宠物。'
   }

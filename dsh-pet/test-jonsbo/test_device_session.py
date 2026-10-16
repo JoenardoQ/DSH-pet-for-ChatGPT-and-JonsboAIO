@@ -63,4 +63,36 @@ class SessionTests(unittest.TestCase):
             self.assertEqual(session.prepare()['usb'],'ready')
             self.assertEqual(session.owned['vendor'],'C:/JONSBO/JONSBO-AIO.exe')
 
+    def test_failed_consent_is_reported_without_repeating_or_losing_error(self):
+        with tempfile.TemporaryDirectory() as directory, patch.object(d,'present_devices',return_value=['screen']), patch.object(d,'find_sdk',return_value=Path('sdk.dll')), patch.object(d,'vendor_processes',return_value=[{'pid':42,'path':None}]), patch.object(d,'elevated_close_vendor',side_effect=PermissionError('Windows consent canceled')) as elevate:
+            cfg={'forceTakeover':True,'takeoverRequest':'click'}
+            progress=[]
+            session=d.DeviceSession(cfg,directory,progress=lambda **value:progress.append(value))
+            for attempt in range(3):
+                current=session if attempt<2 else d.DeviceSession(cfg,directory)
+                status=current.prepare()
+                self.assertEqual(status['usb'],'permission-required')
+                self.assertEqual(status['error'],'Windows consent canceled')
+            self.assertEqual(elevate.call_count,1)
+            self.assertEqual(progress[0]['usb'],'requesting-permission')
+
+    def test_restore_admin_vendor_uses_exact_saved_program(self):
+        required=OSError('elevation required');required.winerror=740
+        with tempfile.TemporaryDirectory() as directory, patch.object(d,'vendor_processes',return_value=[]), patch.object(d.subprocess,'Popen',side_effect=required), patch.object(d.os,'startfile') as launch:
+            executable=Path(directory)/'JONSBO-AIO.exe';executable.touch()
+            session=d.DeviceSession({},directory);session.owned={'vendor':str(executable)};session.save()
+            session.restore()
+            launch.assert_called_once_with(str(executable),operation='runas',cwd=directory,show_cmd=0)
+            self.assertEqual(session.owned,{})
+
+    def test_restore_consent_cancellation_preserves_intent_without_repeated_prompts(self):
+        required=OSError('elevation required');required.winerror=740
+        with tempfile.TemporaryDirectory() as directory, patch.object(d,'vendor_processes',return_value=[]), patch.object(d.subprocess,'Popen',side_effect=required) as ordinary, patch.object(d.os,'startfile',side_effect=PermissionError('canceled')) as launch:
+            executable=Path(directory)/'JONSBO-AIO.exe';executable.touch()
+            session=d.DeviceSession({},directory);session.owned={'vendor':str(executable)};session.save()
+            session.restore();session.restore()
+            self.assertEqual(launch.call_count,1);self.assertEqual(ordinary.call_count,1)
+            self.assertEqual(session.owned['vendor'],str(executable))
+            self.assertEqual(session.owned['restoreError'],'canceled')
+
 if __name__=='__main__':unittest.main()

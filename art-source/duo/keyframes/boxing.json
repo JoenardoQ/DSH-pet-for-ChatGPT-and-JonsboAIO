@@ -1,0 +1,80 @@
+{
+  "id": "boxing",
+  "file": "dsh-pet/assets/pets/duo/gif/boxing.gif",
+  "frames": 216,
+  "uniqueFrames": 216,
+  "durationMs": 9000,
+  "bytes": 11083453,
+  "sha256": "09b891f42c5288c461c45ac561b3b5860c74729dd1bc9a2ffc19136dcfbf754d",
+  "prompt": "Use case: illustration-story. Production animation SPRITE SHEET for an actual desktop pet GIF. EXACT 4 columns x 4 rows, 16 equal square cells, 16 SEQUENTIAL frames of ONE continuous loop ordered left to right then top to bottom. No text, no grid lines, no labels, no watermark. Fully transparent background. Each cell contains BOTH full-body characters centered together with generous transparent padding; fixed camera, fixed scale and baseline. Ref 1 identifies the adult elegant silver-white long-haired lavender dragon girl with ivory horns, lavender wings/tail, ornate white/lilac rose dress; match her design. Ref 2 identifies the OTHER character: a ROUND CUTE CHIBI HUMAN BLUE-HAIRED MAID, big round head, short plump cute body, blue eyes, frilly white maid headband, navy dress and white whale-emblem apron. She is HUMAN, with hands and legs; 'fat fish' is just her nickname. NOT an animal, NOT a fish/whale body. Preserve both identities in all 16 cells. Clean detailed anime cel-shaded style, readable at small desktop sizes. TRUE articulated animation with progressive limb joint poses and changing facial expression; not copies shifted, not whole-body affine wobble. First/last frames should loop naturally. Scene action: Playful boxing practice with padded gloves. Guard stance, left jab extends and recoils, partner dodges leaning torso, right glove jab, both reset. Friendly non-injurious sport.",
+  "source": "art-source/duo/keyframes/boxing.png",
+  "mode": "built-in image_gen; mechanical sprite-sheet to GIF export",
+  "role": "duo",
+  "keyframeGrid": [
+    4,
+    4
+  ],
+  "rowBounds": [
+    [
+      0,
+      304
+    ],
+    [
+      304,
+      609
+    ],
+    [
+      609,
+      913
+    ],
+    [
+      913,
+      1218
+    ]
+  ],
+  "componentBarriers": [
+    [
+      304,
+      0,
+      1292
+    ],
+    [
+      609,
+      0,
+      1292
+    ],
+    [
+      913,
+      0,
+      1292
+    ]
+  ],
+  "columnBarriers": [
+    [
+      323,
+      0,
+      1218
+    ],
+    [
+      646,
+      0,
+      1218
+    ],
+    [
+      969,
+      0,
+      1218
+    ]
+  ],
+  "interpolationInput": "original full-body key drawings; measured row gutters; no slicing of legacy GIF fragments",
+  "matteColorRGB": [
+    0,
+    255,
+    0
+  ],
+  "matteMargin": 45,
+  "paletteSource": "opaque pixels of the original key drawings; excludes matte spill",
+  "status": "exported",
+  "keyDrawings": 16,
+  "method": "imagegen articulated key drawings; FFmpeg motion-compensated interpolation to 24fps; transparent GIF encoding"
+}

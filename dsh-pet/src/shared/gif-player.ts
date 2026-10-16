@@ -87,6 +87,7 @@ export class GifPlayer {
       throw Error('Canvas unavailable');
     }
     let index = 0;
+    let nextAt = performance.now();
     const draw = async (): Promise<void> => {
       if (gen !== this.generation) return;
       let frame: GifFrame;
@@ -109,6 +110,7 @@ export class GifPlayer {
       frame.image.close();
       this.ready = true;
       this.canvas.style.display = '';
+      nextAt += duration;
       this.timer = setTimeout(() => {
         if (gen !== this.generation) return;
         index++;
@@ -121,7 +123,7 @@ export class GifPlayer {
           index = 0;
         }
         void draw();
-      }, duration);
+      }, Math.max(0, nextAt - performance.now()));
     };
     await draw();
   }

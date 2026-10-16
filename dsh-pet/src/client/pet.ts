@@ -14,6 +14,7 @@ import {
   nextWorkStatusAnim,
 } from '../shared/pickers';
 import { planMove } from '../shared/motion';
+import { sizeMenu, isSizeAction, resizePet } from '../shared/size';
 import {
   readCharacter,
   characterAction,
@@ -1417,6 +1418,10 @@ export function makePetUI(rt: {
     // 绝不进入/改动 DSH 页面自己的菜单；浏览器端只有「碎碎念 / 回到初始位置 + 动作」——
     // 无「打开网站 / 查看余额」（打开网站=就在网页里；查看余额已由对话框 /balance 命令实现）。
     const handleMenuAction = (leaf: MenuLeaf) => {
+      if (isSizeAction(leaf.action)) {
+        resizePet('/dsh-pet-7340',cfg.id,leaf.action).then(()=>statePoller.now()).catch(error=>console.error(error.message));
+        return;
+      }
       const selected = characterAction(leaf.action);
       if (selected) {
         saveCharacter('/dsh-pet-7340', cfg.id, selected)
@@ -1505,6 +1510,7 @@ export function makePetUI(rt: {
       // 回到初始位置，两端共用）+ 动作树（动作→分类→具体动画）
       const tree: MenuNode[] = [
         characterMenu(character),
+        sizeMenu(cfg.sizePercent),
         { label: '碎碎念', action: 'whisper' },
         { label: '对话', action: 'chat' },
         { label: '回到初始位置', action: 'home' },
@@ -1753,6 +1759,10 @@ export function makePetUI(rt: {
           setPets((current) => {
             let changed = false;
             const next = current.map((p) => {
+              const resized = s.pets[p.id]?.size?.data as { size?: number; sizePercent?: number } | undefined;
+              if (resized?.size && resized.size !== p.size) {
+                changed = true; p = { ...p, size: resized.size, sizePercent: resized.sizePercent };
+              }
               const id = s.pets[p.id]?.character?.data as { id?: CharacterId } | undefined;
               if (id?.id && id.id !== p.character) {
                 changed = true;

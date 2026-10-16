@@ -1,0 +1,35 @@
+{
+  "id": "princess-011",
+  "sourceAnimation": "余额-钱袋满溢",
+  "label": "满满金库分你一点点",
+  "category": "小金库",
+  "beats": "双手托起装满金币的钱袋，递出一枚金币又害羞收回半寸，轻哼着点头",
+  "durationMs": 9000,
+  "fps": 24,
+  "frames": 216,
+  "size": [
+    640,
+    360
+  ],
+  "status": "exported",
+  "source": "art-source/chatgpt/keyframes/princess-011.png",
+  "prompt": "Use case: illustration-story. Production animation atlas, EXACT 4x4 equal cells, 16 chronological articulated drawings of ONE seamless 9-second action. Reference locks SAME ADULT dragon princess: silver-white long hair, ivory horns, purple eyes, lavender wings and long tail, SAME ornate white and lilac rose long dress, sleeves, corset, accessories and shoes. Proud, caring tsundere princess. Do not change outfit, add apron/crown or redesign. Clean detailed anime cel art. CRITICAL: each FULL BODY figure must be SMALL, occupy only 60% cell height and 75% cell width; generous transparent gutters and padding so COMPLETE horn tips wings tail shoes dress never touch other figures or image edges. Fixed camera and scale. Truly transparent alpha background, no ground/shadows, no opaque backdrop, no text/grid/watermark. Sixteen DIFFERENT progressive poses with small natural changes, preparation/main action/follow-through/recovery and compatible first/last poses. Actual articulated fingers arms face wings tail hair and skirt, not shifted copies or unrelated poses. Action: 满满金库分你一点点。双手托起装满金币的钱袋，递出一枚金币又害羞收回半寸，轻哼着点头。Do only this action, consistent character and clothing throughout.",
+  "file": "dsh-pet/assets/pets/chatgpt/gif/princess-011.gif",
+  "keyDrawings": 16,
+  "uniqueFrames": 216,
+  "bytes": 8627834,
+  "sha256": "6314217c59132790b6e08f25ffb0b9d969d81efdc7c2a780894cbe0e5b6d37aa",
+  "method": "imagegen articulated key drawings; FFmpeg motion-compensated interpolation to 24fps; transparent GIF encoding",
+  "keyframeGrid": [
+    4,
+    4
+  ],
+  "componentBarriers": [],
+  "matteColorRGB": [
+    0,
+    255,
+    0
+  ],
+  "matteMargin": 45,
+  "paletteSource": "opaque pixels of the original key drawings; excludes matte spill"
+}

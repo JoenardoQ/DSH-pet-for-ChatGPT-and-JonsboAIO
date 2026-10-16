@@ -1,0 +1,80 @@
+{
+  "id": "running",
+  "file": "dsh-pet/assets/pets/duo/gif/running.gif",
+  "frames": 216,
+  "uniqueFrames": 216,
+  "durationMs": 9000,
+  "bytes": 11213199,
+  "sha256": "b3b6bc96555c123ee33d66bf841a97bfb76e391bf6fb4ca0423fecf66d173ce8",
+  "prompt": "Use case: illustration-story. Production animation SPRITE SHEET for an actual desktop pet GIF. EXACT 4 columns x 4 rows, 16 equal square cells, 16 SEQUENTIAL frames of ONE continuous loop ordered left to right then top to bottom. No text, no grid lines, no labels, no watermark. Fully transparent background. Each cell contains BOTH full-body characters centered together with generous transparent padding; fixed camera, fixed scale and baseline. Ref 1 identifies the adult elegant silver-white long-haired lavender dragon girl with ivory horns, lavender wings/tail, ornate white/lilac rose dress; match her design. Ref 2 identifies the OTHER character: a ROUND CUTE CHIBI HUMAN BLUE-HAIRED MAID, big round head, short plump cute body, blue eyes, frilly white maid headband, navy dress and white whale-emblem apron. She is HUMAN, with hands and legs; 'fat fish' is just her nickname. NOT an animal, NOT a fish/whale body. Preserve both identities in all 16 cells. Clean detailed anime cel-shaded style, readable at small desktop sizes. TRUE articulated animation with progressive limb joint poses and changing facial expression; not copies shifted, not whole-body affine wobble. First/last frames should loop naturally. Scene action: Side by side running race, running in place fixed camera. Alternating full stride legs with bent knees, opposite arm swings, torso lean, distinct airborne and contact phases; flowing hair dress tails and wings bounce with follow-through.",
+  "source": "art-source/duo/keyframes/running.png",
+  "mode": "built-in image_gen; mechanical sprite-sheet to GIF export",
+  "role": "duo",
+  "keyframeGrid": [
+    4,
+    4
+  ],
+  "rowBounds": [
+    [
+      0,
+      300
+    ],
+    [
+      300,
+      596
+    ],
+    [
+      596,
+      897
+    ],
+    [
+      897,
+      1199
+    ]
+  ],
+  "componentBarriers": [
+    [
+      300,
+      0,
+      1312
+    ],
+    [
+      596,
+      0,
+      1312
+    ],
+    [
+      897,
+      0,
+      1312
+    ]
+  ],
+  "columnBarriers": [
+    [
+      328,
+      0,
+      1199
+    ],
+    [
+      656,
+      0,
+      1199
+    ],
+    [
+      984,
+      0,
+      1199
+    ]
+  ],
+  "interpolationInput": "original full-body key drawings; measured row gutters; no slicing of legacy GIF fragments",
+  "matteColorRGB": [
+    0,
+    255,
+    0
+  ],
+  "matteMargin": 45,
+  "paletteSource": "opaque pixels of the original key drawings; excludes matte spill",
+  "status": "exported",
+  "keyDrawings": 16,
+  "method": "imagegen articulated key drawings; FFmpeg motion-compensated interpolation to 24fps; transparent GIF encoding"
+}

@@ -34,6 +34,9 @@ import {
 test('Electron 安装目录无法创建时返回 undefined，不产生未处理拒绝', async (t) => {
   const dir = mkdtempSync(join(tmpdir(), 'dsh-pet-install-'));
   const savedHome = process.env.DSH_HOME;
+  const savedBootstrap = process.env.DSH_PET_USE_WINDOWS_BOOTSTRAP;
+  process.env.DSH_PET_USE_WINDOWS_BOOTSTRAP = '0';
+  t.after(() => { if (savedBootstrap === undefined) delete process.env.DSH_PET_USE_WINDOWS_BOOTSTRAP; else process.env.DSH_PET_USE_WINDOWS_BOOTSTRAP = savedBootstrap; });
   t.after(() => {
     if (savedHome === undefined) delete process.env.DSH_HOME;
     else process.env.DSH_HOME = savedHome;
