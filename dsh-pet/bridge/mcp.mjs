@@ -108,7 +108,7 @@ export async function dispatch(request) {
     return reply({
       protocolVersion: versions.includes(params?.protocolVersion) ? params.protocolVersion : '2025-06-18',
       capabilities: { tools: {} },
-      serverInfo: { name: 'pet-trio-jonsbo', version: '1.1.1' },
+      serverInfo: { name: 'pet-trio-jonsbo', version: '1.1.2' },
     });
   }
   if (method === 'ping') return reply({});

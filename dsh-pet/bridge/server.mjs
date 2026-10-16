@@ -51,7 +51,7 @@ export function createBridge({ launch = true } = {}) {
       backgrounds: BACKGROUNDS,
       shuttingDown:shuttingDown || lifecycleClosing,
       version: 4,
-      build: '1.1.1',
+      build: '1.1.2',
       pid: process.pid,
       visible: control.visible || !!f,
       control: currentControl(),

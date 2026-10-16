@@ -78,6 +78,6 @@ jobs:
           if ($LASTEXITCODE -eq 0) {
             gh release upload $env:GITHUB_REF_NAME @files --clobber --repo $env:GH_REPO
           } else {
-            gh release create $env:GITHUB_REF_NAME @files --notes-file docs/releases/v1.1.1.md --prerelease --repo $env:GH_REPO
+            gh release create $env:GITHUB_REF_NAME @files --notes-file docs/releases/v1.1.2.md --prerelease --repo $env:GH_REPO
           }
           if ($LASTEXITCODE -ne 0) { throw 'Release publishing failed' }

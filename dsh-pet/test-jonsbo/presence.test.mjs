@@ -4,7 +4,7 @@ import {Sources} from '../bridge/state.mjs';
 import {Duets} from '../bridge/duets.mjs';
 import {createBridge} from '../bridge/server.mjs';
 const control={visible:true,desktop:true};
-const info=(character,extra={})=>({character,desktop:true,instanceId:'main',build:'1.1.1',error:null,...extra});
+const info=(character,extra={})=>({character,desktop:true,instanceId:'main',build:'1.1.2',error:null,...extra});
 test('two real pet identities remain eligible when PNG capture fails; two GPT agents never impersonate DSH',()=>{
  let now=0;const sources=new Sources(()=>now),duets=new Duets({now:()=>now});
  sources.touch('chatgpt',info('chatgpt'));assert.equal(duets.snapshot(sources,control).eligible,false);
@@ -29,7 +29,7 @@ test('presence endpoint validates identity and cannot wake an extra GPT pet',asy
  assert.equal((await send({source:'dsh',...info('fish')},false)).status,403);
  assert.equal((await send({source:'unknown',...info('fish')})).status,400);
  const state=await(await send({source:'dsh',...info('fish')})).json();
- assert.equal(state.build,'1.1.1');assert.equal(state.control.visible,false);assert.equal(state.standalone,null);
+ assert.equal(state.build,'1.1.2');assert.equal(state.control.visible,false);assert.equal(state.standalone,null);
  assert.deepEqual(state.connectedSources,['dsh']);assert.deepEqual(state.activeSources,[]);assert.equal(state.characters.dsh,'fish');
 });
 

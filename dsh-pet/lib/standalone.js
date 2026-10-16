@@ -161,7 +161,7 @@ var Rpc = class {
 			clientInfo: {
 				name: "pet_trio_jonsbo",
 				title: "桌宠宿主连接",
-				version: "1.1.1"
+				version: "1.1.2"
 			},
 			capabilities: { experimentalApi: true }
 		});
@@ -1872,7 +1872,7 @@ async function generateWith(ctx, llm, sel, system, history, userText, pool) {
 //#endregion
 //#region package.json
 var name = "dsh-pet";
-var version = "1.1.1";
+var version = "1.1.2";
 var description = "鲸鱼娘、圆润蓝发女仆大肥鱼与 ChatGPT 娘：共用桌宠引擎、独立角色素材、双宿主互动和乔思伯屏幕。";
 var icon = "assets/logo.png";
 var keywords = [

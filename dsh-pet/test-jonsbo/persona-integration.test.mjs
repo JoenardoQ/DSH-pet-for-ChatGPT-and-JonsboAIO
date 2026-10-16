@@ -23,7 +23,7 @@ test('all persona action labels, work copy and 54 illustrations belong to their 
         assert.ok(leaves.some(leaf => leaf.anim === '__' + action.id && leaf.label === action.label));
         const media = S.characterMedia(id, '__' + action.id);
         assert.equal(new URL(media.path,'http://127.0.0.1').pathname, '/thumb/@chatgpt/' + action.id + '.gif');
-        assert.equal(new URL(media.path,'http://127.0.0.1').searchParams.get('v'),'1.1.1');
+        assert.equal(new URL(media.path,'http://127.0.0.1').searchParams.get('v'),'1.1.2');
         assert.ok(fs.statSync(path.join(root, 'assets/pets/chatgpt/gif', action.id + '.gif')).size > 1000);
       }
     } else assert.equal(menu[0].children.length, 8);

@@ -72,7 +72,7 @@ class Rpc {
     });
   }
   async initialize():Promise<void>{
-    await this.request('initialize',{clientInfo:{name:'pet_trio_jonsbo',title:'桌宠宿主连接',version:'1.1.1'},capabilities:{experimentalApi:true}});
+    await this.request('initialize',{clientInfo:{name:'pet_trio_jonsbo',title:'桌宠宿主连接',version:'1.1.2'},capabilities:{experimentalApi:true}});
     this.child.stdin.write('{"method":"initialized"}\n');
     const account=await this.request<{account?:{type?:string}}>('account/read',{refreshToken:false});
     if(!['chatgpt','chatgptAuthTokens'].includes(account.account?.type||''))throw Error('请先在 Codex 中登录 ChatGPT 账号；桌宠不会自动切换到按量付费 API Key。');

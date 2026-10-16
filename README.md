@@ -1,6 +1,6 @@
 # 三位看板娘桌宠 · DeepSeek / ChatGPT / JONSBO
 
-> 动画返工中：1.1.0 的 107 段 GPT 动作与 8 组双人 GIF 因姿势跳变、补帧变形和轮廓模糊未通过用户验收，1.1.1 按用户要求作为功能预览版发布，动画质量仍未通过验收。下文数量仅代表导出文件数量，不代表质量合格。原版素材全部保留。
+> 动画返工中：1.1.0 的 107 段 GPT 动作与 8 组双人 GIF 因姿势跳变、补帧变形和轮廓模糊未通过用户验收，1.1.2 按用户要求作为功能预览版发布，动画质量仍未通过验收。下文数量仅代表导出文件数量，不代表质量合格。原版素材全部保留。
 
 哼，鲸鱼娘、大肥鱼和 ChatGPT 娘都替你收进一个家里了。选谁陪你工作，右键就能换；才没有要你指挥 agent 折腾安装呢。
 
@@ -12,7 +12,7 @@
 
 ## 下载后怎么用
 
-1. 当前功能预览版请使用 [v1.1.1](https://github.com/JoenardoQ/Deepseek-and-ChatGPT-Pet-and-JonsboAIO/releases/tag/v1.1.1)；稳定版可从 [最新 Release](https://github.com/JoenardoQ/Deepseek-and-ChatGPT-Pet-and-JonsboAIO/releases/latest) 下载 `pet-trio-windows-x64-lite.zip`，解压到固定目录。已有源码目录也能直接用，编译产物已随仓库保存。
+1. 当前功能预览版请使用 [v1.1.2](https://github.com/JoenardoQ/Deepseek-and-ChatGPT-Pet-and-JonsboAIO/releases/tag/v1.1.2)；稳定版可从 [最新 Release](https://github.com/JoenardoQ/Deepseek-and-ChatGPT-Pet-and-JonsboAIO/releases/latest) 下载 `pet-trio-windows-x64-lite.zip`，解压到固定目录。已有源码目录也能直接用，编译产物已随仓库保存。
 2. 双击 **install-plugins.cmd**，选 DSH 或 GPT / Codex，再选本地 ZIP、解压目录，或粘贴本仓库的 GitHub / Release 链接。
 3. 安装器会实际安装到所选宿主；完成后在插件列表启用。DSH 默认是大肥鱼，GPT 独立桌宠首次启动默认是 ChatGPT 娘；**右键 → 切换桌宠**可以随时改，偏好会保存。
 
