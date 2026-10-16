@@ -63,3 +63,9 @@ test('another service and a newer protocol are never shut down', async t=>{
     assert.equal(f.shutdowns(),0);
   }
 });
+
+test('a repaired build retires protocol-compatible 1.0.0 rather than keeping its bugs', async t=>{
+  const f=await fixture(t,{service:'dsh-pet-jonsbo',version:3,build:'1.0.0'});
+  const result=await client(f.port,f.data);assert.equal(result.code,0,result.err);
+  assert.equal(f.shutdowns(),1);assert.equal(JSON.parse(result.out).build,'1.0.1');
+});

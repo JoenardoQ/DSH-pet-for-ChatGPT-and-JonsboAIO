@@ -46,4 +46,21 @@ class SessionTests(unittest.TestCase):
             self.assertEqual(d.DeviceSession({},directory).prepare()['usb'],'multiple-devices')
             close.assert_not_called()
 
+    def test_elevation_requires_a_fresh_explicit_click_and_is_not_replayed(self):
+        with tempfile.TemporaryDirectory() as directory, patch.object(d,'present_devices',return_value=['screen']), patch.object(d,'find_sdk',return_value=Path('sdk.dll')), patch.object(d,'vendor_processes',return_value=[{'pid':42,'path':None}]), patch.object(d,'elevated_close_vendor',return_value=None) as elevate:
+            cfg={'forceTakeover':True}
+            session=d.DeviceSession(cfg,directory)
+            self.assertEqual(session.prepare()['usb'],'permission-required');elevate.assert_not_called()
+            cfg['takeoverRequest']='first-click'
+            session.prepare();session.prepare();d.DeviceSession(cfg,directory).prepare()
+            self.assertEqual(elevate.call_count,1)
+            cfg['takeoverRequest']='second-click';session.prepare()
+            self.assertEqual(elevate.call_count,2)
+
+    def test_elevated_handoff_preserves_exact_restore_path(self):
+        with tempfile.TemporaryDirectory() as directory, patch.object(d,'present_devices',return_value=['screen']), patch.object(d,'find_sdk',return_value=Path('sdk.dll')), patch.object(d,'vendor_processes',side_effect=[[{'pid':42,'path':None}],[]]), patch.object(d,'elevated_close_vendor',return_value='C:/JONSBO/JONSBO-AIO.exe'):
+            session=d.DeviceSession({'forceTakeover':True,'takeoverRequest':'click'},directory)
+            self.assertEqual(session.prepare()['usb'],'ready')
+            self.assertEqual(session.owned['vendor'],'C:/JONSBO/JONSBO-AIO.exe')
+
 if __name__=='__main__':unittest.main()

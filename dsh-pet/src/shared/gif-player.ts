@@ -19,12 +19,18 @@ export class GifPlayer {
   declare private timer: ReturnType<typeof setTimeout> | null;
   declare private request: AbortController | null;
   declare private generation: number;
+  declare private once: boolean;
+  declare private url: string | null;
+  declare private ended: () => void;
   constructor(container: HTMLElement) {
     this.ready = false;
     this.decoder = null;
     this.timer = null;
     this.request = null;
     this.generation = 0;
+    this.once = false;
+    this.url = null;
+    this.ended = () => {};
     this.canvas = document.createElement('canvas');
     this.canvas.width = 640;
     this.canvas.height = 360;
@@ -42,6 +48,7 @@ export class GifPlayer {
   }
   stop(): void {
     this.generation++;
+    this.url = null;
     this.request?.abort();
     this.request = null;
     if (this.timer !== null) clearTimeout(this.timer);
@@ -52,7 +59,11 @@ export class GifPlayer {
     this.canvas.style.display = 'none';
   }
   async play(url: string, once: boolean, ended: () => void): Promise<void> {
+    this.once = once;
+    this.ended = ended;
+    if (this.url === url && this.timer !== null) return;
     this.stop();
+    this.url = url;
     const gen = this.generation;
     this.request = new AbortController();
     const response = await fetch(url, { signal: AbortSignal.any([this.request.signal, AbortSignal.timeout(10000)]) });
@@ -102,9 +113,9 @@ export class GifPlayer {
         if (gen !== this.generation) return;
         index++;
         if (index === count) {
-          if (once) {
+          if (this.once) {
             this.timer = null;
-            ended();
+            this.ended();
             return;
           }
           index = 0;
@@ -113,6 +124,9 @@ export class GifPlayer {
       }, duration);
     };
     await draw();
+  }
+  finishLoop(): void {
+    this.once = true;
   }
   dispose(): void {
     this.stop();

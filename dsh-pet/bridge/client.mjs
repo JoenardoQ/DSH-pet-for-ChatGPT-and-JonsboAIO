@@ -16,7 +16,7 @@ async function inspect() {
 }
 export async function status() {
   const value = await inspect();
-  if (value.version !== protocol) throw new Error('桌宠桥接版本不兼容，请重新启用新版插件。');
+  if (value.version !== protocol || value.build === '1.0.0') throw new Error('桌宠桥接版本不兼容，请重新启用新版插件。');
   return value;
 }
 let starting;
@@ -36,10 +36,10 @@ async function startBridge() {
   try { existing = await inspect(); }
   catch (error) { if (error.cause?.code !== 'ECONNREFUSED') throw error; }
   if(existing?.shuttingDown)throw Error('桌宠尚未完成退出，请稍后重试。');
-  if (existing?.version === protocol) return existing;
+  if (existing?.version === protocol && existing.build !== '1.0.0') return existing;
   if (existing) {
     // Only our known old protocol may be retired. Never shut down an unknown service/version.
-    if (![1, 2].includes(existing.version)) throw new Error('桌宠桥接版本不兼容，请更新插件。');
+    if (![1, 2].includes(existing.version) && !(existing.version === protocol && existing.build === '1.0.0')) throw new Error('桌宠桥接版本不兼容，请更新插件。');
     const stopped = await fetch(base + '/shutdown', {
       method: 'POST', headers: { 'X-Pet-Client': '1', Connection: 'close' }, signal: AbortSignal.timeout(6000),
     });

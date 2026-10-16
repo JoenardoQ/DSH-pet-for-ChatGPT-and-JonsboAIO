@@ -1,4 +1,5 @@
 """Detect compatible hardware; lease its output and restore only what we stopped."""
+import base64
 import csv
 import ctypes as C
 from ctypes import wintypes as W
@@ -116,10 +117,39 @@ def close_vendor(pid, force):
     return not any(p['pid']==pid for p in vendor_processes())
 
 
+def elevated_close_vendor(pid, result_file):
+    """One explicit UI request, one UAC prompt; only the verified vendor PID."""
+    quote = lambda value: "'" + str(value).replace("'", "''") + "'"
+    script = (
+        "$ErrorActionPreference='Stop';"
+        f"$p=Get-Process -Id {int(pid)};"
+        "if([IO.Path]::GetFileName($p.Path) -ine 'JONSBO-AIO.exe'){throw 'Unexpected process'};"
+        "$exe=$p.Path;Stop-Process -InputObject $p -Force -ErrorAction Stop;"
+        f"[IO.File]::WriteAllText({quote(result_file)},($exe|ConvertTo-Json),[Text.UTF8Encoding]::new($false))"
+    )
+    encoded = base64.b64encode(script.encode('utf-16le')).decode('ascii')
+    launcher = (
+        "$ErrorActionPreference='Stop';try{"
+        f"$p=Start-Process powershell.exe -Verb RunAs -WindowStyle Hidden -PassThru -Wait -ArgumentList '-NoProfile -NonInteractive -EncodedCommand {encoded}';"
+        "exit $p.ExitCode}catch{exit 1}"
+    )
+    try:
+        result = subprocess.run(['powershell.exe','-NoProfile','-NonInteractive','-EncodedCommand',
+            base64.b64encode(launcher.encode('utf-16le')).decode('ascii')],
+            capture_output=True,creationflags=0x08000000,timeout=60)
+        if result.returncode == 0 and result_file.is_file():
+            return json.loads(result_file.read_text(encoding='utf-8-sig'))
+    except (OSError, ValueError, subprocess.TimeoutExpired):
+        pass
+    return None
+
+
 class DeviceSession:
     def __init__(self,config,data_dir):
         self.config=config
         self.marker=Path(data_dir)/'display-owner.json'
+        self.request_file = Path(data_dir)/'takeover-request.txt'
+        self.takeover_request = self.request_file.read_text(encoding='utf8') if self.request_file.exists() else None
         self.owned={}
         if self.marker.exists():
             try:self.owned=json.loads(self.marker.read_text(encoding='utf-8'))
@@ -155,16 +185,26 @@ class DeviceSession:
         sdk=find_sdk(self.config,processes)
         if not sdk:return {'usb':'missing-sdk','devices':devices,'error':'已检测到乔斯伯屏幕。请先安装官方 JONSBO-AIO 驱动和 SDK；插件不会自动安装驱动。'}
         if self.config.get('autoTakeover',True):
+            request = self.config.get('takeoverRequest')
+            elevate = bool(request and request != self.takeover_request)
+            if elevate:
+                self.request_file.parent.mkdir(parents=True,exist_ok=True)
+                self.request_file.write_text(str(request),encoding='utf8')
+                self.takeover_request = request
             for process in processes:
                 executable=process.get('path')
-                if not executable or Path(executable).name.lower()!=VENDOR_IMAGE:
-                    return {'usb':'busy','error':'官方程序正在占用屏幕，无法读取其启动路径；请从托盘退出（可能以管理员运行）。'}
+                verified = executable and Path(executable).name.lower()==VENDOR_IMAGE
+                stopped = verified and close_vendor(process['pid'],self.config.get('forceTakeover',False))
+                if not stopped and elevate:
+                    result_file = self.marker.parent/'takeover-result.json'
+                    result_file.unlink(missing_ok=True)
+                    executable = elevated_close_vendor(process['pid'],result_file)
+                    stopped = bool(executable and Path(executable).name.lower()==VENDOR_IMAGE
+                        and not any(p['pid']==process['pid'] for p in vendor_processes()))
+                if not stopped:
+                    return {'usb':'permission-required' if self.config.get('forceTakeover') else 'busy',
+                        'error':'官方程序仍在占用屏幕。点击“以管理员权限接管屏幕”，并在 Windows 权限窗口中允许；取消后不会反复弹窗。' if self.config.get('forceTakeover') else '官方程序正在占用屏幕；点击“接管屏幕”或从托盘退出。'}
                 self.owned['vendor']=executable;self.save()
-                if not close_vendor(process['pid'],self.config.get('forceTakeover',False)):
-                    # We did not stop it, so must not restart it on release.
-                    self.owned.pop('vendor',None);self.save()
-                    return {'usb':'busy','error':'已请求官方程序退出，但它仍在占用。点击预览页“接管屏幕”允许结束该程序，或从托盘退出。'}
-            # Never disable another pet: its display lease determines ownership.
         elif processes:return {'usb':'busy','error':'官方程序正在占用屏幕；自动接管已关闭。'}
         return {'usb':'ready','devices':devices,'sdkDll':str(sdk)}
 

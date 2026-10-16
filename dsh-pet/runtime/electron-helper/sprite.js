@@ -166,6 +166,8 @@ class PetSprite {
     stage.appendChild(this.gifPlayer.canvas);
     stage.appendChild(this.hit);
     this.el.appendChild(this.bubble);
+    this.bubbleObserver = new ResizeObserver(() => this.fitBubble());
+    this.bubbleObserver.observe(this.bubble);
     this.el.appendChild(this.tip);
     this.el.appendChild(stage);
     rootEl.appendChild(this.el);
@@ -245,6 +247,7 @@ class PetSprite {
     this.stopDragFollow();
     this.stopSquash();
     this.stopMove();
+    this.bubbleObserver.disconnect();
     this.el.remove();
   }
 
@@ -352,6 +355,7 @@ class PetSprite {
     // Work-state loops call switchTo directly. Keep the animation identity in
     // sync so returning to idle can release that loop (and USB reports it).
     this.anim = next;
+    this.once = nextOnce;
     const pending = this.pending;
     if (pending && pending.anim === next && pending.once === nextOnce) {
       // 防重命中（单动画点击时目标=当前动画，不重播）：仍消费 Q 弹标记，压当前前台视频，
@@ -1368,6 +1372,15 @@ class PetSprite {
     });
   }
 
+  fitBubble() {
+    const top = Math.max(this.size * WINDOW_MARGIN_RATIO,
+      this.bubble.classList.contains('is-on') ? this.bubble.offsetHeight + this.size * 0.03 : 0);
+    if (Math.abs(this.margin.t - top) < 1) return;
+    this.margin.t = top;
+    this.el.style.top = top + 'px';
+    this.sendBounds(this.pos.x, this.pos.y);
+  }
+
   renderBubble() {
     // 气泡单槽：同一时刻只显示一个（优先级：终态任务 > 碎碎念/对话 > 余额 > 非终态任务）。
     // 为什么终态任务不让位：完成/失败气泡只活 10s，被事件顶掉就彻底看不到了；非终态任务气泡
@@ -1392,6 +1405,7 @@ class PetSprite {
     if (slot === 'none') {
       // 三者都没有可显示的内容：隐藏（不占位，也就不会挡住任何一层）
       this.bubble.classList.remove('is-on');
+      this.fitBubble();
       window.__dshPetDebug.lastBubbleTitle = '';
       return;
     }
@@ -1434,6 +1448,7 @@ class PetSprite {
       }
     }
     this.bubble.classList.add('is-on');
+    this.fitBubble();
     window.__dshPetDebug.lastBubbleTitle = this.bubble.textContent.slice(0, 60);
   }
 }

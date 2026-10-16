@@ -3,9 +3,9 @@
   "file": "dsh-pet/assets/pets/chatgpt/gif/working.gif",
   "frames": 16,
   "uniqueFrames": 16,
-  "durationMs": 1920,
+  "durationMs": 4800,
   "bytes": 980915,
-  "sha256": "810e62c38aa1475d8907bc1caed3b8e9cdcd60918947fe70e0056d470b7cf553",
+  "sha256": "4970dd90a3adb2c570e5b66621bbf217a28230f99412498e9cced05bdec79939",
   "prompt": "Use case: illustration-story. Create a PRODUCTION ANIMATION SPRITE SHEET, EXACTLY 4 columns x 4 rows, 16 equal square cells, showing 16 consecutive DIFFERENT frames of ONE continuous seamless loop. Row-major chronology. Transparent background, NO text labels lines watermarks. One SAME FULL BODY character in every cell with identical camera scale baseline generous padding (wings and shoes fully inside every cell). Reference identifies the character, not motion: adult anime girl, silver-white very long hair, ivory dragon horns, purple eyes, lavender dragon wings and long tail, elegant ornate white/lilac rose maid-like dress. Faithfully retain her appearance. Clean detailed anime cel shading. Each progressive frame must have newly articulated limbs/face/hair/skirt/wings/tail. Real joint bends with anticipation, motion, follow-through and recovery. NOT eight static poses, NOT duplicated resized or shifted copies, NOT whole-body floating bob. Action: Busy coding loop: both hands visibly alternate typing and swiping across a floating lavender keyboard/tablet, shoulders shift, eyes track changing imaginary lines, nod and flick long hair back, tail and wings move independently.",
   "source": "art-source/chatgpt/working.png",
   "mode": "built-in image_gen; mechanical sprite-sheet to GIF export"

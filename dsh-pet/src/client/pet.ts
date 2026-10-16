@@ -565,6 +565,7 @@ export function makePetUI(rt: {
         if (poolIncludes(petAnims.events?.workStatus ?? [], animRef.current)) {
           const front = frontRef.current === 0 ? videoARef.current : videoBRef.current;
           if (front) {
+            gifRef.current?.finishLoop();
             front.loop = false;
             front.onended = handleEnded;
           }

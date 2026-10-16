@@ -1,82 +1,51 @@
 <!doctype html>
 <html lang="zh-CN">
-<meta charset="utf-8" /><title>桌宠 · JONSBO</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>桌宠放映室 · JONSBO</title>
 <style>
-body { background:#102031;color:#def;font:16px system-ui;max-width:850px;margin:40px auto;padding:0 20px; }
-img { width:min(480px,100%);aspect-ratio:1;border-radius:18px;background:#000; }
-button { padding:10px 18px;margin:8px 8px 8px 0;cursor:pointer; }
-pre { white-space:pre-wrap;overflow-wrap:anywhere; }
-[hidden] { display:none !important; }
+:root{color-scheme:dark;font-family:"Segoe UI","Microsoft YaHei",sans-serif;color:#e7e9f5;background:#101119}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 15% 5%,#30274280,transparent 55%);min-height:100vh}main{max-width:1040px;margin:auto;padding:44px 24px}header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:28px}h1{font-size:28px;letter-spacing:.03em;margin:6px 0}h2{font-size:16px;margin:0 0 16px}p{line-height:1.65}small,.muted{color:#9da1b6;font-size:13px}.eyebrow{font-size:11px;letter-spacing:.18em;color:#b8a3ed}.badge{border:1px solid #41404f;border-radius:30px;padding:8px 14px;font-size:13px;white-space:nowrap}.badge.good{color:#8fe0bd;border-color:#386d59}.layout{display:grid;grid-template-columns:1.05fr 1fr;gap:22px}.panel{border:1px solid #2e2f3e;border-radius:22px;background:#1b1c27;padding:24px}.preview{background:#111722;position:relative;overflow:hidden;padding:0;aspect-ratio:1}.preview img{width:100%;height:100%;object-fit:contain;display:block}.empty{height:100%;display:grid;place-content:center;text-align:center;padding:30px;color:#9da1b6}.stack{display:grid;gap:18px}.sources{display:grid;grid-template-columns:1fr 1fr;gap:10px}button,select{font:inherit;font-size:14px;border:1px solid #444353;border-radius:12px;background:#282936;color:#eee;cursor:pointer;padding:12px 16px;transition:background .15s,border-color .15s}button:hover:enabled{background:#373447;border-color:#ad91df}button:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid #c6a7ff;outline-offset:3px}button:disabled{opacity:.4;cursor:not-allowed}.source{text-align:left;padding:14px}.source strong{display:block;font-size:15px;margin-bottom:6px}.source span{color:#aaaabe;font-size:12px}.source[aria-pressed=true]{background:#342b48;border-color:#b292e4}.primary{background:#bca0e8;color:#191222;border-color:#bca0e8;font-weight:600}.primary:hover:enabled{background:#d1b9f5}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.actions button{flex:1}.takeover{width:100%;margin-top:10px;background:#493b2a;border-color:#896b43;color:#ffdc9b}.notice{font-size:13px;color:#bbb9cd;margin:14px 0 0;min-height:42px}select{width:100%}#result{margin:18px 0 0;min-height:24px;font-size:14px;color:#cfb7f4}details{margin-top:22px;color:#989bb0;font-size:12px}summary{cursor:pointer;padding:10px 0}pre{max-height:220px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;background:#14151e;border-radius:12px;padding:16px}footer{margin-top:20px;color:#777c93;font-size:12px}[hidden]{display:none!important}@media(max-width:730px){main{padding:24px 16px}.layout{grid-template-columns:1fr}.preview{max-height:420px}header{align-items:flex-start}h1{font-size:23px}}
 </style>
-<h1>桌宠 · JONSBO</h1>
-<p id="owner">当前桌宠的屏幕连接状态</p>
-<img id="frame" alt="等待当前桌宠传来动画帧" />
-<div id="screen-controls">
-<button data-screen="true">连接乔思伯屏幕</button>
-<button data-screen="false">断开投屏</button>
-<button data-takeover="true">接管屏幕（退出官方程序）</button>
-</div>
-<div id="chatgpt-controls" hidden>
-<button data-action="wake">唤起 ChatGPT 桌宠</button>
-<button data-state="thinking">思考</button><button data-state="working">工作</button>
-<button data-state="idle">待机</button><button data-action="hide">隐藏 ChatGPT 桌宠</button>
-</div>
-<p>投屏画面：<button data-source="dsh">切换到 DSH 桌宠</button><button data-source="chatgpt">切换到 GPT 桌宠</button></p>
-<p id="screen-owner"></p>
-<label>双人互动 <select id="duet"><option value="auto">双方在线时自动轮换</option><option value="off">关闭</option><option value="boxing">拳击</option><option value="volleyball">排球</option><option value="running">赛跑</option><option value="shopping">逛街</option><option value="sunset">看日落</option><option value="gardening">浇花</option><option value="gaming">格斗游戏比赛</option><option value="cafe">咖啡厅看书</option></select></label>
-<p id="duet-status"></p>
-<p id="connection">正在检查屏幕…</p>
-<p id="result" role="status"></p>
-<details><summary>连接诊断</summary><pre id="status"></pre></details>
+<main>
+<header><div><div class="eyebrow">PET TRIO / SCREEN ROOM</div><h1>桌宠放映室</h1><small>选好陪伴你的她，剩下的交给屏幕。</small></div><span id="badge" class="badge" role="status">检查连接中</span></header>
+<div class="layout">
+<section class="panel preview" aria-label="投屏预览"><img id="frame" hidden alt="当前投屏的完整画面"><div id="empty" class="empty">等待桌宠画面<br><small>在 DSH 或 ChatGPT / Codex 中开启桌宠</small></div></section>
+<div class="stack">
+<section class="panel"><h2>谁来上屏</h2><div class="sources"><button class="source" data-source="dsh" aria-pressed="false"><strong id="dsh-name">DSH 桌宠</strong><span id="dsh-state">检查中</span></button><button class="source" data-source="chatgpt" aria-pressed="false"><strong id="chatgpt-name">GPT 桌宠</strong><span id="chatgpt-state">检查中</span></button></div><p class="notice" id="selection">先开启桌宠，再选择画面。</p><div class="actions"><button id="connect" class="primary">连接屏幕</button><button id="disconnect">断开投屏</button></div><button id="takeover" class="takeover" hidden>接管屏幕 · 退出官方程序</button><p class="notice" id="connection">正在检查乔斯伯屏幕…</p></section>
+<section class="panel"><h2>一起玩一会</h2><select id="duet" aria-label="双人互动"><option value="auto">自动轮换 · 8 种互动</option><option value="off">关闭互动 · 各自陪伴</option><option value="boxing">拳击</option><option value="volleyball">排球</option><option value="running">赛跑</option><option value="shopping">逛街</option><option value="sunset">看日落</option><option value="gardening">浇花</option><option value="gaming">格斗游戏比赛</option><option value="cafe">咖啡厅看书</option></select><p id="duet-status" class="notice">检查双方连接中…</p></section>
+</div></div>
+<p id="result" role="status" aria-live="polite"></p>
+<details><summary>连接详情与诊断</summary><pre id="status"></pre></details>
+<footer>首个在线桌宠保留投屏，另一位等待；点击角色卡即可切换。桌宠动作与显隐在各自右键菜单中管理。</footer>
+</main>
 <script>
-const explicitSource = new URLSearchParams(location.search).get('source');
-let source = ['dsh','chatgpt'].includes(explicitSource) ? explicitSource : null;
-document.querySelector('#chatgpt-controls').hidden = explicitSource !== 'chatgpt';
-async function post(route, body) {
-  const response = await fetch(route, {method:'POST',headers:{'Content-Type':'application/json','X-Pet-Client':'1'},body:JSON.stringify(body)});
-  const value = await response.json();
-  if (!response.ok) throw new Error(value.error || '连接失败，请重试。');
-  return value;
+const $=id=>document.getElementById(id), roles={fish:'大肥鱼',whale:'鲸鱼娘',chatgpt:'ChatGPT 娘'};
+let state=null, source=null, busy=false;
+const scenes=Object.fromEntries([...$('duet').options].map(o=>[o.value,o.textContent]));
+async function post(route,body){const r=await fetch(route,{method:'POST',headers:{'Content-Type':'application/json','X-Pet-Client':'1'},body:JSON.stringify(body)});const v=await r.json();if(!r.ok)throw Error(v.error||'操作失败，请重试');return v;}
+function render(s){
+ state=s;const active=s.activeSources||[];source=s.screenSource||s.selectedSource||active[0]||null;
+ for(const key of ['dsh','chatgpt']){const live=active.includes(key),selected=source===key;const b=document.querySelector('[data-source="'+key+'"]');b.disabled=busy||!live;b.setAttribute('aria-pressed',String(selected));$(key+'-name').textContent=roles[s.characters?.[key]]||(key==='dsh'?'DSH 桌宠':'GPT 桌宠');$(key+'-state').textContent=!live?'尚未收到画面':selected?'当前画面':'已在线 · 点击切换';}
+ const live=source&&active.includes(source),enabled=live&&s.screens[source]!==false,usb=s.output.usb;
+ $('selection').textContent=live?$(''+source+'-name').textContent+(enabled?'已选中。其他在线桌宠会等待手动切换。':'已选中，投屏已断开。'):'请先在对应宿主中开启桌宠；此页面不会额外创建另一只。';
+ $('connect').disabled=busy||!live||(enabled&&usb==='streaming');$('disconnect').disabled=busy||!enabled;
+ $('takeover').hidden=!enabled||!['busy','permission-required'].includes(usb);$('takeover').disabled=busy;
+ $('takeover').textContent=usb==='permission-required'?'以管理员权限接管屏幕':'接管屏幕 · 退出官方程序';
+ const labels={streaming:'正在投屏','waiting-device':'等待 USB 屏幕',busy:'官方程序占用','permission-required':'需要接管权限','missing-sdk':'缺少官方 SDK','multiple-devices':'请选择屏幕',inactive:'未投屏',disabled:'未投屏','waiting-screen':'其他程序正在投屏',error:'连接异常'};
+ $('badge').textContent=!enabled?'未投屏':labels[usb]||'正在连接';$('badge').classList.toggle('good',enabled&&usb==='streaming');
+ $('connection').textContent=!enabled?'连接后会投出左侧完整画面，包含台词和插图。':usb==='streaming'?'乔斯伯正在显示所选画面。':s.output.error||labels[usb]||'正在准备输出，请稍候…';
+ if(document.activeElement!==$('duet'))$('duet').value=s.duet?.mode||'auto';
+ $('duet').disabled=busy;
+ $('duet-status').textContent=s.duet?.active?'正在一起'+scenes[s.duet.action]+'。':s.duet?.mode==='off'?'互动已关闭，双方各自陪伴。':s.duet?.reason||'等待双方画面同步。';
+ $('status').textContent=JSON.stringify(s,null,2);$('frame').hidden=!live;$('empty').hidden=!!live;
+ if(live){const img=new Image(),frameSource=source;img.onload=()=>{if(source===frameSource)$('frame').src=img.src;};img.src='/frame.png?source='+frameSource+'&t='+Date.now();}
 }
-async function refresh() {
-  try {
-    const s = await (await fetch('/state')).json();
-    source ||= s.activeSources?.includes('dsh') ? 'dsh' : s.control.visible ? 'chatgpt' : null;
-    document.querySelector('#owner').textContent = source === 'dsh' ? 'DeepSeek Harness 桌宠 · 仅管理当前桌宠投屏' : source === 'chatgpt' ? 'ChatGPT / Codex 桌宠 · 屏幕连接状态' : '请先在宿主中启用桌宠';
-    document.querySelector('#status').textContent = JSON.stringify(s,null,2);
-    document.querySelector('#screen-owner').textContent = '当前投屏：' + (s.screenSource === 'dsh' ? 'DSH（另一方等待）' : s.screenSource === 'chatgpt' ? 'GPT（另一方等待）' : '等待桌宠');
-    document.querySelector('#duet').value = s.duet?.mode || 'auto';
-    document.querySelector('#duet-status').textContent = s.duet?.active ? '双人动作：' + s.duet.action : s.duet?.reason || '双人互动已关闭';
-    const labels = {streaming:'乔思伯正在显示桌宠','waiting-device':'等待兼容的乔思伯 USB 屏幕连接',busy:'已发现官方程序占用屏幕；可点击“接管屏幕”切换为桌宠画面。','missing-sdk':'请安装乔思伯官方软件以提供屏幕 SDK',inactive:'屏幕输出已释放',disabled:'屏幕输出已关闭'};
-    document.querySelector('#connection').textContent = source && s.screens[source] === false ? '当前桌宠的投屏已断开' : labels[s.output.usb] || s.output.error || '正在准备屏幕输出…';
-    const live = source && s.activeSources?.includes(source);
-    document.querySelector('#frame').hidden = !live;
-    if (live) document.querySelector('#frame').src = '/frame.png?source='+source+'&t='+Date.now();
-  } catch (error) { document.querySelector('#connection').textContent = '桌宠服务已关闭；重新启用插件后可继续连接。'; }
-  setTimeout(refresh,700);
-}
-document.querySelectorAll('button').forEach(button => button.onclick = async () => {
-  button.disabled = true;
-  try {
-    if (!source) throw new Error('请先在 DSH 或 ChatGPT / Codex 中启用桌宠。');
-    if (button.dataset.source) {
-      await post('/device/source', {source:button.dataset.source});
-      document.querySelector('#result').textContent = '已切换投屏画面。';
-    } else if (button.dataset.screen !== undefined || button.dataset.takeover) {
-      await post('/device/connection', {source,enabled:button.dataset.screen !== 'false'});
-      if (button.dataset.takeover) {
-        const result = await post('/device/takeover', {});
-        document.querySelector('#result').textContent = result.message;
-      } else document.querySelector('#result').textContent = button.dataset.screen === 'false' ? '已断开当前桌宠的投屏。' : '已请求连接当前桌宠，请查看下方状态。';
-    } else {
-      if (explicitSource !== 'chatgpt') throw new Error('请在对应宿主中控制桌宠。');
-      await post('/event', {source:'chatgpt',action:button.dataset.action || 'update',...(button.dataset.state ? {state:button.dataset.state} : {})});
-      document.querySelector('#result').textContent = '已更新 ChatGPT 桌宠。';
-    }
-  } catch (error) { document.querySelector('#result').textContent = error.message; }
-  finally { button.disabled = false; }
-});
-document.querySelector('#duet').onchange = async event => { try { await post('/duet', {mode:event.target.value}); } catch(error) { document.querySelector('#result').textContent = error.message; } };
-refresh();
+async function refresh(){try{const r=await fetch('/state');if(!r.ok)throw Error();render(await r.json());}catch{$('badge').textContent='服务未连接';$('connection').textContent='请在宿主中重新启用桌宠，页面会自动重连。';document.querySelectorAll('button,select').forEach(b=>b.disabled=true);} }
+async function act(task){if(busy)return;busy=true;if(state)render(state);try{await task();}catch(e){$('result').textContent=e.message;}finally{busy=false;await refresh();}}
+document.querySelectorAll('[data-source]').forEach(b=>b.onclick=()=>act(async()=>{const s=await post('/device/source',{source:b.dataset.source});render(s);$('result').textContent='已选择'+$(b.dataset.source+'-name').textContent+'。';}));
+$('connect').onclick=()=>act(async()=>{await post('/device/connection',{source,enabled:true});$('result').textContent='正在连接；连接成功后右上角会显示“正在投屏”。';});
+$('disconnect').onclick=()=>act(async()=>{await post('/device/connection',{source,enabled:false});$('result').textContent='已断开所选桌宠投屏；其他在线来源仍可接替。';});
+$('takeover').onclick=()=>act(async()=>{const r=await post('/device/takeover',{});await post('/device/connection',{source,enabled:true});$('result').textContent=r.message;});
+$('duet').onchange=()=>{const mode=$('duet').value;return act(async()=>{await post('/duet',{mode});$('result').textContent=mode==='off'?'已关闭双人互动。':'已保存互动选择；双方画面就绪后开始。';});};
+(async function poll(){await refresh();setTimeout(poll,1000);})();
 </script>
 </html>

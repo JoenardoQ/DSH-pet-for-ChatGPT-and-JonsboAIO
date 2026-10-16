@@ -19,6 +19,8 @@ for item in items:
  for top,bottom in row_bounds:
   for col in range(columns):
    tile=sheet.crop((round(col*sheet.width/columns),top,round((col+1)*sheet.width/columns),bottom))
+   # Explicit extraction masks remove neighbouring-cell fragments, never rescale the character.
+   for box in item.get('tileMasks',{}).get(str(len(frames)),[]):tile.paste((0,0,0,0),tuple(box))
    # Constant cell geometry for every frame; never independently auto-crop/scale
    # characters, which would introduce camera jitter.
    scale=min(584/tile.width,336/tile.height)
@@ -35,12 +37,12 @@ for item in items:
   q.paste(255,mask=f.getchannel('A').point(lambda a:255 if a<128 else 0))
   q.info['transparency']=255;encoded.append(q)
  target=out/(name+'.gif')
- encoded[0].save(target,save_all=True,append_images=encoded[1:],duration=120,loop=0,disposal=2,transparency=255,optimize=False)
+ encoded[0].save(target,save_all=True,append_images=encoded[1:],duration=300,loop=0,disposal=2,transparency=255,optimize=False)
  check=Image.open(target);assert check.n_frames==columns*rows,(name,check.n_frames)
  hashes=[]
  for i in range(check.n_frames):check.seek(i);hashes.append(hashlib.sha256(check.convert('RGBA').tobytes()).hexdigest())
  assert len(set(hashes))>=12,(name,'not enough different articulated frames')
- report.append({'id':name,'file':str(target.relative_to(root)).replace('\\','/'),'frames':check.n_frames,'uniqueFrames':len(set(hashes)),'durationMs':120*check.n_frames,'grid':[columns,rows],'rowBounds':row_bounds,'bytes':target.stat().st_size,'sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'prompt':item['prompt'],'source':str((sources/(name+'.png')).relative_to(root)).replace('\\','/'),'mode':'built-in image_gen; mechanical sprite-sheet to GIF export'})
+ report.append({'id':name,'file':str(target.relative_to(root)).replace('\\','/'),'frames':check.n_frames,'uniqueFrames':len(set(hashes)),'durationMs':300*check.n_frames,'grid':[columns,rows],'rowBounds':row_bounds,'tileMasks':item.get('tileMasks',{}),'bytes':target.stat().st_size,'sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'prompt':item['prompt'],'source':str((sources/(name+'.png')).relative_to(root)).replace('\\','/'),'mode':'built-in image_gen; mechanical sprite-sheet to GIF export'})
  (sources/(name+'.json')).write_text(json.dumps(report[-1],ensure_ascii=False,indent=2)+'\n',encoding='utf8')
  print(name,check.n_frames,len(set(hashes)),target.stat().st_size)
 metadata=out.parent/'animation-generation.json'

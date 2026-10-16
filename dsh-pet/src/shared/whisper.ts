@@ -90,6 +90,7 @@ export function createMemeImage(name?: string, base = '/dsh-pet-7340', assetRoot
   injectMemeBubbleCss();
   const img = document.createElement('img');
   img.className = MEME_IMG_CLASS;
+  img.crossOrigin = 'anonymous';
   img.src = memeImageUrl(key, base, assetRoot);
   img.alt = key;
   return img;

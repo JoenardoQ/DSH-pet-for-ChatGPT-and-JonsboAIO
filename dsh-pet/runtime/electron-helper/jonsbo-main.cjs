@@ -39,7 +39,7 @@ ipcMain.handle('jonsbo:frame', async (event, payload) => {
       checkedAt = Date.now();
       const status = await client.status();
       const usb = status.output.usb;
-      if (['missing-sdk', 'missing-driver', 'busy', 'error'].includes(usb) && usb !== lastNotice) {
+      if (['missing-sdk', 'missing-driver', 'busy', 'permission-required', 'error'].includes(usb) && usb !== lastNotice) {
         lastNotice = usb;
         const notice = new Notification({
           title: ({fish:'大肥鱼',whale:'鲸鱼娘',chatgpt:'ChatGPT 娘'}[payload.character]||'桌宠')+' · 乔斯伯屏幕',

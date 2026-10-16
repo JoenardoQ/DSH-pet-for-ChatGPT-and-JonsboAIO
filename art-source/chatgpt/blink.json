@@ -3,7 +3,7 @@
   "file": "dsh-pet/assets/pets/chatgpt/gif/blink.gif",
   "frames": 12,
   "uniqueFrames": 12,
-  "durationMs": 1440,
+  "durationMs": 3600,
   "grid": [
     4,
     3
@@ -23,7 +23,7 @@
     ]
   ],
   "bytes": 629832,
-  "sha256": "87f18ca31ecc0dbd6f7697e5cb6a2a77048d5cdef329a8afd62c47f9274c21f0",
+  "sha256": "5d0100b58ac042d1b6dcd51a813421a6cae42532b4197d914ce18d249692966d",
   "prompt": "Use case: illustration-story. Recreate production animation SPRITE SHEET with 16 sequential drawings in EXACT 4 columns by 4 rows. CRITICAL FRAMING FIX: previously characters were zoomed and cut off at shins. Now EACH full character must occupy ONLY 65% OF ITS CELL HEIGHT, centered vertically/horizontally, leaving 17.5% EMPTY TRANSPARENT PADDING at TOP and BOTTOM of EVERY CELL and enough margin left/right for wings. Every cell must contain complete horns, head, dress hem, shoes, entire tail and wing tips. Do not zoom! 16 equal SQUARE tiles, blank transparent gaps delineate cells. No grid lines text labels watermark. Reference 1 defines adult silver-white very long-haired ivory-horned lavender dragon girl, purple eyes/wings/tail, ornate white-lilac rose dress. Preserve design in detailed anime cel shading. Fixed scale position camera. 16 different successive articulated poses, continuous natural loop with anticipation/follow-through. Not affine transformed static images. Action: Blinking and shy winking loop: soft head tilt, both eyelids half-close then close then open, raise hand beside cheek with two fingers, wink and blush, lower hand and return.",
   "source": "art-source/chatgpt/blink.png",
   "mode": "built-in image_gen; mechanical sprite-sheet to GIF export"

@@ -631,6 +631,9 @@ var GifPlayer = class {
 		this.timer = null;
 		this.request = null;
 		this.generation = 0;
+		this.once = false;
+		this.url = null;
+		this.ended = () => {};
 		this.canvas = document.createElement("canvas");
 		this.canvas.width = 640;
 		this.canvas.height = 360;
@@ -648,6 +651,7 @@ var GifPlayer = class {
 	}
 	stop() {
 		this.generation++;
+		this.url = null;
 		this.request?.abort();
 		this.request = null;
 		if (this.timer !== null) clearTimeout(this.timer);
@@ -658,7 +662,11 @@ var GifPlayer = class {
 		this.canvas.style.display = "none";
 	}
 	async play(url, once, ended) {
+		this.once = once;
+		this.ended = ended;
+		if (this.url === url && this.timer !== null) return;
 		this.stop();
+		this.url = url;
 		const gen = this.generation;
 		this.request = new AbortController();
 		const response = await fetch(url, { signal: AbortSignal.any([this.request.signal, AbortSignal.timeout(1e4)]) });
@@ -711,9 +719,9 @@ var GifPlayer = class {
 				if (gen !== this.generation) return;
 				index++;
 				if (index === count) {
-					if (once) {
+					if (this.once) {
 						this.timer = null;
-						ended();
+						this.ended();
 						return;
 					}
 					index = 0;
@@ -722,6 +730,9 @@ var GifPlayer = class {
 			}, duration);
 		};
 		await draw();
+	}
+	finishLoop() {
+		this.once = true;
 	}
 	dispose() {
 		this.stop();
@@ -3410,6 +3421,7 @@ function makePetConfigSection(rt) {
 //#region src/client/pet.ts
 const statePoller = { now: () => {} };
 /** 播放动画扩展名 = 共享常量（src/shared/constants.ts 的 ANIMATION_EXT，默认 .webm）。
+
 *  macOS Safari/WKWebView 需改共享常量/产物为 .mov（HEVC-with-Alpha）后自构建。 */
 const THUMB_EXT = ANIMATION_EXT;
 /** 余额气泡展示时长（ms）：定时自动消失，与动画生命周期解耦 */
@@ -3745,6 +3757,7 @@ function makePetUI(rt) {
 				if (poolIncludes(petAnims.events?.workStatus ?? [], animRef.current)) {
 					const front = frontRef.current === 0 ? videoARef.current : videoBRef.current;
 					if (front) {
+						gifRef.current?.finishLoop();
 						front.loop = false;
 						front.onended = handleEnded;
 					}
@@ -3973,6 +3986,7 @@ function makePetUI(rt) {
 			moveRef.current = requestAnimationFrame(step);
 		};
 		/** 尝试发起一次移动：占用中返回 true（不重播），无法移动返回 false，成功返回动作名（供日志显示具体动作）。
+
 		*  preferredName 传入时固定使用该动画（右键菜单点播移动动画），否则与随机链一致随机从 moves.actions 选。 */
 		const tryMove = (preferredName) => {
 			if (moveRef.current !== null || pendingMoveRef.current || throwRef.current !== null) return true;
@@ -4030,7 +4044,9 @@ function makePetUI(rt) {
 			};
 		};
 		/** 停止抛掷（宠物在空中被抓住/点菜单/回家时立即定格在当前落点）。
+
 		*  同时清速度状态 throwStateRef——否则「抓住后温柔放下」会残留最后一次飞行速度，
+
 		*  静止的宠物点一下就误判为飞行中。点击积分用的飞行动态由 pointerdown 提前记录。 */
 		const stopThrow = () => {
 			throwTokenRef.current++;
@@ -4234,7 +4250,9 @@ function makePetUI(rt) {
 			arena
 		]);
 		/** Q 弹挤压：前台视频垂直压扁（贴地锚定，transform-origin:bottom）再回弹；
+
 		*  与桌面同构，曲线在 shared（squashScale）。depth = 下压幅度（点击固定 0.55；
+
 		*  落地按冲击速度 landingSquash 动态取）。reduce-motion 时跳过。 */
 		const startSquash = (el, depth = SQ_SQUASH) => {
 			if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -4267,8 +4285,11 @@ function makePetUI(rt) {
 		const facingRef = useRef(facing);
 		facingRef.current = facing;
 		/** 把提示框摆到光标右下（右边/下边装不下自动翻边并夹回视口内）。
+
 		*  直接写 DOM style 而不走 React 状态：鼠标每动一下都更新状态会让整个 PetCard 重渲染，
+
 		*  代价远大于这一次样式写入（root 的位置也是这么直接写的）。
+
 		*  bounds 用视口——提示是 position:fixed，坐标就是 clientX/clientY 这一套。 */
 		const placeTip = (clientX, clientY) => {
 			const tipEl = tipRef.current;
@@ -4682,7 +4703,9 @@ function makePetUI(rt) {
 		useEffect(() => {
 			let alive = true;
 			/** 唯一填充点：host 成品聚合 → 渲染列表。初始加载与设置页保存/同步后重载都走这里——
+
 			*  条目级字段（动画池/权重/刷新周期/物理参数/工作状态文案）只由 flattenConfigPets 吹入，
+
 			*  容器不再自己拼任何字段（曾经的第二份补吹实现漏过 physics，导致新增/同步后拖不动）。 */
 			const applyMerged = (merged) => {
 				const main = merged?.main;

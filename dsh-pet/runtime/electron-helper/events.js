@@ -26,6 +26,7 @@ PetSprite.prototype.onWorkTick = function onWorkTick(snapshot, tick) {
     // 那段工作动画上。只把当前段改成播完即停：它结束后走 handleEnded → resumeWorkStatusAnim() 返回
     // false → playIdle；工作期间的原生 loop 不受影响。
     if (S.poolIncludes(this.animations.events?.workStatus ?? [], this.anim)) {
+      this.gifPlayer.finishLoop();
       const frontEl = this.front === 0 ? this.videoA : this.videoB;
       if (frontEl) {
         frontEl.loop = false;
@@ -89,6 +90,7 @@ PetSprite.prototype.onWorkTick = function onWorkTick(snapshot, tick) {
       : null; // 非终态：常驻，不设自动收起
   }
   this.renderBubble();
+  if (!stateChanged) return; // Task text updates must not restart the same action.
   // 循环语义（与浏览器 setOnce 一致）：终态播一遍回 idle；非终态多候选档位播一遍 →
   // ended 由 sprite.handleEnded 轮换到下一候选（长时间状态不单段重复）；非终态单候选档位无限循环。
   const rotating = !terminal && Array.isArray(slot) && slot.length > 1;

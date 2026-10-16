@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import http from 'node:http';
 import { spawn } from 'node:child_process';
 import { mkdirSync, existsSync, writeFileSync, readFileSync, renameSync } from 'node:fs';
@@ -46,7 +47,7 @@ export function createBridge({ launch = true } = {}) {
       service: 'dsh-pet-jonsbo',
       shuttingDown:shuttingDown || lifecycleClosing,
       version: 3,
-      build: '1.0.0',
+      build: '1.0.1',
       pid: process.pid,
       visible: control.visible || !!f,
       control: currentControl(),
@@ -56,6 +57,8 @@ export function createBridge({ launch = true } = {}) {
       frameAt: f?.at,
       output,
       activeSources: [...sources.frames.keys()],
+      selectedSource: sources.preferred,
+      characters: Object.fromEntries([...sources.frames].map(([key, frame]) => [key, frame.character])),
       duet: duets.snapshot(sources, currentControl()),
       connections: control.connections,
       screens: { chatgpt: control.screen, dsh: screenEnabled.dsh },
@@ -215,11 +218,11 @@ export function createBridge({ launch = true } = {}) {
         mkdirSync(dataDir, { recursive: true });
         writeFileSync(
           path.join(dataDir, 'config.json'),
-          JSON.stringify({ ...config(), autoTakeover: true, forceTakeover: true, restoreOnExit: true }, null, 2),
+          JSON.stringify({ ...config(), autoTakeover: true, forceTakeover: true, restoreOnExit: true, takeoverRequest: randomUUID() }, null, 2),
         );
         return send(200, {
           ok: true,
-          message: '已允许接管；会先请求退出，再结束占用屏幕的 JONSBO-AIO，退出桌宠时恢复。',
+          message: '正在接管。若官方程序以管理员运行，Windows 会请求一次权限；允许后自动重试连接，取消后不会反复弹窗。',
         });
       }
       if (url.pathname === '/shutdown') {

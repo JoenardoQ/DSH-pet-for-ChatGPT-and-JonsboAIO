@@ -488,6 +488,7 @@ function createMemeImage(name, base = "/dsh-pet-7340", assetRoot = "") {
 	injectMemeBubbleCss();
 	const img = document.createElement("img");
 	img.className = MEME_IMG_CLASS;
+	img.crossOrigin = "anonymous";
 	img.src = memeImageUrl(key, base, assetRoot);
 	img.alt = key;
 	return img;
@@ -1923,6 +1924,9 @@ var GifPlayer = class {
 		this.timer = null;
 		this.request = null;
 		this.generation = 0;
+		this.once = false;
+		this.url = null;
+		this.ended = () => {};
 		this.canvas = document.createElement("canvas");
 		this.canvas.width = 640;
 		this.canvas.height = 360;
@@ -1940,6 +1944,7 @@ var GifPlayer = class {
 	}
 	stop() {
 		this.generation++;
+		this.url = null;
 		this.request?.abort();
 		this.request = null;
 		if (this.timer !== null) clearTimeout(this.timer);
@@ -1950,7 +1955,11 @@ var GifPlayer = class {
 		this.canvas.style.display = "none";
 	}
 	async play(url, once, ended) {
+		this.once = once;
+		this.ended = ended;
+		if (this.url === url && this.timer !== null) return;
 		this.stop();
+		this.url = url;
 		const gen = this.generation;
 		this.request = new AbortController();
 		const response = await fetch(url, { signal: AbortSignal.any([this.request.signal, AbortSignal.timeout(1e4)]) });
@@ -2003,9 +2012,9 @@ var GifPlayer = class {
 				if (gen !== this.generation) return;
 				index++;
 				if (index === count) {
-					if (once) {
+					if (this.once) {
 						this.timer = null;
-						ended();
+						this.ended();
 						return;
 					}
 					index = 0;
@@ -2014,6 +2023,9 @@ var GifPlayer = class {
 			}, duration);
 		};
 		await draw();
+	}
+	finishLoop() {
+		this.once = true;
 	}
 	dispose() {
 		this.stop();

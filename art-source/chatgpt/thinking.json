@@ -3,7 +3,7 @@
   "file": "dsh-pet/assets/pets/chatgpt/gif/thinking.gif",
   "frames": 16,
   "uniqueFrames": 16,
-  "durationMs": 1920,
+  "durationMs": 4800,
   "grid": [
     4,
     4
@@ -27,7 +27,7 @@
     ]
   ],
   "bytes": 817996,
-  "sha256": "f51c8ea4ded7e606fd9c6b2133e861c7248b70860104f722698f846f968492a8",
+  "sha256": "d8d1ec3f768ed0aecdb6b5aca679f48011b3b586ac770bdfb937e64f6ea8f398",
   "prompt": "Use case: illustration-story. Recreate production animation SPRITE SHEET with 16 sequential drawings in EXACT 4 columns by 4 rows. CRITICAL FRAMING FIX: previously characters were zoomed and cut off at shins. Now EACH full character must occupy ONLY 65% OF ITS CELL HEIGHT, centered vertically/horizontally, leaving 17.5% EMPTY TRANSPARENT PADDING at TOP and BOTTOM of EVERY CELL and enough margin left/right for wings. Every cell must contain complete horns, head, dress hem, shoes, entire tail and wing tips. Do not zoom! 16 equal SQUARE tiles, blank transparent gaps delineate cells. No grid lines text labels watermark. Reference 1 defines adult silver-white very long-haired ivory-horned lavender dragon girl, purple eyes/wings/tail, ornate white-lilac rose dress. Preserve design in detailed anime cel shading. Fixed scale position camera. 16 different successive articulated poses, continuous natural loop with anticipation/follow-through. Not affine transformed static images. Action: A thoughtful loop: tap chin with finger, look upward, lift finger with a proud realization, return hand to chin; hair, tail and wings gently follow the gesture.",
   "source": "art-source/chatgpt/thinking.png",
   "mode": "built-in image_gen; mechanical sprite-sheet to GIF export"

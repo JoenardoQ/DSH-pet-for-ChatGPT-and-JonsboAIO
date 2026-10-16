@@ -3,9 +3,9 @@
   "file": "dsh-pet/assets/pets/duo/gif/gaming.gif",
   "frames": 16,
   "uniqueFrames": 16,
-  "durationMs": 1920,
+  "durationMs": 4800,
   "bytes": 1177054,
-  "sha256": "95be843bd74349f817c597eec0f47159a65828aea6519fb24fa1fd839fce75f6",
+  "sha256": "7e68a610b9f3d0f99a1a0b3b1b2501f3beb5b0fc31fe8983b6a58525235b2da9",
   "prompt": "Use case: illustration-story. Production GIF ANIMATION SPRITE SHEET. EXACTLY 4 columns x 4 rows of equal square cells containing 16 consecutive sequential different frames of ONE natural loop in row-major order. Fully transparent background, no grid, NO TEXT/no labels/no watermark. Every cell contains the same TWO FULL BODY HUMAN girls together with fixed camera scale and baseline; safe margins. Ref1: adult elegant silver-white long-haired dragon girl, ivory horns, purple eyes, lavender wings and long tail, white/lilac rose dress. Ref2: ROUND CHIBI HUMAN BLUE-HAIRED MAID, big round face, short cute chubby body, blue eyes, frilly white headband, navy maid dress white apron whale emblem, human hands feet. 'Fat fish' is ONLY her nickname, never an animal! Preserve both appearances in all frames, anime cel-shaded detailed consistent. True articulated animation, progressive joint poses, anticipation/action/follow-through, NOT static copies with whole-body translation or wobble. Scene: Fighting video game tournament: BOTH human girls sit on little stools holding game controllers, facing a small central screen with abstract purple/blue game shapes only (no text/logos). Blue chibi maid enthusiastically leans forward tapping buttons, silver girl tilts controller with intense proud face, brief triumphant fist pump then both reset.",
   "source": "art-source/duo/gaming.png",
   "mode": "built-in image_gen; mechanical sprite-sheet to GIF export"
